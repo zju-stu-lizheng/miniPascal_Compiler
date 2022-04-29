@@ -1,20 +1,21 @@
 %option noyywrap yylineno caseless
 %{
-    define YYSTYPE char*
+#define YYSTYPE char*
+#define yylval char*
 
-    #include <cstring>
-    #include "pascal.y.hpp"
-    using namespace std;
-    int yycolumn = 1
-    #define YY_USER_ACTION yylloc.first_line = yylloc.last_line = yylineno; \
+#include <cstring>
+#include "pascal.h"
+using namespace std;
+int yycolumn = 1
+#define YY_USER_ACTION yylloc.first_line = yylloc.last_line = yylineno; \
 	yylloc.first_column = yycolumn; yylloc.last_column = yycolumn + yyleng - 1; \
     yycolumn += yyleng;
 
-    #ifdef DEBUG_LEXER
-    #define OUR_RETURN(X) printf(#X); printf("\n");// return (X);
-    #else
-    #define OUR_RETURN(X) return(X);
-    #endif
+#ifdef DEBUG_LEXER
+#define OUR_RETURN(X) printf(#X); printf("\n");// return (X);
+#else
+#define OUR_RETURN(X) return(X);
+#endif
 %}
 
 KEY_ABSOLUTE absolute
@@ -42,7 +43,7 @@ KEY_DIV div
 KEY_DO do
 KEY_DOWNTO downto
 KEY_DYNAMIC dynamic
-KEY_else else
+KEY_ELSE else
 KEY_END end
 KEY_EXCEPT except
 KEY_EXPORT export
@@ -110,7 +111,6 @@ KEY_SHL shl
 KEY_SHR shr
 KEY_STDCALL stdcall
 KEY_STORED stored
-KEY_STRING string
 KEY_THEN then
 KEY_THREADVAR threadvar
 KEY_TO to
@@ -496,7 +496,7 @@ IDENTIFIER [a-zA-Z_][a-zA-Z0-9_]*
 }
 
 {KEY_REGISTER} {
-    KEY_REGISTER
+    OUR_RETURN(KEY_REGISTER)
 }
 
 {KEY_REINTRODUCE} {
@@ -545,10 +545,6 @@ IDENTIFIER [a-zA-Z_][a-zA-Z0-9_]*
 
 {KEY_STORED} {
     OUR_RETURN(KEY_STORED)
-}
-
-{KEY_STRING} {
-    OUR_RETURN(KEY_STRING)
 }
 
 {KEY_THEN} {
