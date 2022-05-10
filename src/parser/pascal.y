@@ -134,7 +134,31 @@ name_list:
 ;
 
 array_type_decl:
-    KWD_ARRAY SYM_LBRAC simple_type_decl SYM_RBRAC KWD_OF type_decl
+    KEY_ARRAY SYM_LBRAC simple_type_decl SYM_RBRAC KEY_OF type_decl
 ;
+
+record_type_decl:
+    KEY_RECORD field_decl_list KEY_END
+;
+
+field_decl_list:
+    field_decl_list field_decl
+    | field_decl
+;
+
+field_decl:
+    name_list SYM_COLON type_decl SYM_SEMICOLON
+;
+
+var_decl_list:
+    var_decl_list var_decl | var_decl
+;
+
+vec_decl:
+    name_list SYM_COLON type_decl SYM_SEMICOLON
+;
+
+
+
 
 %%
