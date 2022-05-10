@@ -1,6 +1,6 @@
 #include <iostream>
+#include <string>
 
-using namespace std;
 
 class AST_BaseNode{
     private:
