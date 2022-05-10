@@ -264,7 +264,7 @@ Type BetterRPoint = Record X,Y,Z : Real;
 
 23. var_decl_list -> var_decl_list var_decl | var_decl
 
-24. var_decl -> name_list : type_decl
+24. var_decl -> name_list ':' type_decl ';'
 
 ```pascal
 //这里与Type声明几乎一样
