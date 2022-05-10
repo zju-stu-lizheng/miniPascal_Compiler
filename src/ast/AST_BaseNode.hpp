@@ -1,6 +1,6 @@
 #include <iostream>
+#include <string>
 
-using namespace std;
 
 class AST_BaseNode{
     private:
@@ -8,29 +8,29 @@ class AST_BaseNode{
         int column;
         int row;
     public:
-        AST_BaseNode(int _column, int _row):column(_column), row(_row){
-
-        }
-        GetColumn(){
+        AST_BaseNode(); //default
+        AST_BaseNode(int _column, int _row):column(_column), row(_row){}
+        int GetColumn() const{
             return this->column;
         }
-        GetRow(){
+        int GetRow() const{
             return this->row;
         }
-        GetLocation(){
+        std::pair<int,int> GetLocation() const{
             return std::make_pair(this->column, this->row);
         }
-        SetColumn(int _column){
+
+        void SetColumn(int _column){
             this->column = _column;
         }
-        SetRow(int _row){
+        void SetRow(int _row){
             this->row = _row;
         }
-        SetLocation(std::pair<int, int> location){
+        void SetLocation(std::pair<int, int> location){
             this->column = location.first;
             this->row = location.second;
         }
-        SetLocation(int _column, int _row){
+        void SetLocation(int _column, int _row){
             this->column = _column;
             this->row = _row;
         }
