@@ -1,18 +1,17 @@
 %option noyywrap yylineno caseless
 %{
-#define YYSTYPE char*
-#define yylval char*
-
 #include <cstring>
-#include "pascal.h"
+#define YYSTYPE char*
+#include "pascal.y.hpp"
+
 using namespace std;
-int yycolumn = 1
+int yycolumn = 1;
 #define YY_USER_ACTION yylloc.first_line = yylloc.last_line = yylineno; \
 	yylloc.first_column = yycolumn; yylloc.last_column = yycolumn + yyleng - 1; \
     yycolumn += yyleng;
 
 #ifdef DEBUG_LEXER
-#define OUR_RETURN(X) printf(#X); printf("\n");// return (X);
+#define OUR_RETURN(X) cout << (#X) << endl;
 #else
 #define OUR_RETURN(X) return(X);
 #endif

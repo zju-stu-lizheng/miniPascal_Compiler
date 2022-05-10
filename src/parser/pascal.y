@@ -1,11 +1,19 @@
-%{
-#include <stdio.h>
-#define MAX_LITERAL_LEN 256
+%code requires {
+#include <iostream>
+}
 
+%{
+#define MAX_LITERAL_LEN 256
+extern int yylex(void);
+// 在此声明，消除yacc生成代码时的警告
+extern int yyparse(void); 
+void yyerror(const char *str);
+using namespace std;
 %}
 
 %locations
 
+%token KEY_BREAK KEY_EXIT
 %token TYPE_INT TYPE_INT_8 TYPE_INT_16 TYPE_INT_32 TYPE_INT_64
 %token TYPE_UNSIGNED_INT_8 TYPE_UNSIGNED_INT_16 TYPE_UNSIGNED_INT_32 TYPE_UNSIGNED_INT_64 
 %token TYPE_BOOLEAN TYPE_FLOAT TYPE_FLOAT_16 TYPE_FLOAT_32 TYPE_CHAR TYPE_STRING
@@ -22,36 +30,36 @@
 %%
 program: 
     pro_head routine SYM_PERIOD {
-        printf("------program------\n");
+        cout << "hello world" << endl;
     }
 ;
 
 pro_head:
     KEY_PROGRAM IDENTIFIER SYM_SEMICOLON{
-        printf("----program head----\n");
     }
 ;
 
 routine:
-    routine_head  routine_body
+    routine_head routine_body{}
 ;
 
 routine_head:
-    const_part type_part var_part routine_part
+    const_part type_part var_part routine_part{}
 ;
 
 const_part:
-    KEY_CONST const_expr_list | %empty 
+    KEY_CONST const_expr_list 
+    | 
 ;
 
 type_part:
     KEY_TYPE type_decl_list 
-    | %empty
+    | 
 ;
 
 var_part:
-    KEY_VAR var_decl_list |
-    %empty
+    KEY_VAR var_decl_list 
+    |
 ;
 
 routine_part:
@@ -59,7 +67,7 @@ routine_part:
     | routine_part procedure_decl 
     | function_decl 
     | procedure_decl
-    | %empty
+    | 
 ;
 
 routine_body:
@@ -140,7 +148,7 @@ var_decl_list:
     var_decl_list var_decl | var_decl
 ;
 
-vec_decl:
+var_decl:
     name_list SYM_COLON type_decl SYM_SEMICOLON
 ;
 
@@ -161,8 +169,8 @@ procedure_head:
 ;
 
 parameters:
-    SYM_LPAREN para_decl_list SYM_RPAREN 
-    | %empty 
+    SYM_LPAREN para_decl_list SYM_RPAREN {}
+    | {}
 ;
 
 para_decl_list:
@@ -185,6 +193,7 @@ val_para_list:
 
 stmt_list:
     stmt_list stmt SYM_SEMICOLON
+    | 
 ;
 
 stmt:
@@ -228,8 +237,8 @@ if_stmt:
 ;
 
 else_clause:
-    KEY_ELSE stmt 
-    | %empty
+    KEY_ELSE stmt {}
+    | {}
 ;
 
 case_stmt:

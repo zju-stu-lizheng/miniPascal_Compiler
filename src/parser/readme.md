@@ -3,9 +3,14 @@
 ## %type的含义
 
 3.7.4 [Nonterminal Symbols](https://www.gnu.org/software/bison/manual/bison.html#Type-Decl)
+
+
 When you use %union to specify multiple value types, you must declare the value type of each nonterminal symbol for which values are used. This is done with a %type declaration, like this:
 
+
 %type <type> nonterminal…
+
+
 Here nonterminal is the name of a nonterminal symbol, and type is the name given in the %union to the alternative that you want (see The Union Declaration). You can give any number of nonterminal symbols in the same %type declaration, if they have the same value type. Use spaces to separate the symbol names.
 
 
@@ -316,8 +321,14 @@ end;
 ```
 
 32. var_para_list -> `var` name_list
+
+
 33. val_para_list -> name_list
-34. stmt_list -> stmt_list stmt ';'
+
+
+34. stmt_list ->
+    stmt_list stmt SYM_SEMICOLON
+    | 
 
 ```pascal
 //主体语句块，一系列语句组成 见ref Ch13.Statements
