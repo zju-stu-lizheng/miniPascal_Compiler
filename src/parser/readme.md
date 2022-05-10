@@ -1,5 +1,14 @@
 # 约定CFG
 
+## %type的含义
+
+3.7.4 [Nonterminal Symbols](https://www.gnu.org/software/bison/manual/bison.html#Type-Decl)
+When you use %union to specify multiple value types, you must declare the value type of each nonterminal symbol for which values are used. This is done with a %type declaration, like this:
+
+%type <type> nonterminal…
+Here nonterminal is the name of a nonterminal symbol, and type is the name given in the %union to the alternative that you want (see The Union Declaration). You can give any number of nonterminal symbols in the same %type declaration, if they have the same value type. Use spaces to separate the symbol names.
+
+
 ## 起始符为`program`
 
 1. program -> pro_head routine .
@@ -83,7 +92,6 @@ var_part:
     KEY_VAR var_decl_list |
     %empty
 ;
-;
 (* 
 Var
 curterm1 : integer;
@@ -120,7 +128,7 @@ routine_part:
 - [x] function_decl / procedure_decl 完成
 
 9. routine_body -> compound_stmt
-9. compound_stmt -> `begin` stmt_list `end`
+10. compound_stmt -> `begin` stmt_list `end`
 ```pascal
 compound_stmt:
     KEY_BEGIN stmt_list KEY_END
