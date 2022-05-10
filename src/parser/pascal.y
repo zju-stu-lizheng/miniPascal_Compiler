@@ -1,5 +1,6 @@
 %code requires {
 #include <iostream>
+#include "ast/AST_BaseNode.hpp"
 }
 
 %{
