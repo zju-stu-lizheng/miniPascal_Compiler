@@ -37,7 +37,7 @@ var_part:变量声明
 routine_part:函数/过程声明}
 ```
 
-5. const_part -> `const` const_decl_list | $\epsilon$ 
+5. const_part -> `const` const_decl_list | $\epsilon$
 ```pascal
 const_part:
     KEY_CONST const_expr_list | %empty 
@@ -54,10 +54,10 @@ P = Nil;
 Ss = [1,2];
 *)
 ```
-[x] const_decl_list 完成
+- [x] const_decl_list 完成
 
 
-6. type_part -> `type` type_decl_list | $\epsilon$ 
+6. type_part -> `type` type_decl_list | $\epsilon$
 ```pascal 
 type_part:
     KEY_TYPE type_decl_list 
@@ -75,9 +75,9 @@ Type
 Direction = ( North, East, South, West );
 *)
 ```
-[x] type_decl_list 完成
+- [x] type_decl_list 完成
 
-7. var_part -> `var` var_decl_list | $\epsilon$ 
+7. var_part -> `var` var_decl_list | $\epsilon$
 ```pascal 
 var_part:
     KEY_VAR var_decl_list |
@@ -100,13 +100,13 @@ curterm11 : integer = 1 ;
 *)
 ```
 
-[x] var_decl_list 完成
+- [x] var_decl_list 完成
 
 8. routine_part -> routine_part function_decl 
     | routine_part procedure_decl 
     | function_decl 
     | procedure_decl
-    | $\epsilon$ 
+    | $\epsilon$
 ```pascal
 routine_part:
     routine_part function_decl 
@@ -117,19 +117,21 @@ routine_part:
 ;
 (*函数和过程定义*)
 ```
-> function_decl / procedure_decl 待完成
+- [x] function_decl / procedure_decl 完成
 
-9. routine_body -> `begin` stmt_list `end`
+9. routine_body -> compound_stmt
+9. compound_stmt -> `begin` stmt_list `end`
 ```pascal
-routine_body:
+compound_stmt:
     KEY_BEGIN stmt_list KEY_END
 ;
 (* 主体程序块 *)
 ```
 
-> stmt_list 待完成
+- [x] stmt_list 待完成
 
-10. const_decl_list -> const_decl_list `const_name` = const_value ; | `const_name` = const_value ;
+11. const_decl_list -> const_decl_list `const_name` = const_value ; | `const_name` = const_value ;
+
 ```pascal
 const_expr_list:
     const_expr_list IDENTIFIER SYM_EQ const_value SYM_SEMICOLON 
@@ -140,7 +142,8 @@ const_value 根据不同的类型有不同的值
  *)
 ```
 
-11. const_value -> 2 | 3.3 | 'sun' | `false` | `true` 
+12. const_value -> 2 | 3.3 | 'sun' | `false` | `true` 
+
 ```pascal
 const_value:
     LITERAL_INT 
@@ -152,7 +155,8 @@ const_value:
 ;
 ```
 
-12. type_decl_list -> type_decl_list type_definition | type_definition
+13. type_decl_list -> type_decl_list type_definition | type_definition
+
 ```pascal
 type_decl_list :
     type_decl_list type_definition 
@@ -161,7 +165,8 @@ type_decl_list :
 (* 一系列类型定义组成 *)
 ```
 
-13. type_definition -> `type_name` = type_decl ;
+14. type_definition -> `type_name` = type_decl ;
+
 ```pascal
 type_definition:
     IDENTIFIER SYM_EQ type_decl SYM_SEMICOLON
@@ -171,7 +176,8 @@ type_definition:
  *)
 ```
 
-14. type_decl -> simple_type_decl | array_type_decl | record_type_decl
+15. type_decl -> simple_type_decl | array_type_decl | record_type_decl
+
 ```pascal
 type_decl:
     simple_type_decl 
@@ -183,12 +189,13 @@ type_decl:
  *)
 ```
 
-15. simple_type_decl -> 
+16. simple_type_decl -> 
     easy_type
     | `type_name`
     | '(' name_list ')'
     |  const_value  ..  const_value
     |  IDENTIFIER  ..  IDENTIFIER
+
 ```pascal
 simple_type_decl: 
     easy_type
@@ -208,23 +215,25 @@ simple_type_decl:
 
 ```
 
-16. easy_type -> TYPE_BOOLEAN | TYPE_CHAR | TYPE_INT | TYPE_FLOAT
+17. easy_type -> TYPE_BOOLEAN | TYPE_CHAR | TYPE_INT | TYPE_FLOAT
 
-17. name_list ->
+18. name_list ->
     name_list ',' IDENTIFIER
     | IDENTIFIER
+
 ```pascal
 //Example:
 monday,tuesday,wednesday,thursday,friday,saturday,sunday
 ```
 
-18. array_type_decl -> `array` '[' simple_type_decl ']' `of` type_decl
+19. array_type_decl -> `array` '[' simple_type_decl ']' `of` type_decl
+
 ```pascal
 //Example:
 Array[1..10000] of string
 ```
 
-19. record_type_decl -> `record` field_decl_list `end`
+20. record_type_decl -> `record` field_decl_list `end`
 
 ```pascal
 //一个record类型声明
@@ -237,33 +246,35 @@ Type BetterRPoint = Record X,Y,Z : Real;
                      end ;
 ```
 
-20. field_decl_list -> field_decl_list field_decl | field_decl
+21. field_decl_list -> field_decl_list field_decl | field_decl
 
-21. field_decl -> name_list ':' type_decl ';'
+22. field_decl -> name_list ':' type_decl ';'
+
 ```pascal
 //name_list为一串逗号分隔的标识符
 ```
 
-22. var_decl_list -> var_decl_list var_decl | var_decl
+23. var_decl_list -> var_decl_list var_decl | var_decl
 
-23. var_decl -> name_list : type_decl
+24. var_decl -> name_list : type_decl
+
 ```pascal
 //这里与Type声明几乎一样
 Var
 curTerm1 :integer;
 ```
 
-24. function_decl ->
+25. function_decl ->
     function_head ';' routine ';' 
+
 ```pascal
 //routine是程序主体块
 ```
 
-25. function_head->
+26. function_head->
     `function` IDENTIFIER parameters ':' simple_type_decl 
 
-
-26. procedure_decl->
+27. procedure_decl->
     procedure_head ';' routine ';'
 
 ```pascal
@@ -274,11 +285,184 @@ begin
 end;
 ```
 
-27. procedure_head->
+28. procedure_head->
     `procedure` IDENTIFIER parameters
+29. parameters -> '(' para_decl_list ')' | $\epsilon$
+30. para_decl_list -> para_decl_list ';' para_type_list | para_type_list
+31. para_type_list -> var_para_list ':' simple_type_decl | val_para_list ':' simple_type_decl
 
-28. parameters -> '(' para_decl_list ')' | $\epsilon$
+```pascal
+// 使用var:该过程获取一个指向已传递的变量的指针，并使用此指针来访问该变量的值。
+Procedure DoA(Var A : Integer);
+begin
+A:=2;
+Writeln('A is ',A);
+end;
+// 当参数被声明为值参数时，该过程将获得调用语句所传递的参数的副本。
+Const
+MyConst = 20;
+Procedure MyRealFunc(I : Integer );
+begin
+Writeln('Function received : ',I);
+end;
+```
 
-29. para_decl_list -> para_decl_list ';' para_type_list | para_type_list
+32. var_para_list -> `var` name_list
+33. val_para_list -> name_list
+34. stmt_list -> stmt_list stmt ';'
 
-30. para_type_list -> 
+```pascal
+//主体语句块，一系列语句组成 见ref Ch13.Statements
+```
+
+35. stmt -> label ':' non_label_stmt | non_label_stmt
+
+```pascal
+//考虑可以有label
+A label can be an identifier or an integer digit.
+```
+
+![image-20220510141519347](https://gitee.com/zjg_lz/pic-go/raw/master/static/image-20220510141519347.png)
+
+36. label -> LITERAL_INT | IDENTIFIER
+37. non_label_stmt -> assign_stmt
+
+  | proc_stmt
+
+  | compound_stmt
+
+  | if_stmt
+
+  | case_stmt
+
+  | repeat_stmt
+
+  | while_stmt
+
+  | for_stmt
+
+  | goto_stmt
+
+```pascal
+//排除label的语句类型
+1. 赋值语句
+2. 过程语句 : 例如 WriteLn('Pascal is an easy language !'); 表示对一个过程/函数的调用
+3. 复杂语句块 : 包含 begin...end
+4. 条件判断语句块 : 包含 if case
+5. 循环语句块 : 包括 repeat while for
+6. Go-to语句块
+```
+
+
+
+38. assign_stmt -> IDENTIFIER ':=' expression |
+
+​			IDENTIFIER '[' expression ']' ':=' expression |
+
+​			IDENTIFIER '.' IDENTIFIER ':=' expression
+
+```pascal
+//赋值语句,考虑 := 暂时不管 += , -= , *= , /=
+1. simple_type 
+2. array_type
+3. record_type
+//expression 是一个表达式,比如算术表达式，布尔表达式
+```
+
+
+
+39. proc_stmt -> IDENTIFIER |
+
+  IDENTIFIER '(' expression_list ')'
+
+40. if_stmt -> `if` expression `then` stmt else_clause
+41. else_clause -> `else` stmt | $\epsilon$
+42. case_stmt -> `case` expression `of` case_expr_list `end`
+43. case_expr_list -> case_expr_list case_expr | case_expr
+44. case_expr -> const_value ':' stmt ';' 
+
+```pascal
+//case的每一条记录，是一个常数匹配
+Var i : integer;
+...
+Case i of
+3 : DoSomething;
+5 : DoSomethingElse;
+end;
+```
+
+45. repeat_stmt -> `repeat` stmt_list `until` expression
+
+```pascal
+//repeat 循环例子
+repeat
+X := X/2
+until x<10e-3;
+```
+
+46. while_stmt -> `while` expression `do` stmt
+47. for_stmt -> `for` IDENTIFIER `:=` expression direction expression `do` stmt
+48. direction -> `to` | `downto`
+
+```pascal
+//使用to
+For Day := Monday to Friday do Work;
+//使用downto
+For I := 100 downto 1 do
+WriteLn ('Counting down : ',i);
+```
+
+49. goto_stmt -> `goto` label
+
+50. expression_list -> expression_list ',' expression | expression
+
+51. expression -> expression '>=' expr
+
+    | expression '>' expr
+
+    | expression '<=' expr
+
+    | expression '<' expr
+
+    | expression '=' expr
+
+    | expression '<>' expr
+
+    | expr
+
+52. expr -> expr '+' term
+
+    | expr '-' term
+
+    | expr `or` term
+
+    | term
+
+53. term -> term '*' factor
+
+    | term '/' factor
+
+    | term `div` factor
+
+    | term `mod` factor
+
+    | term `and` factor
+
+    | factor
+
+54. factor -> IDENTIFIER 
+
+    | IDENTIFIER '(' expression_list ')'
+
+    | const_value
+
+    | '(' expression ')'
+
+    | `not` factor
+
+    | `-` factor
+
+    | IDENTIFIER '[' expression ']'
+
+    | IDENTIFIER '.' IDENTIFIER
+
