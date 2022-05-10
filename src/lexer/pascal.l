@@ -1,10 +1,9 @@
 %option noyywrap yylineno caseless
 %{
-#define YYSTYPE char*
-#define yylval char*
-
 #include <cstring>
-#include "pascal.h"
+#include "pascal.y.hpp"
+
+#define YYSTYPE char*
 using namespace std;
 int yycolumn = 1
 #define YY_USER_ACTION yylloc.first_line = yylloc.last_line = yylineno; \

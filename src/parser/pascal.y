@@ -1,7 +1,8 @@
 %{
 #include <stdio.h>
 #define MAX_LITERAL_LEN 256
-
+extern int yylex(void);
+void yyerror(const char *str);
 %}
 
 %locations
@@ -33,25 +34,26 @@ pro_head:
 ;
 
 routine:
-    routine_head  routine_body
+    routine_head routine_body{}
 ;
 
 routine_head:
-    const_part type_part var_part routine_part
+    const_part type_part var_part routine_part{}
 ;
 
 const_part:
-    KEY_CONST const_expr_list | %empty 
+    KEY_CONST const_expr_list 
+    | 
 ;
 
 type_part:
     KEY_TYPE type_decl_list 
-    | %empty
+    | 
 ;
 
 var_part:
-    KEY_VAR var_decl_list |
-    %empty
+    KEY_VAR var_decl_list 
+    |
 ;
 
 routine_part:
@@ -59,7 +61,7 @@ routine_part:
     | routine_part procedure_decl 
     | function_decl 
     | procedure_decl
-    | %empty
+    | 
 ;
 
 routine_body:
@@ -140,7 +142,7 @@ var_decl_list:
     var_decl_list var_decl | var_decl
 ;
 
-vec_decl:
+var_decl:
     name_list SYM_COLON type_decl SYM_SEMICOLON
 ;
 
@@ -161,8 +163,8 @@ procedure_head:
 ;
 
 parameters:
-    SYM_LPAREN para_decl_list SYM_RPAREN 
-    | %empty 
+    SYM_LPAREN para_decl_list SYM_RPAREN {}
+    | {}
 ;
 
 para_decl_list:
@@ -185,6 +187,7 @@ val_para_list:
 
 stmt_list:
     stmt_list stmt SYM_SEMICOLON
+    | 
 ;
 
 stmt:
@@ -228,8 +231,8 @@ if_stmt:
 ;
 
 else_clause:
-    KEY_ELSE stmt 
-    | %empty
+    KEY_ELSE stmt {}
+    | {}
 ;
 
 case_stmt:
