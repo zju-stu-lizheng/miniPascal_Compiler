@@ -1,12 +1,19 @@
+%code requires {
+#include <iostream>
+}
+
 %{
-#include <stdio.h>
 #define MAX_LITERAL_LEN 256
 extern int yylex(void);
+// 在此声明，消除yacc生成代码时的警告
+extern int yyparse(void); 
 void yyerror(const char *str);
+using namespace std;
 %}
 
 %locations
 
+%token KEY_BREAK KEY_EXIT
 %token TYPE_INT TYPE_INT_8 TYPE_INT_16 TYPE_INT_32 TYPE_INT_64
 %token TYPE_UNSIGNED_INT_8 TYPE_UNSIGNED_INT_16 TYPE_UNSIGNED_INT_32 TYPE_UNSIGNED_INT_64 
 %token TYPE_BOOLEAN TYPE_FLOAT TYPE_FLOAT_16 TYPE_FLOAT_32 TYPE_CHAR TYPE_STRING
@@ -23,13 +30,12 @@ void yyerror(const char *str);
 %%
 program: 
     pro_head routine SYM_PERIOD {
-        printf("------program------\n");
+        cout << "hello world" << endl;
     }
 ;
 
 pro_head:
     KEY_PROGRAM IDENTIFIER SYM_SEMICOLON{
-        printf("----program head----\n");
     }
 ;
 
