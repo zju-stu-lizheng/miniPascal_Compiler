@@ -1,5 +1,5 @@
+#pragma once
 #include "AST_BaseNode.hpp"
-// #include ""
 
 class AST_Program: AST_BaseNode{
     private:
