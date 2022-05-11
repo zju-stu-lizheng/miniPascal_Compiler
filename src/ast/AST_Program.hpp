@@ -44,7 +44,6 @@ class AST_Program_Head: public AST_BaseNode{
         std::string Get_Identifier() const{
             return identifier;
         }
-
 };
 
 /*
@@ -104,16 +103,16 @@ class AST_Declaration_BaseClass: public AST_BaseNode{
         enum class ENUM_Declaration_Type{
             FUNCTION_DECLARATION,
             PROCEDURE_DECLARATION
-        }
+        };
         AST_Function_Declaration* function_declaration;
         AST_Procedure_Declaration* procedure_declaration;
         ENUM_Declaration_Type declaration_type;
     public:
         AST_Declaration_BaseClass(AST_Function_Declaration* _function_declaration):function_declaration(_function_declaration){
-            this->declaration_type = FUNCTION_DECLARATION;
+            this->declaration_type = ENUM_Declaration_Type::FUNCTION_DECLARATION;
         }
         AST_Declaration_BaseClass(AST_Procedure_Declaration* _procedure_declaration):procedure_declaration(_procedure_declaration){
-            this->declaration_type = PROCEDURE_DECLARATION;
+            this->declaration_type = ENUM_Declaration_Type::PROCEDURE_DECLARATION;
         }
         
         AST_Function_Declaration* Get_Function_Declaration() const{
@@ -126,7 +125,7 @@ class AST_Declaration_BaseClass: public AST_BaseNode{
             return this->declaration_type;
         }
 
-}
+};
 
 /*
 routine_part:  {function_decl | procedure_decl}
@@ -142,16 +141,16 @@ class AST_Routine_Part: public AST_BaseNode{
         std::vector<AST_Declaration_BaseClass*> declaration_list;
     public:
         void Add_Declaration(AST_Declaration_BaseClass* _declaration){
-            this->declaration_list.push_back(_declaration)
+            this->declaration_list.push_back(_declaration);
         }
         AST_Routine_Part(AST_Declaration_BaseClass* _declaration){
-            this->declaration_list.clear()
-            Add_Declaration(AST_Declaration_BaseClass* _declaration)
+            this->declaration_list.clear();
+            Add_Declaration(_declaration);
         }
         std::vector<AST_Declaration_BaseClass*> Get_Declaration_List() const{
             return declaration_list;
         }
-}
+};
 
 /*
 routine_body:
@@ -175,7 +174,7 @@ function_decl:
     function_head SYM_SEMICOLON routine SYM_SEMICOLON 
 ;
 */
-class AST_Function_Declaration: public AST_Declaration_BaseClass{
+class AST_Function_Declaration: public AST_BaseNode{
     private:
         AST_Function_Head* function_head;
         AST_Routine* routine;
@@ -219,13 +218,13 @@ procedure_decl:
     procedure_head SYM_SEMICOLON routine SYM_SEMICOLON
 ;
 */
-class AST_Procedure_Declaration: public  AST_Declaration_BaseClass{
+class AST_Procedure_Declaration: public  AST_BaseNode{
     private:
         AST_Procedure_Head* procedure_head;
         AST_Routine* routine;
     public:
         AST_Procedure_Declaration(AST_Procedure_Head* _procedure_head, AST_Routine* _routine):
-                                        procedure_head(_procedure_head), routine(_routine);
+                                        procedure_head(_procedure_head), routine(_routine){};
         AST_Procedure_Head* Get_Procedure_Head() const{
             return this->procedure_head;
         }
@@ -246,7 +245,7 @@ class AST_Procedure_Head: public AST_BaseNode{
         AST_Parameters* parameters;
     public:
         AST_Procedure_Head(std::string _identifier, AST_Parameters* _parameters):
-                            identifier(_identifier), parameters(_parameters);
+                            identifier(_identifier), parameters(_parameters){};
         std::string Get_Identifier() const{
             return this->identifier;
         }
@@ -267,11 +266,11 @@ class AST_Parameters: public AST_BaseNode{
     public:
         AST_Parameters() = default;
         AST_Parameters(AST_Parameters_Declaration_List* _parameters_declaration_list):
-                            parameters_declaration_list(_parameters_declaration_list);
+                            parameters_declaration_list(_parameters_declaration_list){};
         AST_Parameters_Declaration_List* Get_Parameters_Declaration_List() const{
             return this->parameters_declaration_list;
         }
-}
+};
 
 /*
 para_decl_list:
@@ -288,12 +287,12 @@ class AST_Parameters_Declaration_List: public AST_BaseNode{
         }
         AST_Parameters_Declaration_List(AST_Parameters_Type_List* _parameters_type_list){
             this->parameters_type_list_list.clear();
-            Add_Parameters_Type_List(AST_Parameters_Type_List* _parameters_type_list)
+            Add_Parameters_Type_List(_parameters_type_list);
         }
         std::vector<AST_Parameters_Type_List*> Get_Parameter_Type_List_List() const{
             return this->parameters_type_list_list;
         }
-}
+};
 
 
 /*
@@ -315,9 +314,9 @@ class AST_Parameters_Type_List: public AST_BaseNode{
         
     public:
         AST_Parameters_Type_List(AST_Variable_Parameters_List* _variable_parameters_list, AST_Simple_Type_Declaration* _simple_type_declaration):
-                                    variable_parameters_list(_variable_parameters_list), simple_type_declaration(_simple_type_declaration), list_type(VARIABLE_PARAMETERS_LIST){};
+                                    variable_parameters_list(_variable_parameters_list), simple_type_declaration(_simple_type_declaration), list_type(List_Type::VARIABLE_PARAMETERS_LIST){};
         AST_Parameters_Type_List(AST_Name_List* _name_list, AST_Simple_Type_Declaration* _simple_type_declaration):
-                                name_list(_name_list), simple_type_declaration(_simple_type_declaration), list_type(NAME_LIST){};
+                                name_list(_name_list), simple_type_declaration(_simple_type_declaration), list_type(List_Type::NAME_LIST){};
         AST_Variable_Parameters_List* Get_Variable_Parameters_List() const{
             return this->variable_parameters_list;
         }
