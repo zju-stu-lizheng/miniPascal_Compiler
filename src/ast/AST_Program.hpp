@@ -1,5 +1,9 @@
 #pragma once
 #include "AST_BaseNode.hpp"
+#include "AST_Type.hpp"
+#include "AST_Expression.hpp"
+
+class AST_Compound_Statement;
 
 class AST_Program: AST_BaseNode{
     private:
@@ -51,7 +55,7 @@ class AST_Routine_Head: AST_BaseNode{
     private:
         AST_Const_Part* const_part;
         AST_Type_Part* type_part;
-        AST_Var_Part* var_part;
+        AST_Variable_Part* var_part;
         AST_Routine_Part* routine_part;
     public:
         AST_Routine_Head(AST_Const_Part* _const_part, AST_Type_Part* _type_part, AST_Var_Part* _var_part, AST_Routine_Part* _routine_part):
@@ -62,7 +66,7 @@ class AST_Routine_Head: AST_BaseNode{
         AST_Type_Part* Get_Type_Part() const{
             return this->type_part;
         }
-        AST_Var_Part* Get_Var_Part() const{
+        AST_Variable_Part* Get_Var_Part() const{
             return this->var_part;
         }
         AST_Routine_Part* Get_Routine_Part() const{

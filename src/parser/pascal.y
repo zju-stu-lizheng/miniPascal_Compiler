@@ -379,45 +379,127 @@ goto_stmt:
 ;
 
 expression_list:
-    expression_list SYM_COMMA expression
-    | expression 
+    expression_list SYM_COMMA expression{
+        $$ = $1;
+        $$ -> Add_Expression($3);
+        SET_LOCATION($$);
+    }
+    | expression {
+        $$ = new AST_Expression_List($1);
+        SET_LOCATION($$);
+    }
 ;
 
 expression: 
-    expression SYM_GE expr
-    | expression SYM_GT expr 
-    | expression SYM_LE expr 
-    | expression SYM_LT expr 
-    | expression SYM_EQ expr 
-    | expression SYM_NE expr
-    | expr
+    expression SYM_GE expr{
+        $$ = new AST_Binary_Expression(AST_Binary_Expression::Oper::GE, $1, $3);
+        SET_LOCATION($$);
+    }
+    | expression SYM_GT expr {
+        $$ = new AST_Binary_Expression(AST_Binary_Expression::Oper::GT, $1, $3);
+        SET_LOCATION($$);
+    }
+    | expression SYM_LE expr {
+        $$ = new AST_Binary_Expression(AST_Binary_Expression::Oper::LE, $1, $3);
+        SET_LOCATION($$);
+    }
+    | expression SYM_LT expr {
+        $$ = new AST_Binary_Expression(AST_Binary_Expression::Oper::LT, $1, $3);
+        SET_LOCATION($$);
+    }
+    | expression SYM_EQ expr {
+        $$ = new AST_Binary_Expression(AST_Binary_Expression::Oper::EQUAL, $1, $3);
+        SET_LOCATION($$);
+    }
+    | expression SYM_NE expr{
+        $$ = new AST_Binary_Expression(AST_Binary_Expression::Oper::UNEQUAL, $1, $3);
+        SET_LOCATION($$);
+    }
+    | expr{
+        $$ = $1;
+        SET_LOCATION($$);
+    }
 ;
 
 expr:
-    expr SYM_ADD term 
-    | expr SYM_SUB term 
-    | expr KEY_OR term 
-    | term
+    expr SYM_ADD term {
+        $$ = new AST_Binary_Expression(AST_Binary_Expression::Operation::PLUS,$1,$3);
+        SET_LOCATION($$);
+    }
+    | expr SYM_SUB term {
+        $$ = new AST_Binary_Expression(AST_Binary_Expression::Operation::MINUS,$1,$3);
+        SET_LOCATION($$);
+    }
+    | expr KEY_OR term {
+        $$ = new AST_Binary_Expression(AST_Binary_Expression::Operation::OR,$1,$3);
+        SET_LOCATION($$);
+    }
+    | term {
+        $$ = $1;
+        SET_LOCATION($$);
+    }
 ;
 
 term:
-    term  SYM_MUL factor
-    | term  SYM_DIV factor
-    | term  KEY_DIV factor 
-    | term  KEY_MOD factor 
-    | term  KEY_AND factor
-    | factor
+    term  SYM_MUL factor{
+        $$ = new AST_Binary_Expression(AST_Binary_Expression::Operation::MUL,$1,$3);
+        SET_LOCATION($$);
+    }
+    | term  SYM_DIV factor{
+        $$ = new AST_Binary_Expression(AST_Binary_Expression::Operation::DIV,$1,$3);
+        SET_LOCATION($$);
+    }
+    | term  KEY_DIV factor {
+        $$ = new AST_Binary_Expression(AST_Binary_Expression::Operation::DIV,$1,$3);
+        SET_LOCATION($$);
+    }
+    | term  KEY_MOD factor  {
+        $$ = new AST_Binary_Expression(AST_Binary_Expression::Operation::MOD,$1,$3);
+        SET_LOCATION($$);
+    }
+    | term  KEY_AND factor{
+        $$ = new AST_Binary_Expression(AST_Binary_Expression::Operation::AND,$1,$3);
+        SET_LOCATION($$);
+    }
+    | factor {
+        $$ = $1;
+        SET_LOCATION($$);
+    }
 ;
 
 factor:
-    IDENTIFIER
-    | IDENTIFIER SYM_LPAREN expression_list SYM_RPAREN 
-    | const_value
-    | SYM_LPAREN expression SYM_RPAREN
-    | KEY_NOT factor
-    | SYM_SUB factor
-    | IDENTIFIER SYM_LBRAC expression SYM_RBRAC
-    | IDENTIFIER SYM_PERIOD IDENTIFIER
+    IDENTIFIER{
+        $$ = new AST_Identifier_Expression($1);
+        SET_LOCATION($$);
+    }
+    | IDENTIFIER SYM_LPAREN expression_list SYM_RPAREN {
+        $$ = new AST_Function_Call($1,$3);
+        SET_LOCATION($$);
+    }
+    | const_value{
+        $$ = new AST_Const_Value_Expression($1);
+        SET_LOCATION($$);
+    }
+    | SYM_LPAREN expression SYM_RPAREN{
+        $$ = $2;
+        SET_LOCATION($$);
+    }
+    | KEY_NOT factor{
+        $$ = new AST_Unary_Expression(AST_Unary_Expression::Operation::NOT,$2);
+        SET_LOCATION($$);
+    }
+    | SYM_SUB factor{
+        $$ = new AST_Unary_Expression(AST_Unary_Expression::Operation::SUB,$2);
+        SET_LOCATION($$);
+    }
+    | IDENTIFIER SYM_LBRAC expression SYM_RBRAC{
+        $$ = new AST_Array_Expression($1,$3);
+        SET_LOCATION($$);
+    }
+    | IDENTIFIER SYM_PERIOD IDENTIFIER{
+        $$ = new AST_Property_Expression($1,$3);
+        SET_LOCATION($$);
+    }
 ;
 
 %%
