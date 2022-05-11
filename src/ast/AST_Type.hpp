@@ -3,6 +3,11 @@
 #include <vector>
 
 class AST_BaseNode;
+
+class AST_Type_Part;
+class AST_Type_Definition;
+class AST_Type_Declaration_List;
+
 class AST_Type;
 class AST_Type_Declaration;
 class AST_Simple_Type_Declaration;
@@ -11,10 +16,6 @@ class AST_Record_Type_Declaration;
 class AST_Field_Declaration_List;
 class AST_Field_Declaration;
 class AST_Name_List;
-
-class AST_Type_Definition;
-class AST_Type_Definition_List;
-class AST_Type_Part;
 
 // easy_type -> int / char / boolean / float
 class AST_Type: AST_BaseNode{
@@ -100,7 +101,7 @@ class AST_Field_Declaration_List : AST_Type_Declaration{
             field_decl_list.clear();
             field_decl_list.push_back(_field_decl);
         }
-        void Add_FieldDecl(AST_Field_Declaration * _field_decl){
+        void Add_Field_Declaration(AST_Field_Declaration * _field_decl){
             field_decl_list.push_back(_field_decl);
         }
 
@@ -142,9 +143,9 @@ class AST_Name_List :AST_Type_Declaration{
  * 
  *type_decl_list->{type_definition} 
 */
-class AST_Type_Definition_List : AST_Type_Declaration{
+class AST_Type_Declaration_List : AST_BaseNode{
     public:
-        AST_Type_Definition_List() = default;
+        AST_Type_Declaration_List() = default;
         void Add_TypeDefinition(AST_Type_Definition* type_definition){
             type_definition_list.push_back(type_definition);
         }
@@ -158,7 +159,7 @@ class AST_Type_Definition_List : AST_Type_Declaration{
 type_definition->
     IDENTIFIER SYM_EQ type_decl SYM_SEMICOLON 
 */
-class AST_Type_Definition : AST_Type_Declaration{
+class AST_Type_Definition : AST_BaseNode{
     public:
         AST_Type_Definition(std::string id,AST_Type_Declaration *_type_decl):
                     identifier(id),type_decl(_type_decl){};

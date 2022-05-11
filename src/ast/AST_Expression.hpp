@@ -4,6 +4,7 @@
 
 class AST_Expression;
 class AST_Expression_List;
+/* 下面的类作为AST_Expression的子类 */
 class AST_Binary_Expression;
 class AST_Unary_Expression;
 class AST_Property_Expression;

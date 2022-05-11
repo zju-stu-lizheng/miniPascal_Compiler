@@ -1,10 +1,11 @@
 %code requires {
 #include <iostream>
-#include "ast/AST_BaseNode.hpp"
+#include "ast/AST.hpp"
 }
 
 %{
 #define MAX_LITERAL_LEN 256
+#define SET_LOCATION(dest) (dest)->SetLocation(yylloc.first_column,yylloc.first_line)
 extern int yylex(void);
 // 在此声明，消除yacc生成代码时的警告
 extern int yyparse(void); 
@@ -13,6 +14,65 @@ using namespace std;
 %}
 
 %locations
+
+%union{
+    int token_type;
+    char* str;
+
+    //AST_Value.hpp
+    AST_Const_Part* ast_const_part;
+    AST_Const_Expression_List* ast_const_expression_list;
+    AST_Const_Expression* ast_const_expression;
+    AST_Const_Value* ast_const_value;
+    AST_Variable_Part* ast_variable_part;
+    AST_Variable_Declaration_List* ast_variable_declaration_list;
+    AST_Variable_Declaration* ast_variable_declaration;
+
+    //AST_Type.hpp
+    AST_Type_Part* ast_type_part;
+    AST_Type_Definition* ast_type_definition;
+    AST_Type_Declaration_List* ast_type_declaration_list;
+    AST_Type* ast_type;
+    AST_Type_Declaration* ast_type_declaration;
+    AST_Simple_Type_Declaration* ast_simple_type_declaration;
+    AST_Array_Type_Declaration* ast_array_type_declaration;
+    AST_Record_Type_Declaration* ast_record_type_declaration;    
+    AST_Field_Declaration_List* ast_field_declaration_list;
+    AST_Field_Declaration* ast_field_declaration;
+    AST_Name_List* ast_name_list;
+   
+    //AST_Expression.hpp 
+    AST_Expression* ast_expression;
+    AST_Expression_List* ast_expression_list;
+
+    //@ypwang:待完成
+    ASTVarPart* ast_var_part;
+    ASTVarDeclList* ast_var_decl_list;
+    ASTVarDecl* ast_var_decl;
+    ASTRoutinePart* ast_routine_part;
+    ASTFunctionDecl* ast_function_decl;
+    ASTFunctionHead* ast_function_head;
+    ASTProcedureDecl* ast_procedure_decl;
+    ASTProcedureHead* ast_procedure_head;
+    ASTParaDeclList* ast_para_decl_list;
+    ASTParaTypeList* ast_para_type_list;
+    ASTStmtList* ast_stmt_list;
+    ASTStmt* ast_stmt;
+    ASTNonLabelStmt* ast_non_label_stmt;
+    ASTElseClause* ast_else_clause;
+    ASTAssignStmt* ast_assign_stmt;
+    ASTProcStmt* ast_proc_stmt;
+    ASTIfStmt* ast_if_stmt;
+    ASTRepeatStmt* ast_repeat_stmt;
+    ASTWhileStmt* ast_while_stmt;
+    ASTForStmt* ast_for_stmt;
+    ASTForStmt::ForDir ast_for_stmt_dir;
+    ASTCaseStmt* ast_case_stmt;
+    ASTCaseExpr* ast_case_expr;
+    ASTCaseExprList* ast_case_expr_list;
+    ASTGotoStmt* ast_goto_stmt;
+
+}   
 
 %token KEY_BREAK KEY_EXIT
 %token TYPE_INT TYPE_INT_8 TYPE_INT_16 TYPE_INT_32 TYPE_INT_64
@@ -27,6 +87,43 @@ using namespace std;
 %token KEY_PACKED KEY_PROCEDURE KEY_PROGRAM KEY_RECORD KEY_REINTRODUCE KEY_REPEAT KEY_SELF KEY_SET KEY_SHL KEY_SHR
 %token KEY_THEN KEY_TO KEY_TYPE KEY_UNIT KEY_UNTIL KEY_USES KEY_VAR KEY_WHILE KEY_WITH KEY_XOR
 %token SIGN
+
+%type<token_type> TYPE_INT TYPE_INT_8 TYPE_INT_16 TYPE_INT_32 TYPE_INT_64
+%type<token_type> TYPE_UNSIGNED_INT_8 TYPE_UNSIGNED_INT_16 TYPE_UNSIGNED_INT_32 TYPE_UNSIGNED_INT_64 
+%type<token_type> TYPE_BOOLEAN TYPE_FLOAT TYPE_FLOAT_16 TYPE_FLOAT_32 TYPE_CHAR TYPE_STRING
+%type<token_type> SYM_ADD SYM_SUB SYM_MUL SYM_DIV SYM_EQ SYM_LT SYM_GT SYM_LBRAC SYM_RBRAC SYM_PERIOD SYM_COMMA SYM_COLON
+%type<token_type> SYM_SEMICOLON SYM_AT SYM_CARET SYM_LPAREN SYM_RPAREN SYM_NE SYM_LE SYM_GE SYM_ASSIGN SYM_RANGE COMMENT
+%type<token_type> KEY_AND KEY_ARRAY KEY_ASM KEY_BEGIN KEY_CASE KEY_CONST KEY_CONSTRUCTOR KEY_DESTRUCTOR KEY_DIV
+%type<token_type> KEY_DO KEY_DOWNTO KEY_ELSE KEY_END KEY_FILE KEY_FOR KEY_FUNCTION KEY_GOTO KEY_IF KEY_IMPLEMENTATION KEY_IN 
+%type<token_type> KEY_INHERITED KEY_INLINE KEY_INTERFACE KEY_LABEL KEY_MOD KEY_NIL KEY_NOT KEY_OBJECT KEY_OF KEY_OPERATOR KEY_OR
+%type<token_type> KEY_PACKED KEY_PROCEDURE KEY_PROGRAM KEY_RECORD KEY_REINTRODUCE KEY_REPEAT KEY_SELF KEY_SET KEY_SHL KEY_SHR
+%type<token_type> KEY_THEN KEY_TO KEY_TYPE KEY_UNIT KEY_UNTIL KEY_USES KEY_VAR KEY_WHILE KEY_WITH KEY_XOR
+%type<token_type> SIGN
+
+%type<str> LITERAL_INT LITERAL_FLOAT LITERAL_CHAR LITERAL_ESC_CHAR LITERAL_STR LITERAL_TRUE LITERAL_FALSE IDENTIFIER
+
+%type<ast_const_part> const_part
+%type<ast_const_expression_list> const_expr_list
+%type<ast_const_expression> const_expr
+%type<ast_const_value> const_value
+%type<ast_variable_part> var_part
+%type<ast_variable_declaration_list> var_decl_list
+%type<ast_variable_declaration> var_decl
+
+%type<ast_type_part> type_part
+%type<ast_type_definition> type_definition
+%type<ast_type> easy_type
+%type<ast_type_declaration> type_decl
+%type<ast_type_declaration_list> type_decl_list
+%type<ast_simple_type_declaration> simple_type_decl
+%type<ast_array_type_declaration> array_type_decl
+%type<ast_record_type_declaration> record_type_decl    
+%type<ast_field_declaration_list> field_decl_list
+%type<ast_field_declaration> field_decl
+%type<ast_name_list> name_list
+
+%type<ast_expression> expression expr term factor
+%type<ast_expression_list> expression_list
 
 %%
 program: 

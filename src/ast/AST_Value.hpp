@@ -4,15 +4,12 @@
 #include "AST_Expression.hpp"
 
 class AST_Expression;
+
 class AST_Const_Part;
 class AST_Const_Expression_List;
+class AST_Const_Expression;
 class AST_Const_Value;
 
-/*
-var_part:
-    KEY_VAR var_decl_list
-    | %empty
-*/
 class AST_Variable_Part;
 class AST_Variable_Declaration_List;
 class AST_Variable_Declaration;
@@ -88,7 +85,7 @@ public:
 
 private:
     std::vector<AST_Const_Expression *> const_expr_list;
-}
+};
 
 class AST_Const_Expression : AST_BaseNode
 {
