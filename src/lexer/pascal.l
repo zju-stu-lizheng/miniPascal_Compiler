@@ -121,7 +121,9 @@ SYM_ASSIGN ":="
 SYM_RANGE ".."
 
 /* Other tokens */
-COMMENT "{"[^\}]*"}"
+COMMENT1 "{"[^\}]*"}" 
+COMMENT2 //[^\n]*
+COMMENT {COMMENT1} | {COMMENT2}
 IDENTIFIER [a-zA-Z_][a-zA-Z0-9_]*
 %%
 
@@ -526,7 +528,9 @@ IDENTIFIER [a-zA-Z_][a-zA-Z0-9_]*
 }
 
 
-{COMMENT} {}
+{COMMENT} {
+    cout << (#X) << endl;
+}
 
 \n|(\r\n) {
     yycolumn = 1;
