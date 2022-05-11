@@ -6,5 +6,5 @@ AST_Program
 
 lz:
 AST_Type
-AST_Expr
 AST_Value
+AST_Expression

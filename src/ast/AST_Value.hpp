@@ -11,7 +11,7 @@ class AST_Const_Value;
 /*
 var_part:
     KEY_VAR var_decl_list
-    |
+    | %empty
 */
 class AST_Variable_Part;
 class AST_Variable_Declaration_List;
