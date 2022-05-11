@@ -4,13 +4,17 @@
 
 class AST_BaseNode;
 class AST_Type;
-class AST_TypeDecl;
-class AST_SimpleTypeDecl;
-class AST_ArrayTypeDecl;
-class AST_RecordTypeDecl;
-class AST_FieldDeclList;
-class AST_FieldDecl;
-class AST_NameList;
+class AST_Type_Declaration;
+class AST_Simple_Type_Declaration;
+class AST_Array_Type_Declaration;
+class AST_Record_Type_Declaration;
+class AST_Field_Declaration_List;
+class AST_Field_Declaration;
+class AST_Name_List;
+
+class AST_Type_Definition;
+class AST_Type_Definition_List;
+class AST_Type_Part;
 
 // easy_type -> int / char / boolean / float
 class AST_Type: AST_BaseNode{
@@ -29,7 +33,7 @@ class AST_Type: AST_BaseNode{
 };
 
 // type_decl -> SimpleTypeDecl / ArrayTypeDecl / RecordTypeDecl
-class AST_TypeDecl: AST_BaseNode{};
+class AST_Type_Declaration: AST_BaseNode{};
 
 /*
 simple_type_decl -> 
@@ -39,16 +43,16 @@ simple_type_decl ->
     |  const_value  SYM_RANGE  const_value
     |  IDENTIFIER  SYM_RANGE  IDENTIFIER
 */
-class AST_SimpleTypeDecl: AST_TypeDecl{
+class AST_Simple_Type_Declaration: AST_Type_Declaration{
     public:
         enum class My_Type{
             EASY_TYPE,IDENTIFIER,ENUMERATE,VALUE_RANGE,IDENTIFIER_RANGE
         };
 
-        AST_SimpleTypeDecl(AST_Type *_type):
+        AST_Simple_Type_Declaration(AST_Type *_type):
                         my_typename(_type),my_type(My_Type::EASY_TYPE){};
 
-        // AST_SimpleTypeDecl(AST_ConstValue *_type):
+        // AST_Simple_Type_Declaration(AST_ConstValue *_type):
         //                 my_Typename(_type),my_Type(My_Type::EASY_TYPE){};
 
         My_Type Get_Type() const{
@@ -64,13 +68,13 @@ class AST_SimpleTypeDecl: AST_TypeDecl{
 array_type_decl->
     KEY_ARRAY SYM_LBRAC simple_type_decl SYM_RBRAC KEY_OF type_decl
 */
-class AST_ArrayTypeDecl : AST_TypeDecl{
+class AST_Array_Type_Declaration : AST_Type_Declaration{
     public:
-        AST_ArrayTypeDecl(AST_SimpleTypeDecl* _simple_type_decl,AST_TypeDecl* _type_decl):
+        AST_Array_Type_Declaration(AST_Simple_Type_Declaration* _simple_type_decl,AST_Type_Declaration* _type_decl):
                         simple_type_decl(_simple_type_decl),type_decl(_type_decl){};
     private:
-        AST_SimpleTypeDecl* simple_type_decl;
-        AST_TypeDecl* type_decl;
+        AST_Simple_Type_Declaration* simple_type_decl;
+        AST_Type_Declaration* type_decl;
 };
 
 /**
@@ -78,24 +82,30 @@ class AST_ArrayTypeDecl : AST_TypeDecl{
  * record_type_decl -> 
     KEY_RECORD field_decl_list KEY_END
  */
-class AST_RecordTypeDecl : AST_TypeDecl{
+class AST_Record_Type_Declaration : AST_Type_Declaration{
     public:
-        AST_RecordTypeDecl(AST_FieldDeclList* _field_decl_list):
+        AST_Record_Type_Declaration(AST_Field_Declaration_List* _field_decl_list):
                         field_decl_list(_field_decl_list){};
     private:
-        AST_FieldDeclList* field_decl_list;
+        AST_Field_Declaration_List* field_decl_list;
 };
 
 /**
  * @brief 
  * field_decl_list -> {field_decl}
  */
-class AST_FieldDeclList : AST_TypeDecl{
+class AST_Field_Declaration_List : AST_Type_Declaration{
     public:
-        AST_FieldDeclList(){};
+        AST_Field_Declaration_List(AST_Field_Declaration * _field_decl){
+            field_decl_list.clear();
+            field_decl_list.push_back(_field_decl);
+        }
+        void Add_FieldDecl(AST_Field_Declaration * _field_decl){
+            field_decl_list.push_back(_field_decl);
+        }
 
     private:
-        std::vector<AST_FieldDecl *> field_decl_list;
+        std::vector<AST_Field_Declaration *> field_decl_list;
 };
 
 /**
@@ -103,17 +113,70 @@ class AST_FieldDeclList : AST_TypeDecl{
  * field_decl->
     name_list SYM_COLON type_decl SYM_SEMICOLON
  */
-class AST_FieldDecl : AST_TypeDecl{
+class AST_Field_Declaration : AST_Type_Declaration{
     public:
-        AST_FieldDecl(AST_TypeDecl* _type_decl,AST_NameList* _name_list):
+        AST_Field_Declaration(AST_Type_Declaration* _type_decl,AST_Name_List* _name_list):
                     name_list(_name_list),type_decl(_type_decl){};
 
     private:
-        AST_NameList* name_list;
-        AST_TypeDecl* type_decl;
+        AST_Name_List* name_list;
+        AST_Type_Declaration* type_decl;
+};
+
+/**
+ * name_list->
+    {IDENTIFIER}
+*/
+class AST_Name_List :AST_Type_Declaration{
+    public:
+        AST_Name_List() = default;
+        void Add_Identifier(std::string id){
+            identifier_list.push_back(id);
+        }
+
+    private:
+        std::vector<std::string> identifier_list;
+};
+
+/**
+ * 
+ *type_decl_list->{type_definition} 
+*/
+class AST_Type_Definition_List : AST_Type_Declaration{
+    public:
+        AST_Type_Definition_List() = default;
+        void Add_TypeDefinition(AST_Type_Definition* type_definition){
+            type_definition_list.push_back(type_definition);
+        }
+
+    private:
+        std::vector<AST_Type_Definition*> type_definition_list;
 };
 
 
-class AST_NameList :AST_TypeDecl{
+/**
+type_definition->
+    IDENTIFIER SYM_EQ type_decl SYM_SEMICOLON 
+*/
+class AST_Type_Definition : AST_Type_Declaration{
+    public:
+        AST_Type_Definition(std::string id,AST_Type_Declaration *_type_decl):
+                    identifier(id),type_decl(_type_decl){};
 
+    private:
+        std::string identifier;
+        AST_Type_Declaration *type_decl;
+};
+
+/**
+type_part->
+    KEY_TYPE type_decl_list | %empty
+*/
+class AST_Type_Part : AST_Type_Declaration{
+    public:
+        AST_Type_Part(AST_Type_Definition_List *_type_decl_list):
+                    type_decl_list(_type_decl_list){};
+
+    private:
+        AST_Type_Definition_List * type_decl_list;
 };

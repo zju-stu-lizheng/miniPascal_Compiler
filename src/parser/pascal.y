@@ -80,8 +80,12 @@ compound_stmt:
 ;
 
 const_expr_list:
-    const_expr_list IDENTIFIER SYM_EQ const_value SYM_SEMICOLON 
-    | IDENTIFIER SYM_EQ const_value SYM_SEMICOLON
+    const_expr_list const_expr
+    | const_expr
+;
+
+const_expr:
+    IDENTIFIER SYM_EQ expression SYM_SEMICOLON 
 ;
 
 const_value:
