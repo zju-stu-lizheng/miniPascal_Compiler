@@ -160,7 +160,7 @@ var_part:
     |
 ;
 
-routine_part:
+routine_part:  {function_decl | procedure_decl}
     routine_part function_decl 
     | routine_part procedure_decl 
     | function_decl 
