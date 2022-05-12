@@ -68,7 +68,7 @@ public:
 private:
     Value_Type value_type;
     std::string content;
-}
+};
 
 /*
 const_expr_list->
