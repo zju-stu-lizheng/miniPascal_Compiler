@@ -1,3 +1,4 @@
+#pragma once
 #include <iostream>
 #include <string>
 #include <vector>
@@ -8,7 +9,7 @@ class AST_BaseNode{
         int column;
         int row;
     public:
-        AST_BaseNode(); //default
+        AST_BaseNode() = default; //default
         AST_BaseNode(int _column, int _row):column(_column), row(_row){}
         int GetColumn() const{
             return this->column;
