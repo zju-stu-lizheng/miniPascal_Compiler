@@ -4,6 +4,7 @@
 #include <vector>
 
 class AST_BaseNode;
+class AST_Const_Value;
 
 class AST_Type_Part;
 class AST_Type_Definition;
@@ -19,7 +20,7 @@ class AST_Field_Declaration;
 class AST_Name_List;
 
 // easy_type -> int / char / boolean / float
-class AST_Type : AST_BaseNode
+class AST_Type : public AST_BaseNode
 {
 public:
     enum class Type_Name
@@ -41,7 +42,7 @@ private:
 };
 
 // type_decl -> SimpleTypeDecl / ArrayTypeDecl / RecordTypeDecl
-class AST_Type_Declaration : AST_BaseNode
+class AST_Type_Declaration : public AST_BaseNode
 {
 };
 
@@ -53,7 +54,7 @@ simple_type_decl ->
     |  const_value  SYM_RANGE  const_value
     |  IDENTIFIER  SYM_RANGE  IDENTIFIER
 */
-class AST_Simple_Type_Declaration : AST_Type_Declaration
+class AST_Simple_Type_Declaration : public AST_Type_Declaration
 {
 public:
     enum class My_Type
@@ -94,7 +95,7 @@ private:
 array_type_decl->
     KEY_ARRAY SYM_LBRAC simple_type_decl SYM_RBRAC KEY_OF type_decl
 */
-class AST_Array_Type_Declaration : AST_Type_Declaration
+class AST_Array_Type_Declaration : public AST_Type_Declaration
 {
 public:
     AST_Array_Type_Declaration(AST_Simple_Type_Declaration *_simple_type_decl, AST_Type_Declaration *_type_decl) : simple_type_decl(_simple_type_decl), type_decl(_type_decl){};
@@ -109,7 +110,7 @@ private:
  * record_type_decl ->
     KEY_RECORD field_decl_list KEY_END
  */
-class AST_Record_Type_Declaration : AST_Type_Declaration
+class AST_Record_Type_Declaration : public AST_Type_Declaration
 {
 public:
     AST_Record_Type_Declaration(AST_Field_Declaration_List *_field_decl_list) : field_decl_list(_field_decl_list){};
@@ -122,7 +123,7 @@ private:
  * @brief
  * field_decl_list -> {field_decl}
  */
-class AST_Field_Declaration_List : AST_Type_Declaration
+class AST_Field_Declaration_List : public AST_Type_Declaration
 {
 public:
     AST_Field_Declaration_List(AST_Field_Declaration *_field_decl)
@@ -144,7 +145,7 @@ private:
  * field_decl->
     name_list SYM_COLON type_decl SYM_SEMICOLON
  */
-class AST_Field_Declaration : AST_Type_Declaration
+class AST_Field_Declaration : public AST_Type_Declaration
 {
 public:
     AST_Field_Declaration(AST_Type_Declaration *_type_decl, AST_Name_List *_name_list) : name_list(_name_list), type_decl(_type_decl){};
@@ -158,7 +159,7 @@ private:
  * name_list->
     {IDENTIFIER}
 */
-class AST_Name_List : AST_Type_Declaration
+class AST_Name_List : public AST_Type_Declaration
 {
 public:
     AST_Name_List() = default;
@@ -175,7 +176,7 @@ private:
  *
  *type_decl_list->{type_definition}
  */
-class AST_Type_Declaration_List : AST_BaseNode
+class AST_Type_Declaration_List : public AST_BaseNode
 {
 public:
     AST_Type_Declaration_List() = default;
@@ -192,7 +193,7 @@ private:
 type_definition->
     IDENTIFIER SYM_EQ type_decl SYM_SEMICOLON
 */
-class AST_Type_Definition : AST_BaseNode
+class AST_Type_Definition : public AST_BaseNode
 {
 public:
     AST_Type_Definition(std::string id, AST_Type_Declaration *_type_decl) : identifier(id), type_decl(_type_decl){};
@@ -206,7 +207,7 @@ private:
 type_part->
     KEY_TYPE type_decl_list | %empty
 */
-class AST_Type_Part : AST_Type_Declaration
+class AST_Type_Part : public AST_Type_Declaration
 {
 public:
     AST_Type_Part(AST_Type_Declaration_List *_type_decl_list) : type_decl_list(_type_decl_list){};
