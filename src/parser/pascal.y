@@ -471,12 +471,12 @@ factor:
         SET_LOCATION($$);
     }
     | IDENTIFIER SYM_LPAREN expression_list SYM_RPAREN {
-        // $$ = new AST_Function_Call($1,$3);
-        // SET_LOCATION($$);
+        $$ = new AST_Function_Call($1,$3);
+        SET_LOCATION($$);
     }
     | const_value{
-        // $$ = new AST_Const_Value_Expression($1);
-        // SET_LOCATION($$);
+        $$ = new AST_Const_Value_Expression($1);
+        SET_LOCATION($$);
     }
     | SYM_LPAREN expression SYM_RPAREN{
         $$ = $2;
@@ -495,8 +495,8 @@ factor:
         SET_LOCATION($$);
     }
     | IDENTIFIER SYM_PERIOD IDENTIFIER{
-        // $$ = new AST_Property_Expression($1,$3);
-        // SET_LOCATION($$);
+        $$ = new AST_Property_Expression($1,$3);
+        SET_LOCATION($$);
     }
 ;
 
