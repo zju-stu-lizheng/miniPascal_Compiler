@@ -180,7 +180,7 @@ class AST_Type_Declaration_List : public AST_BaseNode
 {
 public:
     AST_Type_Declaration_List() = default;
-    void Add_TypeDefinition(AST_Type_Definition *type_definition)
+    void Add_Type_Definition(AST_Type_Definition *type_definition)
     {
         type_definition_list.push_back(type_definition);
     }

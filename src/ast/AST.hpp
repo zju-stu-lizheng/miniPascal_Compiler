@@ -5,3 +5,5 @@
 #include "AST_Type.hpp"
 #include "AST_Value.hpp"
 #include "AST_Statement.hpp"
+
+AST_Program* ast_root;

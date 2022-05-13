@@ -49,7 +49,7 @@ using namespace std;
     AST_Program_Head* ast_program_head;
     AST_Routine* ast_routine;
     AST_Routine_Head* ast_routine_head;
-    AST_Declaration_BaseClass* ast_declaration_baseclass;
+    // AST_Declaration_BaseClass* ast_declaration_baseclass;
     AST_Routine_Part* ast_routine_part;
     AST_Routine_Body* ast_routine_body;
     AST_Function_Declaration* ast_function_declaration;
@@ -137,120 +137,213 @@ using namespace std;
 %type<ast_program_head> pro_head;
 %type<ast_routine> routine;
 %type<ast_routine_head> routine_head;
-%type<ast_declaration_baseclass> routine_part;
-
-
-AST_Routine_Part* ast_routine_part;
-AST_Routine_Body* ast_routine_body;
-AST_Function_Declaration* ast_function_declaration;
-AST_Function_Head* ast_function_head;
-AST_Procedure_Declaration* ast_procedure_declaration;
-AST_Procedure_Head* ast_procedure_head;
-AST_Parameters* ast_parameters;
-AST_Parameters_Declaration_List* ast_parameters_declaration_list;
-AST_Parameters_Type_List* ast_parameters_type_list;
-AST_Variable_Parameters_List* ast_variable_parameters_list;
-
-AST_Compound_Statement* ast_compound_statement;
-AST_Statement_List* ast_statement_list;
-AST_Statement* ast_statement;
-AST_Label* ast_label;
-AST_Non_Label_Statement* ast_non_label_statement;
-AST_Assign_Statement* ast_assign_statement;
-AST_Procedure_Statement* ast_procedure_statement;
-AST_If_Statement* ast_if_statement;
-AST_Else_Clause* ast_else_clause;
-AST_Case_Statement* ast_case_statement;
-AST_Case_Expression_List* ast_case_expression_list;
-AST_Case_Expression* ast_case_expression;
-AST_Repeat_Statement* ast_repeat_statement;
-AST_While_Statement* ast_while_statement;
-AST_For_Statement* ast_for_statement;
-AST_Direction* ast_direction;
-AST_Goto_Statement* ast_goto_statement;
+%type<ast_routine_part> routine_part;
+%type<ast_routine_body> routine_body;
+%type<ast_function_declaration> function_decl;
+%type<ast_function_head> function_head;
+%type<ast_procedure_declaration> procedure_decl;
+%type<ast_procedure_head> procedure_head;
+%type<ast_parameters> parameters;
+%type<ast_parameters_declaration_list> para_decl_list;
+%type<ast_parameters_type_list> para_type_list;
+%type<ast_variable_parameters_list> var_para_list;
+%type<ast_compound_statement> compound_stmt;
+%type<ast_statement_list> stmt_list;
+%type<ast_statement> stmt;
+%type<ast_label> label;
+%type<ast_non_label_statement> non_label_stmt;
+%type<ast_assign_statement> assign_stmt;
+%type<ast_procedure_statement> proc_stmt;
+%type<ast_if_statement> if_stmt;
+%type<ast_else_clause> else_clause;
+%type<ast_case_statement> case_stmt;
+%type<ast_case_expression_list> case_expr_list;
+%type<ast_case_expression> case_expr;
+%type<ast_repeat_statement> repeat_stmt;
+%type<ast_while_statement> while_stmt;
+%type<ast_for_statement> for_stmt;
+%type<ast_direction> direction;
+%type<ast_goto_statement> goto_stmt;
 
 %%
 program: 
     pro_head routine SYM_PERIOD {
-        cout << "hello world" << endl;
+        //root of the ast, a global variable;
+        ast_root = new AST_Program($1,$2);
+        SET_LOCATION(ast_root);
     }
 ;
 
 pro_head:
     KEY_PROGRAM IDENTIFIER SYM_SEMICOLON{
+        $$ = new AST_Program_Head($2);
+        SET_LOCATION($$);
     }
 ;
 
 routine:
-    routine_head routine_body{}
+    routine_head routine_body{
+        // function_decl and procedure_decl
+        $$ = new AST_Routine($1,$2);
+        SET_LOCATION($$);
+    }
 ;
 
 routine_head:
-    const_part type_part var_part routine_part{}
+    const_part type_part var_part routine_part{
+        $$ = new AST_Routine_Head($1,$2,$3,$4);
+        SET_LOCATION($$);
+    }
 ;
 
 const_part:
-    KEY_CONST const_expr_list 
-    | 
+    KEY_CONST const_expr_list {
+        $$ = new AST_Routine_Head($2);
+        SET_LOCATION($$);
+    }
+    | {
+        $$ = nullptr;
+    }
 ;
 
 type_part:
-    KEY_TYPE type_decl_list 
-    | 
+    KEY_TYPE type_decl_list {
+        $$ = new AST_Type_Part($2);
+        SET_LOCATION($$);
+    }
+    | {
+        $$ = nullptr;
+    }
 ;
 
 var_part:
-    KEY_VAR var_decl_list 
-    |
+    KEY_VAR var_decl_list {
+        $$ = new AST_Variable_Part($2);
+        SET_LOCATION($$);
+    }
+    | {
+        $$ = nullptr;
+    }
 ;
 
 routine_part: 
-    routine_part function_decl 
-    | routine_part procedure_decl 
-    | function_decl 
-    | procedure_decl
-    | 
+    routine_part function_decl {
+        ($1) -> Add_Declaration($2);
+        $$ = $1;
+        SET_LOCATION($$);
+    }
+    | routine_part procedure_decl {
+        ($1) -> Add_Declaration($2);
+        $$ = $1;
+        SET_LOCATION($$);
+    }
+    | function_decl {
+        $$ = new AST_Routine_Part($1);
+        SET_LOCATION($$);
+    }
+    | procedure_decl {
+        $$ = new AST_Routine_Part($1);
+        SET_LOCATION($$);
+    }
+    | {
+        $$ = nullptr;
+    }
 ;
 
 routine_body:
-    compound_stmt
+    compound_stmt {
+        $$ = new AST_Routine_Body($1);
+        SET_LOCATION($$);
+    }
 ;
 
 compound_stmt:
-    KEY_BEGIN stmt_list KEY_END
+    KEY_BEGIN stmt_list KEY_END{
+        $$ = new AST_Compound_Statement($2);
+        SET_LOCATION($$);
+    }
 ;
 
 const_expr_list:
-    const_expr_list const_expr
-    | const_expr
+    const_expr_list const_expr {
+        ($1)->Add_Const_Expression($2);
+        $$ = $1;
+        SET_LOCATION($$);
+    }
+    | const_expr {
+        $$ = new AST_Const_Expression_List();
+        ($$)->Add_Const_Expression($1);
+        SET_LOCATION($$);
+    }
 ;
 
 const_expr:
-    IDENTIFIER SYM_EQ expression SYM_SEMICOLON 
+    IDENTIFIER SYM_EQ expression SYM_SEMICOLON {
+        $$ = new AST_Const_Expression($1,$3);
+        SET_LOCATION($$);
+    }
 ;
 
 const_value:
-    LITERAL_INT 
-    | LITERAL_FLOAT
-    | LITERAL_CHAR
-    | LITERAL_STR 
-    | LITERAL_FALSE
-    | LITERAL_TRUE
+    LITERAL_INT {
+        $$ = new AST_Const_Value($1,AST_Const_Value::Value_Type::INT);
+        SET_LOCATION($$);
+    }
+    | LITERAL_FLOAT {
+        $$ = new AST_Const_Value($1,AST_Const_Value::Value_Type::FLOAT);
+        SET_LOCATION($$);
+    }
+    | LITERAL_CHAR {
+        $$ = new AST_Const_Value($1,AST_Const_Value::Value_Type::CHAR);
+        SET_LOCATION($$);
+    }
+    | LITERAL_STR {
+        $$ = new AST_Const_Value($1,AST_Const_Value::Value_Type::STRING);
+        SET_LOCATION($$);
+    }
+    | LITERAL_FALSE {
+        $$ = new AST_Const_Value($1,AST_Const_Value::Value_Type::FALSE);
+        SET_LOCATION($$);
+    }
+    | LITERAL_TRUE {
+        $$ = new AST_Const_Value($1,AST_Const_Value::Value_Type::TRUE);
+        SET_LOCATION($$);
+    }
 ;
 
 type_decl_list:
-    type_decl_list type_definition 
-    | type_definition
+    type_decl_list type_definition {
+        ($1) -> Add_Type_Definition($2);
+        $$ = $1;
+        SET_LOCATION($$);
+    }
+    | type_definition {
+        $$ = new AST_Type_Declaration_List();
+        ($$) -> Add_Type_Definition($2);
+        SET_LOCATION($$);
+    }
 ;
 
 type_definition:
-    IDENTIFIER SYM_EQ type_decl SYM_SEMICOLON
+    IDENTIFIER SYM_EQ type_decl SYM_SEMICOLON {
+        $$ = new AST_Type_Definition($1,$3);
+        SET_LOCATION($$);
+    }
 ;
 
 type_decl:
-    simple_type_decl 
-    | array_type_decl 
-    | record_type_decl
+    simple_type_decl {
+        $$ = $1;
+        SET_LOCATION($$);
+    }
+    | array_type_decl  {
+        $$ = $1;
+        SET_LOCATION($$);
+    }
+    | record_type_decl {
+        $$ = $1;
+        SET_LOCATION($$);
+    }
 ;
 
 simple_type_decl: 

@@ -27,9 +27,7 @@ class AST_Function_Head;
 
 /*
 program: 
-    pro_head routine SYM_PERIOD {
-        cout << "hello world" << endl;
-    }
+    pro_head routine SYM_PERIOD
 ;
 */
 class AST_Program: public AST_BaseNode{
