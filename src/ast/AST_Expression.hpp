@@ -134,7 +134,7 @@ public:
  * @brief 结构表达式 : Record的成员
  *
  */
-class AST_Property_Expression : public AST_BaseNode
+class AST_Property_Expression : public AST_Expression
 {
 
     /*id:Record变量名 ; prop_id:成员变量名*/
@@ -148,7 +148,7 @@ public:
  * @brief : 常数表达式
  *
  */
-class AST_Const_Value_Expression : public AST_BaseNode
+class AST_Const_Value_Expression : public AST_Expression
 {
 
     AST_Const_Value *const_value;
@@ -157,7 +157,7 @@ public:
     AST_Const_Value_Expression(AST_Const_Value *_const_value) : const_value(_const_value){};
 };
 
-class AST_Function_Call
+class AST_Function_Call : public AST_Expression
 {
 
     /*func_id:函数名 ; args_list:参数列表*/

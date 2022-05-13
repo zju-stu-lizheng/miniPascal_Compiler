@@ -38,29 +38,29 @@ public:
         FALSE,
         TRUE
     };
-    AST_Const_Value(std::string _content, Value_Type _value_type) : content(_content), value_type(_value_type){};
+    AST_Const_Value(std::string _content, enum Value_Type _value_type) : content(_content), value_type(_value_type){};
 
     std::string Get_Value_Type_Name(Value_Type value_type)
     {
         std::string name;
         switch (value_type)
         {
-        case Value_Type::INT:
+        case AST_Const_Value::Value_Type::INT:
             name = "INT";
             break;
-        case Value_Type::FLOAT:
+        case AST_Const_Value::Value_Type::FLOAT:
             name = "FLOAT";
             break;
-        case Value_Type::CHAR:
+        case AST_Const_Value::Value_Type::CHAR:
             name = "CHAR";
             break;
-        case Value_Type::STRING:
+        case AST_Const_Value::Value_Type::STRING:
             name = "STRING";
             break;
-        case Value_Type::FALSE:
+        case AST_Const_Value::Value_Type::FALSE:
             name = "FALSE";
             break;
-        case Value_Type::TRUE:
+        case AST_Const_Value::Value_Type::TRUE:
             name = "TRUE";
             break;
         }
@@ -68,7 +68,7 @@ public:
     }
 
 
-    Value_Type value_type;
+    AST_Const_Value::Value_Type value_type;
     std::string content;
 };
 
@@ -117,7 +117,7 @@ public:
     AST_Variable_Declaration_List *var_decl_list;
 };
 
-class AST_Variable_Declaration_List : AST_BaseNode
+class AST_Variable_Declaration_List : public AST_BaseNode
 {
 public:
     AST_Variable_Declaration_List() = default;

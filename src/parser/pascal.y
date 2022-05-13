@@ -198,7 +198,7 @@ routine_head:
 
 const_part:
     KEY_CONST const_expr_list {
-        $$ = new AST_Routine_Head($2);
+        $$ = new AST_Const_Part($2);
         SET_LOCATION($$);
     }
     | {
@@ -228,21 +228,25 @@ var_part:
 
 routine_part: 
     routine_part function_decl {
-        ($1) -> Add_Declaration($2);
+        AST_Declaration_BaseClass* tmp1 = new AST_Declaration_BaseClass($2);
+        ($1) -> Add_Declaration(tmp1);
         $$ = $1;
         SET_LOCATION($$);
     }
     | routine_part procedure_decl {
-        ($1) -> Add_Declaration($2);
+        AST_Declaration_BaseClass* tmp2 = new AST_Declaration_BaseClass($2);
+        ($1) -> Add_Declaration(tmp2);
         $$ = $1;
         SET_LOCATION($$);
     }
     | function_decl {
-        $$ = new AST_Routine_Part($1);
+        AST_Declaration_BaseClass* tmp3 = new AST_Declaration_BaseClass($1);
+        $$ = new AST_Routine_Part(tmp3);
         SET_LOCATION($$);
     }
     | procedure_decl {
-        $$ = new AST_Routine_Part($1);
+        AST_Declaration_BaseClass* tmp4 = new AST_Declaration_BaseClass($1);
+        $$ = new AST_Routine_Part(tmp4);
         SET_LOCATION($$);
     }
     | {
@@ -319,7 +323,7 @@ type_decl_list:
     }
     | type_definition {
         $$ = new AST_Type_Declaration_List();
-        ($$) -> Add_Type_Definition($2);
+        ($$) -> Add_Type_Definition($1);
         SET_LOCATION($$);
     }
 ;
@@ -698,11 +702,13 @@ for_stmt:
 
 direction:
     KEY_TO {
-        $$ = AST_Direction::To_or_DownTo::To;
+        $$ = new AST_Direction();
+        ($$) -> Set_To();
         SET_LOCATION($$);
     }
     | KEY_DOWNTO {
-        $$ = AST_Direction::To_or_DownTo::DownTo;
+        $$ = new AST_Direction();
+        ($$) -> Set_Down_To();
         SET_LOCATION($$);
     }
 ;

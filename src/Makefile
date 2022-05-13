@@ -1,5 +1,5 @@
-debug: pascal.l.cpp pascal.y.cpp
-	g++ -DDEBUG_LEXER -o $@ $^ 
+debug: pascal.l.cpp pascal.y.cpp ast/AST.cpp
+	g++ -std=c++11 -DDEBUG_LEXER -o $@ $^ 
 
 .PHONY : all clean
 

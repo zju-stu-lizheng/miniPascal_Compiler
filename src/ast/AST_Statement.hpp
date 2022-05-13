@@ -28,7 +28,7 @@ compound_stmt:
     KEY_BEGIN stmt_list KEY_END
 ;
 */
-class AST_Compound_Statement{
+class AST_Compound_Statement : public AST_BaseNode{
     public:
         AST_Statement_List* statement_list;
     public:
@@ -45,7 +45,7 @@ stmt_list:
     | 
 ;
 */
-class AST_Statement_List{
+class AST_Statement_List : public AST_BaseNode{
     public:
         std::vector<AST_Statement*> statement_list;
     public:
@@ -61,7 +61,7 @@ stmt:
     | non_label_stmt
 ;
 */
-class AST_Statement{
+class AST_Statement : public AST_BaseNode{
     public:
         enum class Has_Label{
             NOT_HAS,
@@ -98,7 +98,7 @@ label:
     | IDENTIFIER
 ;
 */
-class AST_Label{
+class AST_Label : public AST_BaseNode{
     public:
         enum class Int_or_Identifier{
             LITERAL_INT,
@@ -139,7 +139,7 @@ non_label_stmt:
     | goto_stmt
 ;
 */
-class AST_Non_Label_Statement{
+class AST_Non_Label_Statement : public AST_BaseNode{
     public:
         enum class Statement_Type{
             ASSIGN,
@@ -204,7 +204,7 @@ assign_stmt:
 ;
 */
 
-class AST_Assign_Statement{
+class AST_Assign_Statement : public AST_BaseNode{
     public:
         enum class Assign_Type{
             I_1_E_1,
@@ -239,7 +239,7 @@ proc_stmt:
     | IDENTIFIER SYM_LPAREN expression_list SYM_RPAREN
 ;
 */
-class AST_Procedure_Statement{
+class AST_Procedure_Statement : public AST_BaseNode{
     public:
         enum class Has_Expression{
             Not,
@@ -264,7 +264,7 @@ if_stmt:
     KEY_IF expression KEY_THEN stmt else_clause
 ;
 */
-class AST_If_Statement{
+class AST_If_Statement : public AST_BaseNode{
     public:
         AST_Expression* expression;
         AST_Statement* statement;
@@ -280,7 +280,7 @@ else_clause:
     | {}
 ;
 */
-class AST_Else_Clause{
+class AST_Else_Clause : public AST_BaseNode{
     public:
         AST_Statement* statement;
         AST_Else_Clause() = default;
@@ -292,7 +292,7 @@ case_stmt:
     KEY_CASE expression KEY_OF case_expr_list KEY_END
 ;
 */
-class AST_Case_Statement{
+class AST_Case_Statement : public AST_BaseNode{
     public:
         AST_Expression* expression;
         AST_Case_Expression_List* case_expression_list;
@@ -306,7 +306,7 @@ case_expr_list:
     | case_expr
 ;
 */
-class AST_Case_Expression_List{
+class AST_Case_Expression_List : public AST_BaseNode{
     public:
         std::vector<AST_Case_Expression*> case_expression_list;
         
@@ -322,7 +322,7 @@ case_expr:
     | IDENTIFIER SYM_COLON stmt SYM_SEMICOLON 
 ;
 */
-class AST_Case_Expression{
+class AST_Case_Expression : public AST_BaseNode{
     public:
         enum class Const_or_Indentifier{
             CONST,
@@ -344,7 +344,7 @@ repeat_stmt:
     KEY_REPEAT stmt_list KEY_UNTIL expression
 ;
 */
-class AST_Repeat_Statement{
+class AST_Repeat_Statement : public AST_BaseNode{
     public:
         AST_Statement_List* statement_list;
         AST_Expression* expression;
@@ -358,7 +358,7 @@ repeat_stmt:
     KEY_REPEAT stmt_list KEY_UNTIL expression
 ;
 */
-class AST_While_Statement{
+class AST_While_Statement : public AST_BaseNode{
     public:
         AST_Expression* expression;
         AST_Statement* statement;
@@ -373,7 +373,7 @@ for_stmt:
     KEY_FOR IDENTIFIER SYM_ASSIGN expression direction expression KEY_DO stmt 
 ;
 */
-class AST_For_Statement{
+class AST_For_Statement : public AST_BaseNode{
     public:
         std::string identifier;
         AST_Expression* expression1;
@@ -391,7 +391,7 @@ direction:
     | KEY_DOWNTO 
 ;
 */
-class AST_Direction{
+class AST_Direction : public AST_BaseNode{
     public:
         enum class To_or_DownTo{
             To,
@@ -413,7 +413,7 @@ goto_stmt:
 ;
 */
 
-class AST_Goto_Statement{
+class AST_Goto_Statement : public AST_BaseNode{
     public:
         AST_Label* label;
         AST_Goto_Statement(AST_Label* _label):label(_label){}

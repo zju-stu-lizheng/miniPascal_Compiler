@@ -30,15 +30,15 @@ public:
         BOOLEAN,
         CHAR
     };
-    AST_Type(Type_Name _typename) : my_typename(_typename){};
+    AST_Type(AST_Type::Type_Name _typename) : my_typename(_typename){};
 
-    Type_Name Get_Type_Name() const
+    AST_Type::Type_Name Get_Type_Name() const
     {
         return this->my_typename;
     }
 
 
-    Type_Name my_typename;
+    AST_Type::Type_Name my_typename;
 };
 
 // type_decl -> SimpleTypeDecl / ArrayTypeDecl / RecordTypeDecl
@@ -148,7 +148,7 @@ public:
 class AST_Field_Declaration : public AST_Type_Declaration
 {
 public:
-    AST_Field_Declaration(AST_Type_Declaration *_type_decl, AST_Name_List *_name_list) : name_list(_name_list), type_decl(_type_decl){};
+    AST_Field_Declaration(AST_Name_List *_name_list,AST_Type_Declaration *_type_decl) : name_list(_name_list), type_decl(_type_decl){};
 
 
     AST_Name_List *name_list;
