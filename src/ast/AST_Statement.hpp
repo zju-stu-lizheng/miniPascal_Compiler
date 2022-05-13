@@ -19,6 +19,10 @@ class AST_For_Statement;
 class AST_Goto_Statement;
 class AST_Else_Clause;
 
+class AST_Case_Expression_List;
+class AST_Case_Expression;
+class AST_Direction;
+
 /*
 compound_stmt:
     KEY_BEGIN stmt_list KEY_END
