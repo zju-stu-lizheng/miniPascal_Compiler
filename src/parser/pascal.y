@@ -347,172 +347,371 @@ type_decl:
 ;
 
 simple_type_decl: 
-    easy_type
-    | IDENTIFIER
-    | SYM_LPAREN name_list SYM_RPAREN
-    |  const_value  SYM_RANGE  const_value
-    |  IDENTIFIER  SYM_RANGE  IDENTIFIER
+    easy_type {
+        $$ = new AST_Simple_Type_Declaration($1);
+        SET_LOCATION($$);
+    }
+    | IDENTIFIER {
+        $$ = new AST_Simple_Type_Declaration($1);
+        SET_LOCATION($$);
+    }
+    | SYM_LPAREN name_list SYM_RPAREN {
+        $$ = new AST_Simple_Type_Declaration($2);
+        SET_LOCATION($$);
+    }
+    |  const_value  SYM_RANGE  const_value {
+        $$ = new AST_Simple_Type_Declaration($1,$3);
+        SET_LOCATION($$);
+    }
+    |  IDENTIFIER  SYM_RANGE  IDENTIFIER {
+        $$ = new AST_Simple_Type_Declaration($1,$3);
+        SET_LOCATION($$);
+    }
 ;
 
 easy_type:
-    TYPE_BOOLEAN 
-    | TYPE_CHAR 
-    | TYPE_INT 
-    | TYPE_FLOAT
+    TYPE_BOOLEAN {
+        $$ = new AST_Type(AST_Type::Type_Name::BOOLEAN);
+        SET_LOCATION($$);
+    }
+    | TYPE_CHAR  {
+        $$ = new AST_Type(AST_Type::Type_Name::CHAR);
+        SET_LOCATION($$);
+    }
+    | TYPE_INT {
+        $$ = new AST_Type(AST_Type::Type_Name::INT);
+        SET_LOCATION($$);
+    }
+    | TYPE_FLOAT {
+        $$ = new AST_Type(AST_Type::Type_Name::FLOAT);
+        SET_LOCATION($$);
+    }
 ;
 
 name_list:
-    name_list SYM_COMMA IDENTIFIER
-    | IDENTIFIER
+    name_list SYM_COMMA IDENTIFIER {
+        ($1) -> Add_Identifier($3);
+        $$ = $1;
+        SET_LOCATION($$);
+    }
+    | IDENTIFIER {
+        $$ = new AST_Name_List();
+        ($$) -> Add_Identifier($1);
+        SET_LOCATION($$);
+    }
 ;
 
 array_type_decl:
-    KEY_ARRAY SYM_LBRAC simple_type_decl SYM_RBRAC KEY_OF type_decl
+    KEY_ARRAY SYM_LBRAC simple_type_decl SYM_RBRAC KEY_OF type_decl {
+        $$ = new AST_Array_Type_Declaration($3,$6);
+        SET_LOCATION($$);
+    }
 ;
 
 record_type_decl:
-    KEY_RECORD field_decl_list KEY_END
+    KEY_RECORD field_decl_list KEY_END {
+        $$ = new AST_Record_Type_Declaration($2);
+        SET_LOCATION($$);
+    }
 ;
 
 field_decl_list:
-    field_decl_list field_decl
-    | field_decl
+    field_decl_list field_decl {
+        ($1) -> Add_Field_Declaration($2);
+        $$ = $1;
+        SET_LOCATION($$);
+    }
+    | field_decl {
+        $$ = new AST_Field_Declaration_List($1);
+        SET_LOCATION($$);
+    }
 ;
 
 field_decl:
-    name_list SYM_COLON type_decl SYM_SEMICOLON
+    name_list SYM_COLON type_decl SYM_SEMICOLON {
+        $$ = new AST_Field_Declaration($1,$3);
+        SET_LOCATION($$);
+    }
 ;
 
 var_decl_list:
-    var_decl_list var_decl | var_decl
+    var_decl_list var_decl {
+        ($1) -> Add_Variable_Declaration($2);
+        $$ = $1;
+        SET_LOCATION($$);
+    }
+    | var_decl {
+        $$ = new AST_Variable_Declaration_List();
+        ($$) -> Add_Variable_Declaration($1);
+        SET_LOCATION($$);
+    }
 ;
 
 var_decl:
-    name_list SYM_COLON type_decl SYM_SEMICOLON
+    name_list SYM_COLON type_decl SYM_SEMICOLON {
+        $$ = new AST_Variable_Declaration($1,$3);
+        SET_LOCATION($$);
+    }
 ;
 
 function_decl:
-    function_head SYM_SEMICOLON routine SYM_SEMICOLON 
+    function_head SYM_SEMICOLON routine SYM_SEMICOLON {
+        $$ = new AST_Function_Declaration($1, $3);
+        SET_LOCATION($$);
+    }
 ;
 
 function_head:
-    KEY_FUNCTION IDENTIFIER parameters SYM_COLON simple_type_decl 
+    KEY_FUNCTION IDENTIFIER parameters SYM_COLON simple_type_decl {
+        $$ = new AST_Function_Head($2, $3, $5);
+        SET_LOCATION($$);
+    }
 ;
 
 procedure_decl:
-    procedure_head SYM_SEMICOLON routine SYM_SEMICOLON
+    procedure_head SYM_SEMICOLON routine SYM_SEMICOLON {
+        $$ = new AST_Procedure_Declaration($1, $3);
+        SET_LOCATION($$);
+    }
 ;
 
 procedure_head:
-    KEY_PROCEDURE IDENTIFIER parameters
+    KEY_PROCEDURE IDENTIFIER parameters {
+        $$ = new AST_Procedure_Head($2, $3);
+        SET_LOCATION($$);
+    }
 ;
 
 parameters:
-    SYM_LPAREN para_decl_list SYM_RPAREN {}
-    | {}
+    SYM_LPAREN para_decl_list SYM_RPAREN {
+        $$ = new AST_Parameters($2);
+        SET_LOCATION($$);
+    }
+    | {
+        $$ = new AST_Parameters();
+        SET_LOCATION($$);
+    }
 ;
 
 para_decl_list:
-    para_decl_list SYM_SEMICOLON para_type_list
-    | para_type_list 
+    para_decl_list SYM_SEMICOLON para_type_list {
+        ($1) -> Add_Parameters_Type_List($3);
+        $$ = $1;
+        SET_LOCATION($$);
+    }
+    | para_type_list {
+        $$ = new AST_Parameters_Declaration_List($1);
+        SET_LOCATION($$);
+    }
 ;
 
 para_type_list:
-    var_para_list SYM_COLON simple_type_decl
-    | val_para_list SYM_COLON simple_type_decl 
+    var_para_list SYM_COLON simple_type_decl {
+        $$ = new AST_Parameters_Type_List($1,$3);
+        SET_LOCATION($$);
+    }
+    | name_list SYM_COLON simple_type_decl {
+        $$ = new AST_Parameters_Type_List($1,$3);
+        SET_LOCATION($$);
+    }
 ;
 
 var_para_list:
-    KEY_VAR name_list
-;
-
-val_para_list:
-    name_list
+    KEY_VAR name_list {
+        $$ = new AST_Variable_Parameters_List($2);
+        SET_LOCATION($$);
+    }
 ;
 
 stmt_list:
-    stmt_list stmt SYM_SEMICOLON
-    | 
+    stmt_list stmt SYM_SEMICOLON {
+        ($1) -> Add_Statement($2);
+        $$ = $1;
+        SET_LOCATION($$);
+    }
+    | {
+        $$ = new AST_Statement_List();
+        SET_LOCATION($$);
+    }
 ;
 
 stmt:
-    label SYM_COLON non_label_stmt
-    | non_label_stmt
+    label SYM_COLON non_label_stmt {
+        $$ = new AST_Statement();
+        ($$) -> Add_Label_and_Non_Label_Statement($1,$3);
+        SET_LOCATION($$);
+    }
+    | non_label_stmt {
+        $$ = new AST_Statement();
+        ($$) -> Add_Non_Label_Statement($1);
+        SET_LOCATION($$);
+    }
 ;
 
 label:
-    LITERAL_INT 
-    | IDENTIFIER
+    LITERAL_INT {
+        $$ = new AST_Label($1);
+        SET_LOCATION($$);
+    }
+    | IDENTIFIER {
+        $$ = new AST_Label($1);
+        SET_LOCATION($$);
+    }
 ;
 
 non_label_stmt: 
-    assign_stmt
-    | proc_stmt
-    | compound_stmt
-    | if_stmt
-    | case_stmt
-    | repeat_stmt
-    | while_stmt
-    | for_stmt
-    | goto_stmt
+    assign_stmt {
+        $$ = new AST_Non_Label_Statement($1);
+        SET_LOCATION($$);
+    }
+    | proc_stmt {
+        $$ = new AST_Non_Label_Statement($1);
+        SET_LOCATION($$);
+    }
+    | compound_stmt {
+        $$ = new AST_Non_Label_Statement($1);
+        SET_LOCATION($$);
+    }
+    | if_stmt {
+        $$ = new AST_Non_Label_Statement($1);
+        SET_LOCATION($$);
+    }
+    | case_stmt {
+        $$ = new AST_Non_Label_Statement($1);
+        SET_LOCATION($$);
+    }
+    | repeat_stmt {
+        $$ = new AST_Non_Label_Statement($1);
+        SET_LOCATION($$);
+    }
+    | while_stmt {
+        $$ = new AST_Non_Label_Statement($1);
+        SET_LOCATION($$);
+    }
+    | for_stmt {
+        $$ = new AST_Non_Label_Statement($1);
+        SET_LOCATION($$);
+    }
+    | goto_stmt {
+        $$ = new AST_Non_Label_Statement($1);
+        SET_LOCATION($$);
+    }
 ;
 
 assign_stmt:
-    IDENTIFIER SYM_ASSIGN expression
-    | IDENTIFIER SYM_LBRAC expression SYM_RBRAC SYM_ASSIGN expression
-    | IDENTIFIER SYM_PERIOD IDENTIFIER SYM_ASSIGN expression
+    IDENTIFIER SYM_ASSIGN expression {
+        $$ = new AST_Assign_Statement($1, $3);
+        SET_LOCATION($$);
+    }
+    | IDENTIFIER SYM_LBRAC expression SYM_RBRAC SYM_ASSIGN expression {
+        $$ = new AST_Assign_Statement($1, $3, $6);
+        SET_LOCATION($$);
+    }
+    | IDENTIFIER SYM_PERIOD IDENTIFIER SYM_ASSIGN expression {
+        $$ = new AST_Assign_Statement($1, $3, $5);
+        SET_LOCATION($$);
+    }
 ;
 
 
 proc_stmt:
     /* SYS_PROC | SYS_PROC  LP  expression_list  RP |  READ  LP  factor  RP */
-    IDENTIFIER
-    | IDENTIFIER SYM_LPAREN expression_list SYM_RPAREN
+    IDENTIFIER {
+        $$ = new AST_Procedure_Statement($1);
+        SET_LOCATION($$);
+    }
+    | IDENTIFIER SYM_LPAREN expression_list SYM_RPAREN {
+        $$ = new AST_Procedure_Statement($1,$3);
+        SET_LOCATION($$);
+    }
 ;
 
 
 if_stmt:
-    KEY_IF expression KEY_THEN stmt else_clause
+    KEY_IF expression KEY_THEN stmt else_clause {
+        $$ = new AST_If_Statement($2,$4,$5);
+        SET_LOCATION($$);
+    }
 ;
 
 else_clause:
-    KEY_ELSE stmt {}
-    | {}
+    KEY_ELSE stmt {
+        $$ = new AST_Else_Clause($2);
+        SET_LOCATION($$);
+    }
+    | {
+        $$ = nullptr;
+    }
 ;
 
 case_stmt:
-    KEY_CASE expression KEY_OF case_expr_list KEY_END
+    KEY_CASE expression KEY_OF case_expr_list KEY_END {
+        $$ = new AST_Case_Statement($2,$4);
+        SET_LOCATION($$);
+    }
 ;
 
 case_expr_list:
-    case_expr_list case_expr 
-    | case_expr
+    case_expr_list case_expr {
+        ($1)->Add_Case_Expression($2);
+        $$ = $1;
+        SET_LOCATION($$);
+    }
+    | case_expr {
+        $$ = new AST_Case_Expression_List();
+        ($$)->Add_Case_Expression($1);
+        SET_LOCATION($$);
+    }
 ;
 
 case_expr:
-    const_value SYM_COLON stmt SYM_SEMICOLON 
-    | IDENTIFIER SYM_COLON stmt SYM_SEMICOLON 
+    const_value SYM_COLON stmt SYM_SEMICOLON {
+        $$ = new AST_Case_Expression($1,$3);
+        SET_LOCATION($$);
+    }
+    | IDENTIFIER SYM_COLON stmt SYM_SEMICOLON {
+        $$ = new AST_Case_Expression($1,$3);
+        SET_LOCATION($$);
+    }
 ;
 
 repeat_stmt:
-    KEY_REPEAT stmt_list KEY_UNTIL expression
+    KEY_REPEAT stmt_list KEY_UNTIL expression {
+        $$ = new AST_Repeat_Statement($2,$4);
+        SET_LOCATION($$);
+    }
 ;
 
 while_stmt:
-    KEY_WHILE expression KEY_DO stmt 
+    KEY_WHILE expression KEY_DO stmt {
+        $$ = new AST_While_Statement($2,$4);
+        SET_LOCATION($$);
+    }
 ;
 
 for_stmt:
-    KEY_FOR IDENTIFIER SYM_ASSIGN expression direction expression KEY_DO stmt 
+    KEY_FOR IDENTIFIER SYM_ASSIGN expression direction expression KEY_DO stmt {
+        $$ = new AST_For_Statement($2, $4, $5, $6, $8);
+        SET_LOCATION($$);
+    }
 ;
 
 direction:
-    KEY_TO 
-    | KEY_DOWNTO 
+    KEY_TO {
+        $$ = AST_Direction::To_or_DownTo::To;
+        SET_LOCATION($$);
+    }
+    | KEY_DOWNTO {
+        $$ = AST_Direction::To_or_DownTo::DownTo;
+        SET_LOCATION($$);
+    }
 ;
 
 goto_stmt:
-    KEY_GOTO label
+    KEY_GOTO label {
+        $$ = new AST_Goto_Statement($2);
+        SET_LOCATION($$);
+    }
 ;
 
 expression_list:

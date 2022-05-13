@@ -29,7 +29,7 @@ compound_stmt:
 ;
 */
 class AST_Compound_Statement{
-    private:
+    public:
         AST_Statement_List* statement_list;
     public:
         AST_Compound_Statement(AST_Statement_List* _statement_list):
@@ -46,7 +46,7 @@ stmt_list:
 ;
 */
 class AST_Statement_List{
-    private:
+    public:
         std::vector<AST_Statement*> statement_list;
     public:
         AST_Statement_List() = default;
@@ -62,7 +62,7 @@ stmt:
 ;
 */
 class AST_Statement{
-    private:
+    public:
         enum class Has_Label{
             NOT_HAS,
             HAS
@@ -99,7 +99,7 @@ label:
 ;
 */
 class AST_Label{
-    private:
+    public:
         enum class Int_or_Identifier{
             LITERAL_INT,
             IDENTIFIER
@@ -140,7 +140,7 @@ non_label_stmt:
 ;
 */
 class AST_Non_Label_Statement{
-    private:
+    public:
         enum class Statement_Type{
             ASSIGN,
             PROCEDURE,
@@ -205,7 +205,7 @@ assign_stmt:
 */
 
 class AST_Assign_Statement{
-    private:
+    public:
         enum class Assign_Type{
             I_1_E_1,
             I_1_E_2,
@@ -240,7 +240,7 @@ proc_stmt:
 ;
 */
 class AST_Procedure_Statement{
-    private:
+    public:
         enum class Has_Expression{
             Not,
             Yes

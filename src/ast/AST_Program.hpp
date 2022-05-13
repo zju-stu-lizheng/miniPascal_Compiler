@@ -307,6 +307,9 @@ class AST_Parameters_Declaration_List: public AST_BaseNode{
             this->parameters_type_list_list.clear();
             Add_Parameters_Type_List(_parameters_type_list);
         }
+        AST_Parameters_Declaration_List() {
+            this->parameters_type_list_list.clear();
+        }
         std::vector<AST_Parameters_Type_List*> Get_Parameter_Type_List_List() const{
             return this->parameters_type_list_list;
         }
@@ -316,7 +319,7 @@ class AST_Parameters_Declaration_List: public AST_BaseNode{
 /*
 para_type_list:
     var_para_list SYM_COLON simple_type_decl
-    | val_para_list SYM_COLON simple_type_decl 
+    | name_list SYM_COLON simple_type_decl 
 ;
 */
 class AST_Parameters_Type_List: public AST_BaseNode{
@@ -354,7 +357,7 @@ var_para_list:
     KEY_VAR name_list
 ;
 */
-class AST_Variable_Parameters_List{
+class AST_Variable_Parameters_List : public AST_BaseNode{
     private:
         AST_Name_List* name_list;
     public:
