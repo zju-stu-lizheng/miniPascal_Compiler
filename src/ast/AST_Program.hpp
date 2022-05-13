@@ -366,6 +366,3 @@ class AST_Variable_Parameters_List{
             return this->name_list;
         }
 };
-
-
-

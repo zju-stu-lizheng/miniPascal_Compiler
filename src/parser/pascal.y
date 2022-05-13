@@ -44,33 +44,41 @@ using namespace std;
     AST_Expression* ast_expression;
     AST_Expression_List* ast_expression_list;
 
-    //@ypwang:待完成
-    // ASTVarPart* ast_var_part;
-    // ASTVarDeclList* ast_var_decl_list;
-    // ASTVarDecl* ast_var_decl;
-    // ASTRoutinePart* ast_routine_part;
-    // ASTFunctionDecl* ast_function_decl;
-    // ASTFunctionHead* ast_function_head;
-    // ASTProcedureDecl* ast_procedure_decl;
-    // ASTProcedureHead* ast_procedure_head;
-    // ASTParaDeclList* ast_para_decl_list;
-    // ASTParaTypeList* ast_para_type_list;
-    // ASTStmtList* ast_stmt_list;
-    // ASTStmt* ast_stmt;
-    // ASTNonLabelStmt* ast_non_label_stmt;
-    // ASTElseClause* ast_else_clause;
-    // ASTAssignStmt* ast_assign_stmt;
-    // ASTProcStmt* ast_proc_stmt;
-    // ASTIfStmt* ast_if_stmt;
-    // ASTRepeatStmt* ast_repeat_stmt;
-    // ASTWhileStmt* ast_while_stmt;
-    // ASTForStmt* ast_for_stmt;
-    // ASTForStmt::ForDir ast_for_stmt_dir;
-    // ASTCaseStmt* ast_case_stmt;
-    // ASTCaseExpr* ast_case_expr;
-    // ASTCaseExprList* ast_case_expr_list;
-    // ASTGotoStmt* ast_goto_stmt;
+    //AST_Program.hpp
+    AST_Program* ast_program;
+    AST_Program_Head* ast_program_head;
+    AST_Routine* ast_routine;
+    AST_Routine_Head* ast_routine_head;
+    AST_Declaration_BaseClass* ast_declaration_baseclass;
+    AST_Routine_Part* ast_routine_part;
+    AST_Routine_Body* ast_routine_body;
+    AST_Function_Declaration* ast_function_declaration;
+    AST_Function_Head* ast_function_head;
+    AST_Procedure_Declaration* ast_procedure_declaration;
+    AST_Procedure_Head* ast_procedure_head;
+    AST_Parameters* ast_parameters;
+    AST_Parameters_Declaration_List* ast_parameters_declaration_list;
+    AST_Parameters_Type_List* ast_parameters_type_list;
+    AST_Variable_Parameters_List* ast_variable_parameters_list;
 
+    //AST_Statement.hpp
+    AST_Compound_Statement* ast_compound_statement;
+    AST_Statement_List* ast_statement_list;
+    AST_Statement* ast_statement;
+    AST_Label* ast_label;
+    AST_Non_Label_Statement* ast_non_label_statement;
+    AST_Assign_Statement* ast_assign_statement;
+    AST_Procedure_Statement* ast_procedure_statement;
+    AST_If_Statement* ast_if_statement;
+    AST_Else_Clause* ast_else_clause;
+    AST_Case_Statement* ast_case_statement;
+    AST_Case_Expression_List* ast_case_expression_list;
+    AST_Case_Expression* ast_case_expression;
+    AST_Repeat_Statement* ast_repeat_statement;
+    AST_While_Statement* ast_while_statement;
+    AST_For_Statement* ast_for_statement;
+    AST_Direction* ast_direction;
+    AST_Goto_Statement* ast_goto_statement;
 }   
 
 %token KEY_BREAK KEY_EXIT
@@ -123,6 +131,43 @@ using namespace std;
 
 %type<ast_expression> expression expr term factor
 %type<ast_expression_list> expression_list
+
+
+%type<ast_program> program;
+%type<ast_program_head> pro_head;
+%type<ast_routine> routine;
+%type<ast_routine_head> routine_head;
+%type<ast_declaration_baseclass> routine_part;
+
+
+AST_Routine_Part* ast_routine_part;
+AST_Routine_Body* ast_routine_body;
+AST_Function_Declaration* ast_function_declaration;
+AST_Function_Head* ast_function_head;
+AST_Procedure_Declaration* ast_procedure_declaration;
+AST_Procedure_Head* ast_procedure_head;
+AST_Parameters* ast_parameters;
+AST_Parameters_Declaration_List* ast_parameters_declaration_list;
+AST_Parameters_Type_List* ast_parameters_type_list;
+AST_Variable_Parameters_List* ast_variable_parameters_list;
+
+AST_Compound_Statement* ast_compound_statement;
+AST_Statement_List* ast_statement_list;
+AST_Statement* ast_statement;
+AST_Label* ast_label;
+AST_Non_Label_Statement* ast_non_label_statement;
+AST_Assign_Statement* ast_assign_statement;
+AST_Procedure_Statement* ast_procedure_statement;
+AST_If_Statement* ast_if_statement;
+AST_Else_Clause* ast_else_clause;
+AST_Case_Statement* ast_case_statement;
+AST_Case_Expression_List* ast_case_expression_list;
+AST_Case_Expression* ast_case_expression;
+AST_Repeat_Statement* ast_repeat_statement;
+AST_While_Statement* ast_while_statement;
+AST_For_Statement* ast_for_statement;
+AST_Direction* ast_direction;
+AST_Goto_Statement* ast_goto_statement;
 
 %%
 program: 
