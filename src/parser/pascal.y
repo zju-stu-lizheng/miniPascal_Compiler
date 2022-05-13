@@ -1,6 +1,7 @@
 %code requires {
 #include <iostream>
-#include "ast/AST.hpp"
+#include "ast/AST_Type.hpp"
+#include "ast/AST_Value.hpp"
 }
 
 %{
@@ -46,31 +47,31 @@ using namespace std;
     AST_Expression_List* ast_expression_list;
 
     //@ypwang:待完成
-    ASTVarPart* ast_var_part;
-    ASTVarDeclList* ast_var_decl_list;
-    ASTVarDecl* ast_var_decl;
-    ASTRoutinePart* ast_routine_part;
-    ASTFunctionDecl* ast_function_decl;
-    ASTFunctionHead* ast_function_head;
-    ASTProcedureDecl* ast_procedure_decl;
-    ASTProcedureHead* ast_procedure_head;
-    ASTParaDeclList* ast_para_decl_list;
-    ASTParaTypeList* ast_para_type_list;
-    ASTStmtList* ast_stmt_list;
-    ASTStmt* ast_stmt;
-    ASTNonLabelStmt* ast_non_label_stmt;
-    ASTElseClause* ast_else_clause;
-    ASTAssignStmt* ast_assign_stmt;
-    ASTProcStmt* ast_proc_stmt;
-    ASTIfStmt* ast_if_stmt;
-    ASTRepeatStmt* ast_repeat_stmt;
-    ASTWhileStmt* ast_while_stmt;
-    ASTForStmt* ast_for_stmt;
-    ASTForStmt::ForDir ast_for_stmt_dir;
-    ASTCaseStmt* ast_case_stmt;
-    ASTCaseExpr* ast_case_expr;
-    ASTCaseExprList* ast_case_expr_list;
-    ASTGotoStmt* ast_goto_stmt;
+    // ASTVarPart* ast_var_part;
+    // ASTVarDeclList* ast_var_decl_list;
+    // ASTVarDecl* ast_var_decl;
+    // ASTRoutinePart* ast_routine_part;
+    // ASTFunctionDecl* ast_function_decl;
+    // ASTFunctionHead* ast_function_head;
+    // ASTProcedureDecl* ast_procedure_decl;
+    // ASTProcedureHead* ast_procedure_head;
+    // ASTParaDeclList* ast_para_decl_list;
+    // ASTParaTypeList* ast_para_type_list;
+    // ASTStmtList* ast_stmt_list;
+    // ASTStmt* ast_stmt;
+    // ASTNonLabelStmt* ast_non_label_stmt;
+    // ASTElseClause* ast_else_clause;
+    // ASTAssignStmt* ast_assign_stmt;
+    // ASTProcStmt* ast_proc_stmt;
+    // ASTIfStmt* ast_if_stmt;
+    // ASTRepeatStmt* ast_repeat_stmt;
+    // ASTWhileStmt* ast_while_stmt;
+    // ASTForStmt* ast_for_stmt;
+    // ASTForStmt::ForDir ast_for_stmt_dir;
+    // ASTCaseStmt* ast_case_stmt;
+    // ASTCaseExpr* ast_case_expr;
+    // ASTCaseExprList* ast_case_expr_list;
+    // ASTGotoStmt* ast_goto_stmt;
 
 }   
 
@@ -160,7 +161,7 @@ var_part:
     |
 ;
 
-routine_part:  {function_decl | procedure_decl}
+routine_part: 
     routine_part function_decl 
     | routine_part procedure_decl 
     | function_decl 
@@ -385,34 +386,35 @@ expression_list:
         SET_LOCATION($$);
     }
     | expression {
-        $$ = new AST_Expression_List($1);
+        $$ = new AST_Expression_List();
+        $$ -> Add_Expression($1);
         SET_LOCATION($$);
     }
 ;
 
 expression: 
     expression SYM_GE expr{
-        $$ = new AST_Binary_Expression(AST_Binary_Expression::Oper::GE, $1, $3);
+        $$ = new AST_Binary_Expression(AST_Binary_Expression::Operation::GE, $1, $3);
         SET_LOCATION($$);
     }
     | expression SYM_GT expr {
-        $$ = new AST_Binary_Expression(AST_Binary_Expression::Oper::GT, $1, $3);
+        $$ = new AST_Binary_Expression(AST_Binary_Expression::Operation::GT, $1, $3);
         SET_LOCATION($$);
     }
     | expression SYM_LE expr {
-        $$ = new AST_Binary_Expression(AST_Binary_Expression::Oper::LE, $1, $3);
+        $$ = new AST_Binary_Expression(AST_Binary_Expression::Operation::LE, $1, $3);
         SET_LOCATION($$);
     }
     | expression SYM_LT expr {
-        $$ = new AST_Binary_Expression(AST_Binary_Expression::Oper::LT, $1, $3);
+        $$ = new AST_Binary_Expression(AST_Binary_Expression::Operation::LT, $1, $3);
         SET_LOCATION($$);
     }
     | expression SYM_EQ expr {
-        $$ = new AST_Binary_Expression(AST_Binary_Expression::Oper::EQUAL, $1, $3);
+        $$ = new AST_Binary_Expression(AST_Binary_Expression::Operation::EQUAL, $1, $3);
         SET_LOCATION($$);
     }
     | expression SYM_NE expr{
-        $$ = new AST_Binary_Expression(AST_Binary_Expression::Oper::UNEQUAL, $1, $3);
+        $$ = new AST_Binary_Expression(AST_Binary_Expression::Operation::UNEQUAL, $1, $3);
         SET_LOCATION($$);
     }
     | expr{
@@ -473,12 +475,12 @@ factor:
         SET_LOCATION($$);
     }
     | IDENTIFIER SYM_LPAREN expression_list SYM_RPAREN {
-        $$ = new AST_Function_Call($1,$3);
-        SET_LOCATION($$);
+        // $$ = new AST_Function_Call($1,$3);
+        // SET_LOCATION($$);
     }
     | const_value{
-        $$ = new AST_Const_Value_Expression($1);
-        SET_LOCATION($$);
+        // $$ = new AST_Const_Value_Expression($1);
+        // SET_LOCATION($$);
     }
     | SYM_LPAREN expression SYM_RPAREN{
         $$ = $2;
@@ -497,8 +499,8 @@ factor:
         SET_LOCATION($$);
     }
     | IDENTIFIER SYM_PERIOD IDENTIFIER{
-        $$ = new AST_Property_Expression($1,$3);
-        SET_LOCATION($$);
+        // $$ = new AST_Property_Expression($1,$3);
+        // SET_LOCATION($$);
     }
 ;
 

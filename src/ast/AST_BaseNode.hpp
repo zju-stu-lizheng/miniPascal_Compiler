@@ -1,14 +1,17 @@
+#pragma once
 #include <iostream>
 #include <string>
 #include <vector>
 
+// Test
+//Test
 class AST_BaseNode{
     private:
         // location for error information
         int column;
         int row;
     public:
-        AST_BaseNode(); //default
+        AST_BaseNode() = default; //default
         AST_BaseNode(int _column, int _row):column(_column), row(_row){}
         int GetColumn() const{
             return this->column;

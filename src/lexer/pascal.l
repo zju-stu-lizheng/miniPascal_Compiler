@@ -122,8 +122,7 @@ SYM_RANGE ".."
 
 /* Other tokens */
 COMMENT1 "{"[^\}]*"}" 
-COMMENT2 //[^\n]*
-COMMENT {COMMENT1} | {COMMENT2}
+COMMENT2 "//"[^\n]*
 IDENTIFIER [a-zA-Z_][a-zA-Z0-9_]*
 %%
 
@@ -528,8 +527,12 @@ IDENTIFIER [a-zA-Z_][a-zA-Z0-9_]*
 }
 
 
-{COMMENT} {
-    cout << (#X) << endl;
+{COMMENT1} {
+    cout << "COMMENT1" << endl;
+}
+
+{COMMENT2} {
+    cout << "COMMENT2" << endl;
 }
 
 \n|(\r\n) {

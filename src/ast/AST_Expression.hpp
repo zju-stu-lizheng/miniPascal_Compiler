@@ -15,11 +15,13 @@ class AST_Array_Expression;
 
 class AST_Const_Value;
 
-class AST_Expression : AST_BaseNode
+class AST_Expression : public AST_BaseNode
 {
+public:
+    AST_Expression() = default;
 };
 
-class AST_Expression_List : AST_Expression
+class AST_Expression_List : public AST_Expression
 {
 public:
     AST_Expression_List() = default;
@@ -36,7 +38,7 @@ private:
  * @brief : 二元表达式
  *
  */
-class AST_Binary_Expression : AST_Expression
+class AST_Binary_Expression : public AST_Expression
 {
 public:
     enum class Operation
@@ -113,7 +115,7 @@ private:
  * @brief : 一元表达式
  *
  */
-class AST_Unary_Expression : AST_Expression
+class AST_Unary_Expression : public AST_Expression
 {
 public:
     enum class Operation
@@ -132,7 +134,7 @@ private:
  * @brief 结构表达式 : Record的成员
  *
  */
-class AST_Property_Expression : AST_BaseNode
+class AST_Property_Expression : public AST_BaseNode
 {
 private:
     /*id:Record变量名 ; prop_id:成员变量名*/
@@ -146,7 +148,7 @@ public:
  * @brief : 常数表达式
  *
  */
-class AST_Const_Value_Expression : AST_BaseNode
+class AST_Const_Value_Expression : public AST_BaseNode
 {
 private:
     AST_Const_Value *const_value;
@@ -166,7 +168,7 @@ public:
     AST_Function_Call(std::string _func_id, AST_Expression_List *_args_list) : func_id(_func_id), args_list(_args_list){};
 };
 
-class AST_Identifier_Expression : AST_Expression
+class AST_Identifier_Expression : public AST_Expression
 {
 private:
     std::string id;
@@ -175,7 +177,7 @@ public:
     AST_Identifier_Expression(std::string _id) : id(_id){};
 };
 
-class AST_Array_Expression : AST_Expression
+class AST_Array_Expression : public AST_Expression
 {
 private:
     std::string id;
