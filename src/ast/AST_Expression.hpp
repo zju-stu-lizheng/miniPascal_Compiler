@@ -30,7 +30,7 @@ public:
         expr_list.push_back(expr);
     }
 
-private:
+
     std::vector<AST_Expression *> expr_list;
 };
 
@@ -106,7 +106,7 @@ public:
         return "";
     }
 
-private:
+
     Operation my_operation;
     AST_Expression *left_expression, *right_expression;
 };
@@ -125,7 +125,7 @@ public:
     };
     AST_Unary_Expression(Operation _my_operation, AST_Expression *_expression) : my_operation(_my_operation), expression(_expression){};
 
-private:
+
     Operation my_operation;
     AST_Expression *expression;
 };
@@ -136,7 +136,7 @@ private:
  */
 class AST_Property_Expression : public AST_BaseNode
 {
-private:
+
     /*id:Record变量名 ; prop_id:成员变量名*/
     std::string id, prop_id;
 
@@ -150,7 +150,7 @@ public:
  */
 class AST_Const_Value_Expression : public AST_BaseNode
 {
-private:
+
     AST_Const_Value *const_value;
 
 public:
@@ -159,7 +159,7 @@ public:
 
 class AST_Function_Call
 {
-private:
+
     /*func_id:函数名 ; args_list:参数列表*/
     std::string func_id;
     AST_Expression_List *args_list;
@@ -170,7 +170,7 @@ public:
 
 class AST_Identifier_Expression : public AST_Expression
 {
-private:
+
     std::string id;
 
 public:
@@ -179,7 +179,7 @@ public:
 
 class AST_Array_Expression : public AST_Expression
 {
-private:
+
     std::string id;
     AST_Expression *expression;
 

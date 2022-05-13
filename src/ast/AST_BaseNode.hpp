@@ -3,8 +3,6 @@
 #include <string>
 #include <vector>
 
-// Test
-//Test
 class AST_BaseNode{
     private:
         // location for error information

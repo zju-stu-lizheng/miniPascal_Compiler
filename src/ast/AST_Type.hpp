@@ -37,7 +37,7 @@ public:
         return this->my_typename;
     }
 
-private:
+
     Type_Name my_typename;
 };
 
@@ -83,7 +83,7 @@ public:
 
     My_Type my_type;
 
-private:
+
     AST_Type *my_typename;
     std::string define_id;
     AST_Name_List *name_list;
@@ -100,7 +100,7 @@ class AST_Array_Type_Declaration : public AST_Type_Declaration
 public:
     AST_Array_Type_Declaration(AST_Simple_Type_Declaration *_simple_type_decl, AST_Type_Declaration *_type_decl) : simple_type_decl(_simple_type_decl), type_decl(_type_decl){};
 
-private:
+
     AST_Simple_Type_Declaration *simple_type_decl;
     AST_Type_Declaration *type_decl;
 };
@@ -115,7 +115,7 @@ class AST_Record_Type_Declaration : public AST_Type_Declaration
 public:
     AST_Record_Type_Declaration(AST_Field_Declaration_List *_field_decl_list) : field_decl_list(_field_decl_list){};
 
-private:
+
     AST_Field_Declaration_List *field_decl_list;
 };
 
@@ -136,7 +136,7 @@ public:
         field_decl_list.push_back(_field_decl);
     }
 
-private:
+
     std::vector<AST_Field_Declaration *> field_decl_list;
 };
 
@@ -150,7 +150,7 @@ class AST_Field_Declaration : public AST_Type_Declaration
 public:
     AST_Field_Declaration(AST_Type_Declaration *_type_decl, AST_Name_List *_name_list) : name_list(_name_list), type_decl(_type_decl){};
 
-private:
+
     AST_Name_List *name_list;
     AST_Type_Declaration *type_decl;
 };
@@ -168,7 +168,7 @@ public:
         identifier_list.push_back(id);
     }
 
-private:
+
     std::vector<std::string> identifier_list;
 };
 
@@ -185,7 +185,7 @@ public:
         type_definition_list.push_back(type_definition);
     }
 
-private:
+
     std::vector<AST_Type_Definition *> type_definition_list;
 };
 
@@ -198,7 +198,7 @@ class AST_Type_Definition : public AST_BaseNode
 public:
     AST_Type_Definition(std::string id, AST_Type_Declaration *_type_decl) : identifier(id), type_decl(_type_decl){};
 
-private:
+
     std::string identifier;
     AST_Type_Declaration *type_decl;
 };
@@ -212,6 +212,6 @@ class AST_Type_Part : public AST_Type_Declaration
 public:
     AST_Type_Part(AST_Type_Declaration_List *_type_decl_list) : type_decl_list(_type_decl_list){};
 
-private:
+
     AST_Type_Declaration_List *type_decl_list;
 };

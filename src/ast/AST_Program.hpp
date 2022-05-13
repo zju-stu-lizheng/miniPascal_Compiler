@@ -3,7 +3,27 @@
 #include "AST_Type.hpp"
 #include "AST_Expression.hpp"
 
+class AST_Variable_Part;
+class AST_Type_Part;
+class AST_Const_Part;
+
 class AST_Compound_Statement;
+class AST_Program_Head;
+class AST_Routine;
+class AST_Routine_Body;
+class AST_Routine_Head;
+
+class AST_Routine_Part;
+class AST_Parameters_Declaration_List;
+class AST_Parameters;
+class AST_Function_Declaration;
+class AST_Procedure_Declaration;
+class AST_Procedure_Head;
+class AST_Parameters_Type_List;
+class AST_Variable_Parameters_List;
+class AST_Function_Head;
+
+
 
 /*
 program: 
@@ -346,6 +366,3 @@ class AST_Variable_Parameters_List{
             return this->name_list;
         }
 };
-
-
-

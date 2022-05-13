@@ -67,7 +67,7 @@ public:
         return name;
     }
 
-private:
+
     Value_Type value_type;
     std::string content;
 };
@@ -85,7 +85,7 @@ public:
         const_expr_list.push_back(const_expr);
     }
 
-private:
+
     std::vector<AST_Const_Expression *> const_expr_list;
 };
 
@@ -94,7 +94,7 @@ class AST_Const_Expression : public AST_BaseNode
 public:
     AST_Const_Expression(std::string _id, AST_Expression *_value) : id(_id), value(_value){};
 
-private:
+
     std::string id;
     AST_Expression *value;
 };
@@ -104,7 +104,7 @@ class AST_Const_Part : public AST_BaseNode
 public:
     AST_Const_Part(AST_Const_Expression_List *_const_expr_list) : const_expr_list(_const_expr_list){};
 
-private:
+
     AST_Const_Expression_List *const_expr_list;
 };
 
@@ -113,7 +113,7 @@ class AST_Variable_Part : public AST_BaseNode
 public:
     AST_Variable_Part(AST_Variable_Declaration_List *_var_decl_list) : var_decl_list(_var_decl_list){};
 
-private:
+
     AST_Variable_Declaration_List *var_decl_list;
 };
 
@@ -126,7 +126,7 @@ public:
         var_decl_list.push_back(var_decl);
     }
 
-private:
+
     std::vector<AST_Variable_Declaration *> var_decl_list;
 };
 
@@ -135,7 +135,7 @@ class AST_Variable_Declaration : public AST_BaseNode
 public:
     AST_Variable_Declaration(AST_Name_List *_name_list, AST_Type_Declaration *_type_decl) : name_list(_name_list), type_decl(_type_decl){};
 
-private:
+
     AST_Name_List *name_list;
     AST_Type_Declaration *type_decl;
 };
