@@ -3,9 +3,6 @@
 #include "AST_Expression.hpp"
 #include "AST_Value.hpp"
 
-// ypwang modified
-
-/*
 class AST_Compound_Statement;
 class AST_Statement_List;
 class AST_Statement;
@@ -21,7 +18,6 @@ class AST_While_Statement;
 class AST_For_Statement;
 class AST_Goto_Statement;
 class AST_Else_Clause;
-*/
 
 /*
 compound_stmt:

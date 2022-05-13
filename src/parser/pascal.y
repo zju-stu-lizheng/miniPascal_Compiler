@@ -1,10 +1,6 @@
-%code requires {
-#include <iostream>
-#include "ast/AST_Type.hpp"
-#include "ast/AST_Value.hpp"
-}
-
 %{
+#include <iostream>
+#include "ast/AST.hpp"
 #define MAX_LITERAL_LEN 256
 #define SET_LOCATION(dest) (dest)->SetLocation(yylloc.first_column,yylloc.first_line)
 extern int yylex(void);
