@@ -103,4 +103,5 @@ namespace Our_Type{
             name_list(_name_list), type_list(_type_list), Pascal_Type(Type_Group::RECORD){
             }
     };
+
 };
