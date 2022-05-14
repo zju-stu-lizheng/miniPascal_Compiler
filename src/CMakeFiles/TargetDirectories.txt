@@ -1,0 +1,6 @@
+/home/lz/Documents/Our_Pascal_Compiler/src/CMakeFiles/rebuild_cache.dir
+/home/lz/Documents/Our_Pascal_Compiler/src/CMakeFiles/opc.dir
+/home/lz/Documents/Our_Pascal_Compiler/src/CMakeFiles/acc_gen.dir
+/home/lz/Documents/Our_Pascal_Compiler/src/CMakeFiles/edit_cache.dir
+/home/lz/Documents/Our_Pascal_Compiler/src/CMakeFiles/omp_gen.dir
+/home/lz/Documents/Our_Pascal_Compiler/src/CMakeFiles/intrinsics_gen.dir
