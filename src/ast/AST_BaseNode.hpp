@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <llvm/IR/Value.h>
 
 class AST_BaseNode{
     private:
@@ -35,4 +36,6 @@ class AST_BaseNode{
             this->column = _column;
             this->row = _row;
         }
+
+        virtual Value * CodeGenerate() = 0;
 };
