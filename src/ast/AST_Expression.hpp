@@ -24,7 +24,7 @@ public:
 class AST_Expression_List : public AST_Expression
 {
 public:
-    Value *CodeGenerate() override;
+    llvm::Value*CodeGenerate() override;
 
 public:
     AST_Expression_List() = default;
@@ -43,7 +43,7 @@ public:
 class AST_Binary_Expression : public AST_Expression
 {
 public:
-    Value *CodeGenerate() override;
+    llvm::Value*CodeGenerate() override;
 
 public:
     enum class Operation
@@ -122,7 +122,7 @@ public:
 class AST_Unary_Expression : public AST_Expression
 {
 public:
-    Value *CodeGenerate() override;
+    llvm::Value*CodeGenerate() override;
 
 public:
     enum class Operation
@@ -143,7 +143,7 @@ public:
 class AST_Property_Expression : public AST_Expression
 {
 public:
-    Value *CodeGenerate() override;
+    llvm::Value*CodeGenerate() override;
 
     /*id:Record变量名 ; prop_id:成员变量名*/
     std::string id, prop_id;
@@ -159,7 +159,7 @@ public:
 class AST_Const_Value_Expression : public AST_Expression
 {
 public:
-    Value *CodeGenerate() override;
+    llvm::Value*CodeGenerate() override;
 
     AST_Const_Value *const_value;
 
@@ -170,7 +170,7 @@ public:
 class AST_Function_Call : public AST_Expression
 {
 public:
-    Value *CodeGenerate() override;
+    llvm::Value*CodeGenerate() override;
 
     /*func_id:函数名 ; args_list:参数列表*/
     std::string func_id;
@@ -183,7 +183,7 @@ public:
 class AST_Identifier_Expression : public AST_Expression
 {
 public:
-    Value *CodeGenerate() override;
+    llvm::Value*CodeGenerate() override;
 
     std::string id;
 
@@ -194,7 +194,7 @@ public:
 class AST_Array_Expression : public AST_Expression
 {
 public:
-    Value *CodeGenerate() override;
+    llvm::Value*CodeGenerate() override;
 
     std::string id;
     AST_Expression *expression;

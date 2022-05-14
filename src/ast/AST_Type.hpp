@@ -23,7 +23,7 @@ class AST_Name_List;
 class AST_Type : public AST_BaseNode
 {
 public:
-    Value *CodeGenerate() override;
+    llvm::Value*CodeGenerate() override;
 
 public:
     enum class Type_Name
@@ -59,7 +59,7 @@ simple_type_decl ->
 class AST_Simple_Type_Declaration : public AST_Type_Declaration
 {
 public:
-    Value *CodeGenerate() override;
+    llvm::Value *CodeGenerate() override;
 
 public:
     enum class My_Type
@@ -102,7 +102,7 @@ array_type_decl->
 class AST_Array_Type_Declaration : public AST_Type_Declaration
 {
 public:
-    Value *CodeGenerate() override;
+    llvm::Value*CodeGenerate() override;
 
 public:
     AST_Array_Type_Declaration(AST_Simple_Type_Declaration *_simple_type_decl, AST_Type_Declaration *_type_decl) : simple_type_decl(_simple_type_decl), type_decl(_type_decl){};
@@ -119,7 +119,7 @@ public:
 class AST_Record_Type_Declaration : public AST_Type_Declaration
 {
 public:
-    Value *CodeGenerate() override;
+    llvm::Value*CodeGenerate() override;
 
 public:
     AST_Record_Type_Declaration(AST_Field_Declaration_List *_field_decl_list) : field_decl_list(_field_decl_list){};
@@ -134,7 +134,7 @@ public:
 class AST_Field_Declaration_List : public AST_Type_Declaration
 {
 public:
-    Value *CodeGenerate() override;
+    llvm::Value*CodeGenerate() override;
 
 public:
     AST_Field_Declaration_List(AST_Field_Declaration *_field_decl)
@@ -158,7 +158,7 @@ public:
 class AST_Field_Declaration : public AST_Type_Declaration
 {
 public:
-    Value *CodeGenerate() override;
+    llvm::Value*CodeGenerate() override;
 
 public:
     AST_Field_Declaration(AST_Name_List *_name_list, AST_Type_Declaration *_type_decl) : name_list(_name_list), type_decl(_type_decl){};
@@ -174,7 +174,7 @@ public:
 class AST_Name_List : public AST_Type_Declaration
 {
 public:
-    Value *CodeGenerate() override;
+    llvm::Value*CodeGenerate() override;
 
 public:
     AST_Name_List() = default;
@@ -193,7 +193,7 @@ public:
 class AST_Type_Declaration_List : public AST_BaseNode
 {
 public:
-    Value *CodeGenerate() override;
+    llvm::Value*CodeGenerate() override;
 
 public:
     AST_Type_Declaration_List() = default;
@@ -212,7 +212,7 @@ type_definition->
 class AST_Type_Definition : public AST_BaseNode
 {
 public:
-    Value *CodeGenerate() override;
+    llvm::Value*CodeGenerate() override;
 
 public:
     AST_Type_Definition(std::string id, AST_Type_Declaration *_type_decl) : identifier(id), type_decl(_type_decl){};
@@ -228,7 +228,7 @@ type_part->
 class AST_Type_Part : public AST_Type_Declaration
 {
 public:
-    Value *CodeGenerate() override;
+    llvm::Value*CodeGenerate() override;
 
 public:
     AST_Type_Part(AST_Type_Declaration_List *_type_decl_list) : type_decl_list(_type_decl_list){};

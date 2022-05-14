@@ -1,5 +1,5 @@
 debug: pascal.l.cpp pascal.y.cpp ast/AST.cpp
-	g++ -std=c++11 -DDEBUG_LEXER -o $@ $^ 
+	g++ `llvm-config --libs core jit native --cxxflags --ldflags` -std=c++11 -DDEBUG_LEXER -o $@ $^ 
 
 .PHONY : all clean
 

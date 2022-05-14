@@ -29,7 +29,7 @@ class AST_Variable_Declaration;
 class AST_Const_Value : public AST_BaseNode
 {
 public:
-    Value *CodeGenerate() override;
+    llvm::Value*CodeGenerate() override;
 
 public:
     enum class Value_Type
@@ -81,7 +81,7 @@ const_expr_list->
 class AST_Const_Expression_List : public AST_BaseNode
 {
 public:
-    Value *CodeGenerate() override;
+    llvm::Value*CodeGenerate() override;
 
 public:
     AST_Const_Expression_List() = default;
@@ -96,7 +96,7 @@ public:
 class AST_Const_Expression : public AST_BaseNode
 {
 public:
-    Value *CodeGenerate() override;
+    llvm::Value*CodeGenerate() override;
 
 public:
     AST_Const_Expression(std::string _id, AST_Expression *_value) : id(_id), value(_value){};
@@ -108,7 +108,7 @@ public:
 class AST_Const_Part : public AST_BaseNode
 {
 public:
-    Value *CodeGenerate() override;
+    llvm::Value*CodeGenerate() override;
 
 public:
     AST_Const_Part(AST_Const_Expression_List *_const_expr_list) : const_expr_list(_const_expr_list){};
@@ -119,7 +119,7 @@ public:
 class AST_Variable_Part : public AST_BaseNode
 {
 public:
-    Value *CodeGenerate() override;
+    llvm::Value*CodeGenerate() override;
 
 public:
     AST_Variable_Part(AST_Variable_Declaration_List *_var_decl_list) : var_decl_list(_var_decl_list){};
@@ -130,7 +130,7 @@ public:
 class AST_Variable_Declaration_List : public AST_BaseNode
 {
 public:
-    Value *CodeGenerate() override;
+    llvm::Value*CodeGenerate() override;
 
 public:
     AST_Variable_Declaration_List() = default;
@@ -145,7 +145,7 @@ public:
 class AST_Variable_Declaration : public AST_BaseNode
 {
 public:
-    Value *CodeGenerate() override;
+    llvm::Value*CodeGenerate() override;
 
 public:
     AST_Variable_Declaration(AST_Name_List *_name_list, AST_Type_Declaration *_type_decl) : name_list(_name_list), type_decl(_type_decl){};

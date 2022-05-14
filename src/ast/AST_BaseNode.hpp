@@ -37,5 +37,5 @@ class AST_BaseNode{
             this->row = _row;
         }
 
-        virtual Value * CodeGenerate() = 0;
+        virtual llvm::Value* CodeGenerate() = 0;
 };

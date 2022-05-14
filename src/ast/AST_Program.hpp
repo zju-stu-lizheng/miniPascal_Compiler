@@ -31,7 +31,7 @@ program:
 class AST_Program : public AST_BaseNode
 {
 public:
-    Value *CodeGenerate() override;
+    llvm::Value*CodeGenerate() override;
 
 private:
     AST_Program_Head *program_head;
@@ -60,7 +60,7 @@ pro_head:
 class AST_Program_Head : public AST_BaseNode
 {
 public:
-    Value *CodeGenerate() override;
+    llvm::Value*CodeGenerate() override;
 
 private:
     std::string identifier;
@@ -83,7 +83,7 @@ routine:
 class AST_Routine : public AST_BaseNode
 {
 public:
-    Value *CodeGenerate() override;
+    llvm::Value*CodeGenerate() override;
 
 private:
     AST_Routine_Head *routine_head;
@@ -111,7 +111,7 @@ routine_head:
 class AST_Routine_Head : public AST_BaseNode
 {
 public:
-    Value *CodeGenerate() override;
+    llvm::Value*CodeGenerate() override;
 
 private:
     AST_Const_Part *const_part;
@@ -143,7 +143,7 @@ public:
 class AST_Declaration_BaseClass : public AST_BaseNode
 {
 public:
-    Value *CodeGenerate() override;
+    llvm::Value*CodeGenerate() override;
 
 private:
     enum class ENUM_Declaration_Type
@@ -191,7 +191,7 @@ routine_part:  {function_decl | procedure_decl}
 class AST_Routine_Part : public AST_BaseNode
 {
 public:
-    Value *CodeGenerate() override;
+    llvm::Value*CodeGenerate() override;
 
 private:
     std::vector<AST_Declaration_BaseClass *> declaration_list;
@@ -221,7 +221,7 @@ routine_body:
 class AST_Routine_Body : public AST_BaseNode
 {
 public:
-    Value *CodeGenerate() override;
+    llvm::Value*CodeGenerate() override;
 
 private:
     AST_Compound_Statement *compound_statement;
@@ -242,7 +242,7 @@ function_decl:
 class AST_Function_Declaration : public AST_BaseNode
 {
 public:
-    Value *CodeGenerate() override;
+    llvm::Value*CodeGenerate() override;
 
 private:
     AST_Function_Head *function_head;
@@ -268,7 +268,7 @@ function_head:
 class AST_Function_Head : public AST_BaseNode
 {
 public:
-    Value *CodeGenerate() override;
+    llvm::Value*CodeGenerate() override;
 
 private:
     std::string identifier;
@@ -299,7 +299,7 @@ procedure_decl:
 class AST_Procedure_Declaration : public AST_BaseNode
 {
 public:
-    Value *CodeGenerate() override;
+    llvm::Value*CodeGenerate() override;
 
 private:
     AST_Procedure_Head *procedure_head;
@@ -325,7 +325,7 @@ procedure_head:
 class AST_Procedure_Head : public AST_BaseNode
 {
 public:
-    Value *CodeGenerate() override;
+    llvm::Value*CodeGenerate() override;
 
 private:
     std::string identifier;
@@ -352,7 +352,7 @@ parameters:
 class AST_Parameters : public AST_BaseNode
 {
 public:
-    Value *CodeGenerate() override;
+    llvm::Value*CodeGenerate() override;
 
 private:
     AST_Parameters_Declaration_List *parameters_declaration_list;
@@ -375,7 +375,7 @@ para_decl_list:
 class AST_Parameters_Declaration_List : public AST_BaseNode
 {
 public:
-    Value *CodeGenerate() override;
+    llvm::Value*CodeGenerate() override;
 
 private:
     std::vector<AST_Parameters_Type_List *> parameters_type_list_list;
@@ -409,7 +409,7 @@ para_type_list:
 class AST_Parameters_Type_List : public AST_BaseNode
 {
 public:
-    Value *CodeGenerate() override;
+    llvm::Value*CodeGenerate() override;
 
 private:
     enum class List_Type
@@ -451,7 +451,7 @@ var_para_list:
 class AST_Variable_Parameters_List : public AST_BaseNode
 {
 public:
-    Value *CodeGenerate() override;
+    llvm::Value*CodeGenerate() override;
 
 private:
     AST_Name_List *name_list;
