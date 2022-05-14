@@ -29,6 +29,9 @@ class AST_Variable_Declaration;
 class AST_Const_Value : public AST_BaseNode
 {
 public:
+    Value *CodeGenerate() override;
+
+public:
     enum class Value_Type
     {
         INT,
@@ -67,7 +70,6 @@ public:
         return name;
     }
 
-
     AST_Const_Value::Value_Type value_type;
     std::string content;
 };
@@ -79,12 +81,14 @@ const_expr_list->
 class AST_Const_Expression_List : public AST_BaseNode
 {
 public:
+    Value *CodeGenerate() override;
+
+public:
     AST_Const_Expression_List() = default;
     void Add_Const_Expression(AST_Const_Expression *const_expr)
     {
         const_expr_list.push_back(const_expr);
     }
-
 
     std::vector<AST_Const_Expression *> const_expr_list;
 };
@@ -92,8 +96,10 @@ public:
 class AST_Const_Expression : public AST_BaseNode
 {
 public:
-    AST_Const_Expression(std::string _id, AST_Expression *_value) : id(_id), value(_value){};
+    Value *CodeGenerate() override;
 
+public:
+    AST_Const_Expression(std::string _id, AST_Expression *_value) : id(_id), value(_value){};
 
     std::string id;
     AST_Expression *value;
@@ -102,8 +108,10 @@ public:
 class AST_Const_Part : public AST_BaseNode
 {
 public:
-    AST_Const_Part(AST_Const_Expression_List *_const_expr_list) : const_expr_list(_const_expr_list){};
+    Value *CodeGenerate() override;
 
+public:
+    AST_Const_Part(AST_Const_Expression_List *_const_expr_list) : const_expr_list(_const_expr_list){};
 
     AST_Const_Expression_List *const_expr_list;
 };
@@ -111,8 +119,10 @@ public:
 class AST_Variable_Part : public AST_BaseNode
 {
 public:
-    AST_Variable_Part(AST_Variable_Declaration_List *_var_decl_list) : var_decl_list(_var_decl_list){};
+    Value *CodeGenerate() override;
 
+public:
+    AST_Variable_Part(AST_Variable_Declaration_List *_var_decl_list) : var_decl_list(_var_decl_list){};
 
     AST_Variable_Declaration_List *var_decl_list;
 };
@@ -120,12 +130,14 @@ public:
 class AST_Variable_Declaration_List : public AST_BaseNode
 {
 public:
+    Value *CodeGenerate() override;
+
+public:
     AST_Variable_Declaration_List() = default;
     void Add_Variable_Declaration(AST_Variable_Declaration *var_decl)
     {
         var_decl_list.push_back(var_decl);
     }
-
 
     std::vector<AST_Variable_Declaration *> var_decl_list;
 };
@@ -133,8 +145,10 @@ public:
 class AST_Variable_Declaration : public AST_BaseNode
 {
 public:
-    AST_Variable_Declaration(AST_Name_List *_name_list, AST_Type_Declaration *_type_decl) : name_list(_name_list), type_decl(_type_decl){};
+    Value *CodeGenerate() override;
 
+public:
+    AST_Variable_Declaration(AST_Name_List *_name_list, AST_Type_Declaration *_type_decl) : name_list(_name_list), type_decl(_type_decl){};
 
     AST_Name_List *name_list;
     AST_Type_Declaration *type_decl;

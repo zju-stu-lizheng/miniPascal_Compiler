@@ -24,12 +24,14 @@ public:
 class AST_Expression_List : public AST_Expression
 {
 public:
+    Value *CodeGenerate() override;
+
+public:
     AST_Expression_List() = default;
     void Add_Expression(AST_Expression *expr)
     {
         expr_list.push_back(expr);
     }
-
 
     std::vector<AST_Expression *> expr_list;
 };
@@ -40,6 +42,9 @@ public:
  */
 class AST_Binary_Expression : public AST_Expression
 {
+public:
+    Value *CodeGenerate() override;
+
 public:
     enum class Operation
     {
@@ -106,7 +111,6 @@ public:
         return "";
     }
 
-
     Operation my_operation;
     AST_Expression *left_expression, *right_expression;
 };
@@ -118,13 +122,15 @@ public:
 class AST_Unary_Expression : public AST_Expression
 {
 public:
+    Value *CodeGenerate() override;
+
+public:
     enum class Operation
     {
         NOT,
         SUB
     };
     AST_Unary_Expression(Operation _my_operation, AST_Expression *_expression) : my_operation(_my_operation), expression(_expression){};
-
 
     Operation my_operation;
     AST_Expression *expression;
@@ -136,6 +142,8 @@ public:
  */
 class AST_Property_Expression : public AST_Expression
 {
+public:
+    Value *CodeGenerate() override;
 
     /*id:Record变量名 ; prop_id:成员变量名*/
     std::string id, prop_id;
@@ -150,6 +158,8 @@ public:
  */
 class AST_Const_Value_Expression : public AST_Expression
 {
+public:
+    Value *CodeGenerate() override;
 
     AST_Const_Value *const_value;
 
@@ -159,6 +169,8 @@ public:
 
 class AST_Function_Call : public AST_Expression
 {
+public:
+    Value *CodeGenerate() override;
 
     /*func_id:函数名 ; args_list:参数列表*/
     std::string func_id;
@@ -170,6 +182,8 @@ public:
 
 class AST_Identifier_Expression : public AST_Expression
 {
+public:
+    Value *CodeGenerate() override;
 
     std::string id;
 
@@ -179,11 +193,12 @@ public:
 
 class AST_Array_Expression : public AST_Expression
 {
+public:
+    Value *CodeGenerate() override;
 
     std::string id;
     AST_Expression *expression;
 
 public:
-    AST_Array_Expression(std::string _id, AST_Expression *_expression):
-        id(_id),expression(_expression){};
+    AST_Array_Expression(std::string _id, AST_Expression *_expression) : id(_id), expression(_expression){};
 };
