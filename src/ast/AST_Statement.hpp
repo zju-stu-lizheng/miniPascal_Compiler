@@ -31,7 +31,7 @@ compound_stmt:
 class AST_Compound_Statement : public AST_BaseNode
 {
 public:
-    llvm::Value*CodeGenerate() override;
+    std::shared_ptr<Custom_Result> CodeGenerate() override;
 
 public:
     AST_Statement_List *statement_list;
@@ -53,7 +53,7 @@ stmt_list:
 class AST_Statement_List : public AST_BaseNode
 {
 public:
-    llvm::Value*CodeGenerate() override;
+    std::shared_ptr<Custom_Result>CodeGenerate() override;
 
 public:
     std::vector<AST_Statement *> statement_list;
@@ -75,7 +75,7 @@ stmt:
 class AST_Statement : public AST_BaseNode
 {
 public:
-    llvm::Value*CodeGenerate() override;
+    std::shared_ptr<Custom_Result>CodeGenerate() override;
 
 public:
     enum class Has_Label
@@ -123,7 +123,7 @@ label:
 class AST_Label : public AST_BaseNode
 {
 public:
-    llvm::Value*CodeGenerate() override;
+    std::shared_ptr<Custom_Result>CodeGenerate() override;
 
 public:
     enum class Int_or_Identifier
@@ -175,7 +175,7 @@ non_label_stmt:
 class AST_Non_Label_Statement : public AST_BaseNode
 {
 public:
-    llvm::Value*CodeGenerate() override;
+    std::shared_ptr<Custom_Result>CodeGenerate() override;
 
 public:
     enum class Statement_Type
@@ -256,7 +256,7 @@ assign_stmt:
 class AST_Assign_Statement : public AST_BaseNode
 {
 public:
-    llvm::Value*CodeGenerate() override;
+    std::shared_ptr<Custom_Result>CodeGenerate() override;
 
 public:
     enum class Assign_Type
@@ -293,7 +293,7 @@ proc_stmt:
 class AST_Procedure_Statement : public AST_BaseNode
 {
 public:
-    llvm::Value*CodeGenerate() override;
+    std::shared_ptr<Custom_Result>CodeGenerate() override;
 
 public:
     enum class Has_Expression
@@ -323,7 +323,7 @@ if_stmt:
 class AST_If_Statement : public AST_BaseNode
 {
 public:
-    llvm::Value*CodeGenerate() override;
+    std::shared_ptr<Custom_Result>CodeGenerate() override;
 
 public:
     AST_Expression *expression;
@@ -342,7 +342,7 @@ else_clause:
 class AST_Else_Clause : public AST_BaseNode
 {
 public:
-    llvm::Value*CodeGenerate() override;
+    std::shared_ptr<Custom_Result>CodeGenerate() override;
 
 public:
     AST_Statement *statement;
@@ -358,7 +358,7 @@ case_stmt:
 class AST_Case_Statement : public AST_BaseNode
 {
 public:
-    llvm::Value*CodeGenerate() override;
+    std::shared_ptr<Custom_Result>CodeGenerate() override;
 
 public:
     AST_Expression *expression;
@@ -375,7 +375,7 @@ case_expr_list:
 class AST_Case_Expression_List : public AST_BaseNode
 {
 public:
-    llvm::Value*CodeGenerate() override;
+    std::shared_ptr<Custom_Result>CodeGenerate() override;
 
 public:
     std::vector<AST_Case_Expression *> case_expression_list;
@@ -396,7 +396,7 @@ case_expr:
 class AST_Case_Expression : public AST_BaseNode
 {
 public:
-    llvm::Value*CodeGenerate() override;
+    std::shared_ptr<Custom_Result>CodeGenerate() override;
 
 public:
     enum class Const_or_Indentifier
@@ -421,7 +421,7 @@ repeat_stmt:
 class AST_Repeat_Statement : public AST_BaseNode
 {
 public:
-    llvm::Value*CodeGenerate() override;
+    std::shared_ptr<Custom_Result>CodeGenerate() override;
 
 public:
     AST_Statement_List *statement_list;
@@ -438,7 +438,7 @@ repeat_stmt:
 class AST_While_Statement : public AST_BaseNode
 {
 public:
-    llvm::Value*CodeGenerate() override;
+    std::shared_ptr<Custom_Result>CodeGenerate() override;
 
 public:
     AST_Expression *expression;
@@ -455,7 +455,7 @@ for_stmt:
 class AST_For_Statement : public AST_BaseNode
 {
 public:
-    llvm::Value*CodeGenerate() override;
+    std::shared_ptr<Custom_Result>CodeGenerate() override;
 
 public:
     std::string identifier;
@@ -476,7 +476,7 @@ direction:
 class AST_Direction : public AST_BaseNode
 {
 public:
-    llvm::Value*CodeGenerate() override;
+    std::shared_ptr<Custom_Result>CodeGenerate() override;
 
 public:
     enum class To_or_DownTo
@@ -505,7 +505,7 @@ goto_stmt:
 class AST_Goto_Statement : public AST_BaseNode
 {
 public:
-    llvm::Value*CodeGenerate() override;
+    std::shared_ptr<Custom_Result>CodeGenerate() override;
 
 public:
     AST_Label *label;
