@@ -552,9 +552,4 @@ void yyerror(const char *s) {
 
 #ifdef DEBUG_LEXER
 
-int main() {
-    yylex();
-    return 0;
-}
-
 #endif

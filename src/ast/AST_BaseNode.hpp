@@ -37,5 +37,9 @@ class AST_BaseNode{
             this->row = _row;
         }
 
+        virtual void LevelOrder(){
+            std::cout << "root" << std::endl;
+        }
+
         virtual llvm::Value* CodeGenerate() = 0;
 };
