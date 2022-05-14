@@ -35,4 +35,8 @@ class AST_BaseNode{
             this->column = _column;
             this->row = _row;
         }
+
+        virtual CodeGenerate(){
+            
+        }
 };
