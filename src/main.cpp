@@ -2,6 +2,9 @@
 #include "pascal.y.hpp"
 
 int main() {
-    // yylex();
+    if (yyparse() != 0) {
+        std::cout << "failed to parse this code!" << std::endl;
+        return 1;
+    }
     return 0;
 }

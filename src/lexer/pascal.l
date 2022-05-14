@@ -528,11 +528,9 @@ IDENTIFIER [a-zA-Z_][a-zA-Z0-9_]*
 
 
 {COMMENT1} {
-    cout << "COMMENT1" << endl;
 }
 
 {COMMENT2} {
-    cout << "COMMENT2" << endl;
 }
 
 \n|(\r\n) {

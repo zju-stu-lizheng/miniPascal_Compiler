@@ -1,7 +1,8 @@
 #pragma once
-#include <iostream>
 #include <string>
 #include <vector>
+#include <iostream>
+#include "../type/type.hpp"
 #include <llvm/IR/Value.h>
 
 class AST_BaseNode{
@@ -41,6 +42,10 @@ class AST_BaseNode{
             std::cout << "root" << std::endl;
         }
 
+<<<<<<< HEAD
         virtual llvm::Value* CodeGenerate() = 0;
         
+=======
+        virtual std::shared_ptr<Custom_Result> CodeGenerate() = 0;
+>>>>>>> 81e76e73aba602674ae62c26d57cfd60397ecf1a
 };
