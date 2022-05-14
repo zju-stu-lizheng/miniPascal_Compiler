@@ -6,16 +6,17 @@ include_directories(.)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 # For jsb: specific the address
-include_directories(/usr/include/llvm-13)
-include_directories(/usr/include/llvm-c-13)
+include_directories(${LLVM_INCLUDE_DIRS})
 
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
-message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
+message(STATUS "LLVM_INCLUDE_DIRS: ${LLVM_INCLUDE_DIRS}")
 
 execute_process(COMMAND llvm-config-13 --cxxflags OUTPUT_VARIABLE LLVM_LINK_LIBRARIES)
 string(STRIP "${LLVM_LINK_LIBRARIES}" LLVM_LINK_LIBRARIES)
 
 set(CMAKE_CXX_STANDARD 14)
+
+# 下面那个是莫名其妙的错误
 set(CMAKE_CXX_FLAGS "-DLLVM_DISABLE_ABI_BREAKING_CHECKS_ENFORCING=1 ${CMAKE_CXX_FLAGS}")
 message(STATUS "LLVM_DISABLE_ABI_BREAKING_CHECKS_ENFORCING=1") 
 
