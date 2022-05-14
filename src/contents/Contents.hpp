@@ -6,7 +6,7 @@
 #include <map>
 
 
-namespace BaseContents{
+namespace Contents{
     class CodeBlock{
 
     };
@@ -18,13 +18,5 @@ namespace BaseContents{
     std::unique_ptr<llvm::Module> module;
     std::map<std::string, llvm::Constant* > names_2_constants;
     std::vector<CodeBlock* > codeblock_list;
-
-};
-
-
-class Generator{
-    public:
-        Generator() = default;
-        ~Generator();
 
 };
