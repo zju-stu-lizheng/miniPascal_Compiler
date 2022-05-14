@@ -1,0 +1,1 @@
+/usr/bin/c++     CMakeFiles/opc.dir/main.cpp.o CMakeFiles/opc.dir/ast/AST.cpp.o CMakeFiles/opc.dir/generator/generator.cpp.o CMakeFiles/opc.dir/pascal.l.cpp.o CMakeFiles/opc.dir/pascal.y.cpp.o  -o opc  -lLLVM-10 

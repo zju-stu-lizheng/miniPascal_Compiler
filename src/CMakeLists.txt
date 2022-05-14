@@ -6,8 +6,8 @@ include_directories(.)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 # For jsb: specific the address
-include_directories(/usr/include/llvm-13)
-include_directories(/usr/include/llvm-c-13)
+include_directories(/usr/include/llvm-12)
+include_directories(/usr/include/llvm-c-12)
 
 execute_process(COMMAND llvm-config --libs OUTPUT_VARIABLE LLVM_LINK_LIBRARIES)
 string(STRIP "${LLVM_LINK_LIBRARIES}" LLVM_LINK_LIBRARIES)

@@ -42,4 +42,5 @@ class AST_BaseNode{
         }
 
         virtual llvm::Value* CodeGenerate() = 0;
+        
 };
