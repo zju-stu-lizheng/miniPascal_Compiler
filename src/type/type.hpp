@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <iostream>
 
 #include <llvm/IR/Value.h>
 #include <llvm/IR/Type.h>
@@ -54,11 +55,6 @@ namespace Our_Type
             return type_group == Type_Group::RECORD;
         }
     };
-
-    // bool isEqual(const Pascal_Type *const a, Pascal_Type *const b)
-    // {
-    //     //判断属性是否相等
-    // }
 
     class Buildin_Type : public Pascal_Type
     {
@@ -123,6 +119,9 @@ namespace Our_Type
 };
 
 using namespace Our_Type;
+
+// 定义在type.cpp
+bool isEqual(const Pascal_Type *const a, Pascal_Type *const b);
 
 //定义llvm 返回值的类型
 class Custom_Result
