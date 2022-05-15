@@ -105,7 +105,7 @@ std::shared_ptr<Custom_Result> AST_Binary_Expression::CodeGenerate()
 
 std::shared_ptr<Custom_Result> AST_Unary_Expression::CodeGenerate()
 {
-    std::cout << "hello" << std::endl;
+    auto t = std::static_pointer_cast<Value_Result> (expression->CodeGenerate());
 }
 
 std::shared_ptr<Custom_Result> AST_Property_Expression::CodeGenerate()
