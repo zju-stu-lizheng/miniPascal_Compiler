@@ -2,26 +2,29 @@ cmake_minimum_required(VERSION 3.10)
 project(opc)
 
 find_package(LLVM REQUIRED CONFIG)
-message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
-message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 include_directories(.)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
+include_directories(${LLVM_INCLUDE_DIRS})
 
-# For jsb: specific the address
-include_directories(/usr/include/llvm-12)
-include_directories(/usr/include/llvm-c-12)
+message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
+message(STATUS "LLVM_INCLUDE_DIRS: ${LLVM_INCLUDE_DIRS}")
 
-execute_process(COMMAND llvm-config-12 --cxxflags --ldflags --libs OUTPUT_VARIABLE LLVM_LINK_LIBRARIES)
+execute_process(COMMAND llvm-config --cxxflags OUTPUT_VARIABLE LLVM_LINK_LIBRARIES)
 string(STRIP "${LLVM_LINK_LIBRARIES}" LLVM_LINK_LIBRARIES)
 
-
 set(CMAKE_CXX_STANDARD 14)
-set(LLVM_DISABLE_ABI_BREAKING_CHECKS_ENFORCING 1)
+
+# 下面那个是莫名其妙的错误
+set(CMAKE_CXX_FLAGS "-DLLVM_DISABLE_ABI_BREAKING_CHECKS_ENFORCING=1 ${CMAKE_CXX_FLAGS}")
+message(STATUS "LLVM_DISABLE_ABI_BREAKING_CHECKS_ENFORCING=1") 
 
 aux_source_directory(ast AST_SOURCE)
 aux_source_directory(generator GEN_SOURCE)
+aux_source_directory(contents CON_SOURCE)
+aux_source_directory(type TYP_SOURCE)
 # aux_source_directory(vis VIS_SOURCE)
 
+# 编译 lex 和 yacc
 add_custom_command(
     OUTPUT pascal.l.cpp
     COMMAND lex -o pascal.l.cpp ${CMAKE_CURRENT_LIST_DIR}/lexer/pascal.l
@@ -34,15 +37,12 @@ add_custom_command(
     DEPENDS ${CMAKE_CURRENT_LIST_DIR}/parser/pascal.y
 )
 
-# For jsb: "cannot find -lz", so must quote it
-# llvm_map_components_to_libnames(LLVM_LINK_LIBRARIES core)
-
 add_executable(
     opc
-    main.cpp ${AST_SOURCE} ${GEN_SOURCE} ${VIS_SOURCE} pascal.l.cpp
+    main.cpp ${AST_SOURCE} ${GEN_SOURCE} ${CON_SOURCE} ${TYP_SOURCE} pascal.l.cpp
     pascal.y.cpp pascal.y.hpp)
 
 llvm_map_components_to_libnames(llvm_libs support core irreader executionEngine interpreter nativecodegen mcjit)
 
-target_link_libraries(opc ${llvm_libs})
+target_link_libraries(opc LLVMSupport)
 set_target_properties(opc PROPERTIES LINK_LIBRARIES "${LLVM_LINK_LIBRARIES}")

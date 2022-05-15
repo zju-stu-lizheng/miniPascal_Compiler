@@ -2,13 +2,13 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <iostream>
 
 #include <llvm/IR/Value.h>
 #include <llvm/IR/Type.h>
 
 namespace Our_Type
 {
-
     class Pascal_Type
     {
     public:
@@ -55,10 +55,8 @@ namespace Our_Type
         }
     };
 
-    // bool isEqual(const Pascal_Type *const a, Pascal_Type *const b)
-    // {
-    //     //判断属性是否相等
-    // }
+    // 定义在type.cpp
+    bool isEqual(const Pascal_Type *const a, Pascal_Type *const b);
 
     class Buildin_Type : public Pascal_Type
     {
