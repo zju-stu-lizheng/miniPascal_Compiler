@@ -39,7 +39,7 @@ add_custom_command(
 
 add_executable(
     opc
-    main.cpp ${AST_SOURCE} ${GEN_SOURCE} ${CON_SOURCE} ${TYP_SOURCE} pascal.l.cpp
+    main.cpp ${TYP_SOURCE} ${AST_SOURCE} ${GEN_SOURCE} ${CON_SOURCE}  pascal.l.cpp
     pascal.y.cpp pascal.y.hpp)
 
 llvm_map_components_to_libnames(llvm_libs support core irreader executionEngine interpreter nativecodegen mcjit)

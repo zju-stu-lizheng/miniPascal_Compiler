@@ -169,7 +169,20 @@ std::shared_ptr<Custom_Result> AST_Const_Value_Expression::CodeGenerate()
 
 std::shared_ptr<Custom_Result> AST_Function_Call::CodeGenerate()
 {
-    //先空着
+    std::shared_ptr<Value_List_Result> value_list;
+    std::vector<std::shared_ptr<Value_Result> > value_vec;
+    //判断是否含有参数
+    bool has_args = true;
+    if(this->args_list == nullptr){
+        has_args = false;
+    }else{
+        value_list = std::static_pointer_cast<Value_List_Result> (this->args_list->CodeGenerate());
+        value_vec = value_list->GetValueList();
+    }
+
+    //获取函数名称    this->func_id;
+    
+
     return nullptr;
 }
 
