@@ -1,5 +1,6 @@
 #include "../ast/AST.hpp"
 #include "../type/type.hpp"
+#include "../contents/Contents.hpp"
 
 using namespace Our_Type;
 
@@ -33,13 +34,14 @@ std::shared_ptr<Custom_Result> AST_Binary_Expression::CodeGenerate(){
     if(my_operation == Operation::REALDIV) is_real = true;
     auto L = l->GetValue(), R = r->GetValue();
     if (is_real){
-        L = this->builder.CreateUIToFP(L, getLLVMType(this->context, REAL_TYPE));
-        R = this->builder.CreateUIToFP(R, getLLVMType(this->context, REAL_TYPE));
+        L = Contents::builder.CreateUIToFP(L, Get_LLVM_Type(Contents::context, REAL_TYPE));
+        R = Contents::builder.CreateUIToFP(R, Get_LLVM_Type(Contents::context, REAL_TYPE));
     }
     switch (my_operation)
     {
     case Operation::GE :
-        return std::make_shared<Value_Result>(,)    
+        return std::make_shared<Value_Result>(BOOLEAN_TYPE,is_real ? Contents::builder.CreateFCmpOGE(L,R,"cmpftmp")
+                                                                   : Contents::builder.CreateICmpSGE(L,R,"cmptmp"));
     default:
         break;
     }

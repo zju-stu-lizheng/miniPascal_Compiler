@@ -149,22 +149,22 @@ public:
 
     ~Value_Result() = default;
 
-    const llvm::Value *GetValue() const
+    llvm::Value *GetValue() const
     {
         return value;
     }
 
-    const llvm::Value *GetMemory() const
+    llvm::Value *GetMemory() const
     {
         return memory;
     }
 
-    const Pascal_Type *GetType() const
+    Pascal_Type *GetType() const
     {
         return type;
     }
 
-    const llvm::Type *Get_LLVM_Type() const
+    llvm::Type *Get_llvm_Type() const
     {
         return value->getType();
     }
