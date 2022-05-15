@@ -55,6 +55,7 @@ class Label_Type{
 };
 
 class CodeBlock{
+    public:
     // std::string codeblock_id;
     std::map<std::string, llvm::Value *> names_2_values; //variables
     std::map<std::string, Our_Type::Pascal_Type*> names_2_ourtype;
@@ -62,6 +63,17 @@ class CodeBlock{
     std::map<std::string, llvm::Function*> names_2_functions;
     std::map<Label_Type*, llvm::BasicBlock*> label_2_block; //goto
 
+    std::string block_name;
+    bool is_function;
+
+    bool isType(std::string id, bool check_defined = false) {
+        return names_2_ourtype.find(id) != names_2_ourtype.end() &&
+               (names_2_values.find(id) == names_2_values.end() || check_defined);
+    }
+
+    bool isValue(std::string id) {
+        return names_2_values.find(id) != names_2_values.end();
+    }
 };
 
 namespace Contents{
@@ -85,6 +97,6 @@ namespace Contents{
     // std::pair<std::vector<std::string>, std::vector<Our_Type::Pascal_Type *> > GetAllLocalVarNameType();
 
     //获取变量的类型
-    // Our_Type::Pascal_Type *GetVarType(std::string id);
+    Our_Type::Pascal_Type *GetVarType(std::string id);
 };
 

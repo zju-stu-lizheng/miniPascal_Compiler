@@ -172,7 +172,11 @@ std::shared_ptr<Custom_Result> AST_Function_Call::CodeGenerate()
 std::shared_ptr<Custom_Result> AST_Identifier_Expression::CodeGenerate()
 {
     //判断是否在当前code_block
-    // if()
+    if(Contents::GetCurrentBlock()->isValue(id)){
+        llvm::Value *mem = Contents::GetCurrentBlock()->names_2_values[id];
+        llvm::Value *value = Contents::builder.CreateLoad(mem);
+        // return std::make_shared<Value_Result>(this->GetVarType(id), value, mem);
+    }
     return nullptr;
     //再判断是否在最外层code_block
 }
