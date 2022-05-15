@@ -9,7 +9,6 @@
 
 namespace Our_Type
 {
-
     class Pascal_Type
     {
     public:
@@ -55,6 +54,9 @@ namespace Our_Type
             return type_group == Type_Group::RECORD;
         }
     };
+
+    // 定义在type.cpp
+    bool isEqual(const Pascal_Type *const a, Pascal_Type *const b);
 
     class Buildin_Type : public Pascal_Type
     {
@@ -119,9 +121,6 @@ namespace Our_Type
 };
 
 using namespace Our_Type;
-
-// 定义在type.cpp
-bool isEqual(const Pascal_Type *const a, Pascal_Type *const b);
 
 //定义llvm 返回值的类型
 class Custom_Result

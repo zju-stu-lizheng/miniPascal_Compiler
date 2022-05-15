@@ -2,7 +2,7 @@
 
 using namespace Our_Type;
 
-bool isEqual(const Pascal_Type *const a, Pascal_Type *const b)
+bool Our_Type::isEqual(const Pascal_Type *const a, Pascal_Type *const b)
 {
     //判断属性是否相等
     if (a == nullptr && b == nullptr)
