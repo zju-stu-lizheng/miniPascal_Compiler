@@ -308,11 +308,11 @@ std::shared_ptr<Custom_Result> AST_Variable_Parameters_List::CodeGenerate()
     std::cout << "hello" << std::endl;
 }
 
-// AST_Statement.hpp
-std::shared_ptr<Custom_Result> AST_Compound_Statement::CodeGenerate()
-{
-    std::cout << "hello" << std::endl;
-}
+// // AST_Statement.hpp
+// std::shared_ptr<Custom_Result> AST_Compound_Statement::CodeGenerate()
+// {
+//     std::cout << "hello" << std::endl;
+// }
 
 std::shared_ptr<Custom_Result> AST_Statement_List::CodeGenerate()
 {
