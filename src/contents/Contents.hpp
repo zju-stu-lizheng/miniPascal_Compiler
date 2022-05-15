@@ -8,6 +8,12 @@
 #include <vector>
 #include <map>
 #include <memory>
+#include <string>
+#include <unistd.h>
+#include <fcntl.h>
+#include <getopt.h>
+#include <sys/stat.h>
+#include <fstream>
 
 // function or procedure
 class Procedure_Information{
@@ -59,13 +65,26 @@ class CodeBlock{
 };
 
 namespace Contents{
-    
-    int num_of_global_variables = 0;
-    
-    llvm::LLVMContext context;
-    llvm::IRBuilder<> builder(context);
-    std::unique_ptr<llvm::Module> module = std::make_unique<llvm::Module>("pascal_module", context);
-    std::map<std::string, llvm::Constant* > names_2_constants; // global constants
-    std::vector<CodeBlock* > codeblock_list;
+    extern int num_of_global_variables;
+
+    extern llvm::LLVMContext context;
+    extern llvm::IRBuilder<> builder;
+    extern std::unique_ptr<llvm::Module> module;
+    extern std::map<std::string, llvm::Constant* > names_2_constants; // global constants
+    extern std::vector<CodeBlock* > codeblock_list;
+    extern std::vector<std::string> error_message;
+    extern std::vector<std::pair<int, int> > error_position;
+
+    //保存生成的IR代码
+    void Save(std::string path);
+
+    //获取当前CodeBlock
+    CodeBlock* GetCurrentBlock(void);
+
+    //获取当前所有局部变量
+    // std::pair<std::vector<std::string>, std::vector<Our_Type::Pascal_Type *> > GetAllLocalVarNameType();
+
+    //获取变量的类型
+    // Our_Type::Pascal_Type *GetVarType(std::string id);
 };
 

@@ -106,26 +106,75 @@ std::shared_ptr<Custom_Result> AST_Binary_Expression::CodeGenerate()
 std::shared_ptr<Custom_Result> AST_Unary_Expression::CodeGenerate()
 {
     auto t = std::static_pointer_cast<Value_Result> (expression->CodeGenerate());
+    if(t == nullptr) return nullptr;
+    if(my_operation == Operation::NOT){
+        if(!isEqual(t->GetType(),BOOLEAN_TYPE)){
+            //report error
+            return nullptr;
+        }
+        return std::make_shared<Value_Result> (t->GetType(),Contents::builder.CreateNot(t->GetValue(),"nottmp"));
+    }else if(my_operation == Operation::SUB){
+        if(!isEqual(t->GetType(),INT_TYPE) && !isEqual(t->GetType(),REAL_TYPE)){
+            //report error
+            return nullptr;
+        }
+        llvm::Type *tp = t->Get_llvm_Type();
+        llvm::Value *zero = llvm::ConstantInt::get(tp,(uint64_t)0,true);
+        //构造负数，是通过 用零减去这个数
+        if (isEqual(t->GetType(), REAL_TYPE))
+            return std::make_shared<Value_Result>(t->GetType(), Contents::builder.CreateFSub(zero, t->GetValue(), "negaftmp"));
+        else
+            return std::make_shared<Value_Result>(t->GetType(), Contents::builder.CreateSub(zero, t->GetValue(), "negatmp"));
+    }
 }
 
 std::shared_ptr<Custom_Result> AST_Property_Expression::CodeGenerate()
 {
-    std::cout << "hello" << std::endl;
+    auto val = std::static_pointer_cast<Value_Result>((new AST_Identifier_Expression(id))->CodeGenerate());
+    auto _record_type = val->GetType();
+    if(!_record_type->isRecord()){
+        //report error
+        return nullptr;
+    }
+    auto record_type = (Record_Type*)_record_type;
+    auto name_list = record_type->name_list;
+    auto type_list = record_type->type_list;
+    int bias = -1;
+    for(int i=0;i<name_list.size();i++){
+        if(name_list[i] == prop_id){
+            bias = i;
+            break;
+        }
+    }
+    if(bias == -1){
+        //report error
+        return nullptr;
+    }
+    std::vector<llvm::Value *> gep_vec = {llvm::ConstantInt::get(llvm::Type::getInt32Ty(Contents::context),0,true),
+                                          (llvm::ConstantInt::get(llvm::Type::getInt32Ty(Contents::context),bias,true))};
+
+    llvm::Value * mem = Contents::builder.CreateGEP(val->GetMemory(),gep_vec,"record_field");
+    llvm::Value * ret = Contents::builder.CreateLoad(mem);
+    return std::make_shared<Value_Result>(type_list[bias],ret,mem);
 }
 
 std::shared_ptr<Custom_Result> AST_Const_Value_Expression::CodeGenerate()
 {
-    std::cout << "hello" << std::endl;
+    return const_value->CodeGenerate();
 }
 
 std::shared_ptr<Custom_Result> AST_Function_Call::CodeGenerate()
 {
-    std::cout << "hello" << std::endl;
+    //先空着
+    return nullptr;
 }
 
 std::shared_ptr<Custom_Result> AST_Identifier_Expression::CodeGenerate()
 {
-    std::cout << "hello" << std::endl;
+    //判断是否在当前code_block
+    // if()
+    return nullptr;
+    //再判断是否在最外层code_block
 }
 
 std::shared_ptr<Custom_Result> AST_Array_Expression::CodeGenerate()
