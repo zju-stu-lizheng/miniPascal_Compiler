@@ -5,6 +5,8 @@
 #include <llvm/IR/Value.h>
 #include "../type/type.hpp"
 #include <map>
+#include <llvm/IR/IRBuilder.h>
+#include <llvm/IR/Value.h>
 
 
 namespace Contents{

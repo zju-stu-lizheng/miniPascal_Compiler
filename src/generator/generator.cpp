@@ -1,15 +1,48 @@
 #include "../ast/AST.hpp"
-#include <vector>
 #include "../type/type.hpp"
 
+using namespace Our_Type;
 
 //AST_Expression.hpp
 std::shared_ptr<Custom_Result> AST_Expression_List::CodeGenerate(){
-    // std::vector<std::shared_ptr<ValueResult>> ret;
+    std::vector<std::shared_ptr<Value_Result> > ret;
+    int cnt = 0;
+    for(auto expression_node : expr_list){
+        auto value = std::static_pointer_cast<Value_Result>(expression_node->CodeGenerate());
+        if(value == nullptr){
+            std::cerr << "meet nullptr at AST_Expression_List code generation! At parameter: " << cnt << std::endl;
+        }
+        ret.push_back(value);
+        cnt++;
+    }
+    //返回一个智能指针
+    return std::make_shared<Value_List_Result>(ret);
 }
 
 std::shared_ptr<Custom_Result> AST_Binary_Expression::CodeGenerate(){
-    std::cout << "hello" << std::endl;
+    auto l = std::static_pointer_cast<Value_Result>(left_expression->CodeGenerate());
+    auto r = std::static_pointer_cast<Value_Result>(right_expression->CodeGenerate());
+    if(l==nullptr || r == nullptr) return nullptr;
+
+    //semantic check
+    //...//
+
+    //IR build
+
+    bool is_real = isEqual(l->GetType(),REAL_TYPE);
+    if(my_operation == Operation::REALDIV) is_real = true;
+    auto L = l->GetValue(), R = r->GetValue();
+    if (is_real){
+        L = this->builder.CreateUIToFP(L, getLLVMType(this->context, REAL_TYPE));
+        R = this->builder.CreateUIToFP(R, getLLVMType(this->context, REAL_TYPE));
+    }
+    switch (my_operation)
+    {
+    case Operation::GE :
+        return std::make_shared<Value_Result>(,)    
+    default:
+        break;
+    }
 }
 
 std::shared_ptr<Custom_Result> AST_Unary_Expression::CodeGenerate(){

@@ -6,6 +6,7 @@
 
 #include <llvm/IR/Value.h>
 #include <llvm/IR/Type.h>
+#include <llvm/IR/Function.h>
 
 namespace Our_Type
 {
@@ -56,7 +57,7 @@ namespace Our_Type
     };
 
     // 定义在type.cpp
-    bool isEqual(const Pascal_Type *const a, Pascal_Type *const b);
+    bool isEqual(const Pascal_Type *const a,const Pascal_Type *const b);
 
     class Buildin_Type : public Pascal_Type
     {
@@ -66,7 +67,8 @@ namespace Our_Type
             INT,
             FLOAT,
             BOOLEAN,
-            CHAR
+            CHAR,
+            VOID
         };
 
         Buildin_Type_Name buildin_type_name;
@@ -117,7 +119,17 @@ namespace Our_Type
         {
         }
     };
-
+    
+    const Buildin_Type INT_TYPE_INST(Buildin_Type::Buildin_Type_Name::INT);
+    const Buildin_Type REAL_TYPE_INST(Buildin_Type::Buildin_Type_Name::FLOAT);
+    const Buildin_Type CHAR_TYPE_INST(Buildin_Type::Buildin_Type_Name::CHAR);
+    const Buildin_Type BOOLEAN_TYPE_INST(Buildin_Type::Buildin_Type_Name::BOOLEAN);
+    const Buildin_Type VOID_TYPE_INST(Buildin_Type::Buildin_Type_Name::VOID);
+    Pascal_Type *const INT_TYPE = (Pascal_Type *) (&INT_TYPE_INST);
+    Pascal_Type *const REAL_TYPE = (Pascal_Type *) (&REAL_TYPE_INST);
+    Pascal_Type *const CHAR_TYPE = (Pascal_Type *) (&CHAR_TYPE_INST);
+    Pascal_Type *const BOOLEAN_TYPE = (Pascal_Type *) (&BOOLEAN_TYPE_INST);
+    Pascal_Type *const VOID_TYPE = (Pascal_Type *) (&VOID_TYPE_INST);
 };
 
 using namespace Our_Type;
