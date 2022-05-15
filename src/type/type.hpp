@@ -131,41 +131,7 @@ namespace Our_Type
     Pascal_Type *const BOOLEAN_TYPE = (Pascal_Type *)(&BOOLEAN_TYPE_INST);
     Pascal_Type *const VOID_TYPE = (Pascal_Type *)(&VOID_TYPE_INST);
 
-    llvm::Type *GetLLVMType(llvm::LLVMContext &context, Pascal_Type *const p_type)
-    {
-        if (p_type->type_group == Pascal_Type::Type_Group::BUILT_IN)
-        {
-            if (isEqual(p_type, INT_TYPE))
-                return llvm::Type::getInt32Ty(context);
-            else if (isEqual(p_type, REAL_TYPE))
-                return llvm::Type::getDoubleTy(context);
-            else if (isEqual(p_type, CHAR_TYPE))
-                return llvm::Type::getInt8Ty(context);
-            else if (isEqual(p_type, BOOLEAN_TYPE))
-                return llvm::Type::getInt1Ty(context);
-            else if (isEqual(p_type, VOID_TYPE))
-                return llvm::Type::getVoidTy(context);
-            else
-                return nullptr;
-        }else if(p_type->type_group == Pascal_Type::Type_Group::STRING){
-            String_Type *str = (String_Type *) p_type;
-            return llvm::ArrayType::get(GetLLVMType(context,CHAR_TYPE),(uint64_t)(str->dim));
-        }else if(p_type->type_group == Pascal_Type::Type_Group::RECORD){
-            Record_Type *record = (Record_Type *) p_type;
-            std::vector<llvm::Type *> llvm_type_vec;
-            for (auto t : record->type_list) {
-                llvm_type_vec.push_back(GetLLVMType(context, t));
-            }
-            return llvm::StructType::get(context, llvm_type_vec);
-        }else if(p_type->type_group == Pascal_Type::Type_Group::ENUMERATE){
-            // does not mean that enum type does not exist
-            // it means that we do not consider it as a basic type
-            return llvm::Type::getInt32Ty(context);
-        }else if(p_type ->type_group == Pascal_Type::Type_Group::SUBRANGE){
-            // not implemented
-            return nullptr;
-        }
-    }
+    llvm::Type * GetLLVMType(llvm::LLVMContext &context, Pascal_Type *const p_type);
 };
 
 using namespace Our_Type;

@@ -9,7 +9,7 @@ include_directories(${LLVM_INCLUDE_DIRS})
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 message(STATUS "LLVM_INCLUDE_DIRS: ${LLVM_INCLUDE_DIRS}")
 
-execute_process(COMMAND llvm-config --cxxflags OUTPUT_VARIABLE LLVM_LINK_LIBRARIES)
+execute_process(COMMAND llvm-config --cxxflags --ldflags --system-libs --libs core OUTPUT_VARIABLE LLVM_LINK_LIBRARIES)
 string(STRIP "${LLVM_LINK_LIBRARIES}" LLVM_LINK_LIBRARIES)
 
 set(CMAKE_CXX_STANDARD 14)
@@ -43,6 +43,5 @@ add_executable(
     pascal.y.cpp pascal.y.hpp)
 
 llvm_map_components_to_libnames(llvm_libs support core irreader executionEngine interpreter nativecodegen mcjit)
-
-target_link_libraries(opc LLVMSupport)
-set_target_properties(opc PROPERTIES LINK_LIBRARIES "${LLVM_LINK_LIBRARIES}")
+message(STATUS "llvm_libs: ${llvm_libs}")
+target_link_libraries(opc ${llvm_libs})

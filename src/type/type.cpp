@@ -2,7 +2,52 @@
 
 using namespace Our_Type;
 
-bool Our_Type::isEqual(const Pascal_Type *const a,const Pascal_Type *const b)
+llvm::Type *Our_Type::GetLLVMType(llvm::LLVMContext &context, Pascal_Type *const p_type)
+{
+    if (p_type->type_group == Pascal_Type::Type_Group::BUILT_IN)
+    {
+        if (isEqual(p_type, INT_TYPE))
+            return llvm::Type::getInt32Ty(context);
+        else if (isEqual(p_type, REAL_TYPE))
+            return llvm::Type::getDoubleTy(context);
+        else if (isEqual(p_type, CHAR_TYPE))
+            return llvm::Type::getInt8Ty(context);
+        else if (isEqual(p_type, BOOLEAN_TYPE))
+            return llvm::Type::getInt1Ty(context);
+        else if (isEqual(p_type, VOID_TYPE))
+            return llvm::Type::getVoidTy(context);
+        else
+            return nullptr;
+    }
+    else if (p_type->type_group == Pascal_Type::Type_Group::STRING)
+    {
+        String_Type *str = (String_Type *)p_type;
+        return llvm::ArrayType::get(GetLLVMType(context, CHAR_TYPE), (uint64_t)(str->len));
+    }
+    else if (p_type->type_group == Pascal_Type::Type_Group::RECORD)
+    {
+        Record_Type *record = (Record_Type *)p_type;
+        std::vector<llvm::Type *> llvm_type_vec;
+        for (auto t : record->type_list)
+        {
+            llvm_type_vec.push_back(GetLLVMType(context, t));
+        }
+        return llvm::StructType::get(context, llvm_type_vec);
+    }
+    else if (p_type->type_group == Pascal_Type::Type_Group::ENUMERATE)
+    {
+        // does not mean that enum type does not exist
+        // it means that we do not consider it as a basic type
+        return llvm::Type::getInt32Ty(context);
+    }
+    else if (p_type->type_group == Pascal_Type::Type_Group::SUBRANGE)
+    {
+        // not implemented
+        return nullptr;
+    }
+}
+
+bool Our_Type::isEqual(const Pascal_Type *const a, const Pascal_Type *const b)
 {
     //判断属性是否相等
     if (a == nullptr && b == nullptr)
@@ -36,7 +81,7 @@ bool Our_Type::isEqual(const Pascal_Type *const a,const Pascal_Type *const b)
         Array_Type *aa = (Array_Type *)a, *bb = (Array_Type *)b;
         if (aa->subrange.begin_2_end != bb->subrange.begin_2_end)
             return false;
-        return isEqual((Pascal_Type*)aa->element_type, (Pascal_Type*)bb->element_type);
+        return isEqual((Pascal_Type *)aa->element_type, (Pascal_Type *)bb->element_type);
     }
     //如果是SUB-RANGE类型
     else if (a->type_group == Pascal_Type::Type_Group::SUBRANGE)

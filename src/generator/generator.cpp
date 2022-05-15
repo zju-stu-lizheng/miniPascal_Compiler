@@ -34,8 +34,8 @@ std::shared_ptr<Custom_Result> AST_Binary_Expression::CodeGenerate(){
     if(my_operation == Operation::REALDIV) is_real = true;
     auto L = l->GetValue(), R = r->GetValue();
     if (is_real){
-        L = Contents::builder.CreateUIToFP(L, Get_LLVM_Type(Contents::context, REAL_TYPE));
-        R = Contents::builder.CreateUIToFP(R, Get_LLVM_Type(Contents::context, REAL_TYPE));
+        L = Contents::builder.CreateUIToFP(L, GetLLVMType(Contents::context, REAL_TYPE));
+        R = Contents::builder.CreateUIToFP(R, GetLLVMType(Contents::context, REAL_TYPE));
     }
     switch (my_operation)
     {

@@ -3,12 +3,11 @@
 #include "../type/type.hpp"
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Value.h>
+#include <llvm/IR/Module.h>
 #include <iostream>
 #include <vector>
 #include <map>
-#include "../type/type.hpp"
-#include <llvm/IR/IRBuilder.h>
-#include <llvm/IR/Value.h>
+#include <memory>
 
 // function or procedure
 class Procedure_Information{
@@ -62,11 +61,10 @@ class CodeBlock{
 namespace Contents{
     
     int num_of_global_variables = 0;
-    //int num_of_local_variables = 0;
     
     llvm::LLVMContext context;
-    llvm::IRBuilder<> builder;
-    std::unique_ptr<llvm::Module> module;
+    llvm::IRBuilder<> builder(context);
+    std::unique_ptr<llvm::Module> module = std::make_unique<llvm::Module>("pascal_module", context);
     std::map<std::string, llvm::Constant* > names_2_constants; // global constants
     std::vector<CodeBlock* > codeblock_list;
 };
