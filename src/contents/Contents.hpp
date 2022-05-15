@@ -38,17 +38,6 @@ class Function_Information : public Procedure_Information{
                     return_type(_return_type), Procedure_Information(_name_list, _type_list, _is_var_list){};
 };
 
-class CodeBlock{
-    public:
-        // std::string codeblock_id;
-        std::map<std::string, llvm::Value *> names_2_values; //variables
-        std::map<std::string, Our_Type::Pascal_Type*> names_2_ourtype;
-        std::map<std::string, Function_Information*> names_2_func_info; //function or procedure
-        std::map<std::string, llvm::Function*> names_2_functions;
-        std::map<std::shared_ptr<Label_Type>, llvm::BasicBlock*> label_2_block; //goto
-
-};
-
 class Error_Information{
     public:
     std::string error_info;
@@ -63,9 +52,30 @@ class Error_Information_Record{
         std::vector<Error_Information> record;
 
         Error_Information_Record() = default;
-        void Add_Error_Information(std::string _error_info, std::pair<int, int> _error_location){
-            record.emplace_back(_error_info, _error_location);
-        };
+        void Add_Error_Information(std::string _error_info, std::pair<int, int> _error_location):
+            record.emplace_back(_error_info, _error_location){};
+};
+
+class CodeBlock{
+    public:
+    // std::string codeblock_id;
+    std::map<std::string, llvm::Value *> names_2_values; //variables
+    std::map<std::string, Our_Type::Pascal_Type*> names_2_ourtype;
+    std::map<std::string, Function_Information*> names_2_func_info; //function or procedure
+    std::map<std::string, llvm::Function*> names_2_functions;
+    std::map<Label_Type*, llvm::BasicBlock*> label_2_block; //goto
+
+    std::string block_name;
+    bool is_function;
+
+    bool isType(std::string id, bool check_defined = false) {
+        return names_2_ourtype.find(id) != names_2_ourtype.end() &&
+               (names_2_values.find(id) == names_2_values.end() || check_defined);
+    }
+
+    bool isValue(std::string id) {
+        return names_2_values.find(id) != names_2_values.end();
+    }
 };
 
 namespace Contents{
@@ -91,6 +101,6 @@ namespace Contents{
     // std::pair<std::vector<std::string>, std::vector<Our_Type::Pascal_Type *> > GetAllLocalVarNameType();
 
     //获取变量的类型
-    // Our_Type::Pascal_Type *GetVarType(std::string id);
+    Our_Type::Pascal_Type *GetVarType(std::string id);
 };
 

@@ -7,6 +7,7 @@
 #include <llvm/IR/Value.h>
 #include <llvm/IR/Type.h>
 #include <llvm/IR/Function.h>
+#include <llvm/IR/Constants.h>
 
 namespace Our_Type
 {
@@ -56,6 +57,11 @@ namespace Our_Type
         }
     };
 
+    extern Pascal_Type *const INT_TYPE;
+    extern Pascal_Type *const REAL_TYPE;
+    extern Pascal_Type *const CHAR_TYPE;
+    extern Pascal_Type *const BOOLEAN_TYPE;
+    extern Pascal_Type *const VOID_TYPE;
     // 定义在type.cpp
     bool isEqual(const Pascal_Type *const a, const Pascal_Type *const b);
 
@@ -99,6 +105,16 @@ namespace Our_Type
         Pascal_Type *element_type;
 
         Array_Type(Subrange_Type _subrange, Pascal_Type *_element_type) : subrange(_subrange), element_type(_element_type), Pascal_Type(Type_Group::ARRAY) {}
+
+        llvm::ConstantInt *GetLLVMLow(llvm::LLVMContext &context)
+        {
+            return llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), subrange.begin_2_end.first, true);
+        }
+
+        llvm::ConstantInt *GetLLVMHigh(llvm::LLVMContext &context)
+        {
+            return llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), subrange.begin_2_end.second, true);
+        }
     };
 
     class String_Type : public Pascal_Type
@@ -120,18 +136,7 @@ namespace Our_Type
         }
     };
 
-    const Buildin_Type INT_TYPE_INST(Buildin_Type::Buildin_Type_Name::INT);
-    const Buildin_Type REAL_TYPE_INST(Buildin_Type::Buildin_Type_Name::FLOAT);
-    const Buildin_Type CHAR_TYPE_INST(Buildin_Type::Buildin_Type_Name::CHAR);
-    const Buildin_Type BOOLEAN_TYPE_INST(Buildin_Type::Buildin_Type_Name::BOOLEAN);
-    const Buildin_Type VOID_TYPE_INST(Buildin_Type::Buildin_Type_Name::VOID);
-    Pascal_Type *const INT_TYPE = (Pascal_Type *)(&INT_TYPE_INST);
-    Pascal_Type *const REAL_TYPE = (Pascal_Type *)(&REAL_TYPE_INST);
-    Pascal_Type *const CHAR_TYPE = (Pascal_Type *)(&CHAR_TYPE_INST);
-    Pascal_Type *const BOOLEAN_TYPE = (Pascal_Type *)(&BOOLEAN_TYPE_INST);
-    Pascal_Type *const VOID_TYPE = (Pascal_Type *)(&VOID_TYPE_INST);
-
-    llvm::Type * GetLLVMType(llvm::LLVMContext &context, Pascal_Type *const p_type);
+    llvm::Type *GetLLVMType(llvm::LLVMContext &context, Pascal_Type *const p_type);
 };
 
 using namespace Our_Type;
@@ -235,7 +240,7 @@ class Type_Result : public Custom_Result
 {
 public:
     Type_Result(Our_Type::Pascal_Type *_type, bool _is_var = false) : type(_type), is_var(_is_var) {}
-    const Our_Type::Pascal_Type *GetType() const
+    Our_Type::Pascal_Type *GetType()
     {
         return type;
     }
@@ -305,7 +310,7 @@ public:
     {
         type_decl_list.push_back(_type_decl_result);
     }
-    std::vector<std::shared_ptr<Type_Declaration_Result>> &getTypeDeclList()
+    std::vector<std::shared_ptr<Type_Declaration_Result>> &GetTypeDeclList()
     {
         return type_decl_list;
     }

@@ -33,13 +33,13 @@ add_custom_command(
 
 add_custom_command(
     OUTPUT pascal.y.hpp pascal.y.cpp 
-    COMMAND yacc -d -o pascal.y.cpp ${CMAKE_CURRENT_LIST_DIR}/parser/pascal.y
+    COMMAND bison -d -Wcounterexamples -o pascal.y.cpp ${CMAKE_CURRENT_LIST_DIR}/parser/pascal.y
     DEPENDS ${CMAKE_CURRENT_LIST_DIR}/parser/pascal.y
 )
 
 add_executable(
     opc
-    main.cpp ${AST_SOURCE} ${GEN_SOURCE} ${CON_SOURCE} ${TYP_SOURCE} pascal.l.cpp
+    main.cpp ${TYP_SOURCE} ${AST_SOURCE} ${GEN_SOURCE} ${CON_SOURCE}  pascal.l.cpp
     pascal.y.cpp pascal.y.hpp)
 
 llvm_map_components_to_libnames(llvm_libs support core irreader executionEngine interpreter nativecodegen mcjit)
