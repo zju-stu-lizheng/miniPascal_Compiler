@@ -1,6 +1,0 @@
-make --dry-run --always-make --keep-going --print-directory
-make: Entering directory '/home/alicewyp/cp/project/Our_Pascal_Compiler'
-make: Leaving directory '/home/alicewyp/cp/project/Our_Pascal_Compiler'
- 
-make: *** No targets specified and no makefile found.  Stop.
-
