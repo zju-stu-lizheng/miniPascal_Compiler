@@ -4,7 +4,7 @@
 #include <map>
 #include "../type/type.hpp"
 #include <llvm/IR/IRBuilder.h>
-//#include <llvm/IR/Value.h>
+#include <llvm/IR/Value.h>
 
 // function or procedure
 class Procedure_Information{

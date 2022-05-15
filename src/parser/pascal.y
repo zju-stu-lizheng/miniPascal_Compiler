@@ -789,7 +789,7 @@ term:
         SET_LOCATION($$);
     }
     | term  SYM_DIV factor{
-        $$ = new AST_Binary_Expression(AST_Binary_Expression::Operation::DIV,$1,$3);
+        $$ = new AST_Binary_Expression(AST_Binary_Expression::Operation::REALDIV,$1,$3);
         SET_LOCATION($$);
     }
     | term  KEY_DIV factor {
