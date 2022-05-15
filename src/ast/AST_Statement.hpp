@@ -35,7 +35,7 @@ public:
 
 public:
     AST_Statement_List *statement_list;
-
+ 
 public:
     AST_Compound_Statement(AST_Statement_List *_statement_list) : statement_list(_statement_list){};
     AST_Statement_List *Get_Statement_List() const
@@ -157,6 +157,9 @@ public:
     {
         return this->int_or_identifier;
     }
+    bool isIdentifier() const{
+        return int_or_identifier == Int_or_Identifier::IDENTIFIER;
+    }
 };
 
 /*
@@ -243,6 +246,26 @@ public:
     {
         return statement_type;
     }
+    /*
+    ASSIGN,
+    PROCEDURE,
+    COMPOUND,
+    IF,
+    CASE,
+    REPEAT,
+    WHILE,
+    FOR,
+    GOTO
+    */
+    bool isAssign(){return statement_type == Statement_Type::ASSIGN;}
+    bool isProcedure(){return statement_type == Statement_Type::PROCEDURE;}
+    bool isCompound(){return statement_type == Statement_Type::COMPOUND;}
+    bool isIf(){return statement_type == Statement_Type::IF;}
+    bool isCase(){return statement_type == Statement_Type::CASE;}
+    bool isRepeat(){return statement_type == Statement_Type::REPEAT;}
+    bool isWhile(){return statement_type == Statement_Type::WHILE;}
+    bool isFor(){return statement_type == Statement_Type::FOR;}
+    bool isGoto(){return statement_type == Statement_Type::GOTO;}
 };
 
 /*
@@ -257,6 +280,13 @@ class AST_Assign_Statement : public AST_BaseNode
 {
 public:
     std::shared_ptr<Custom_Result>CodeGenerate() override;
+
+    bool ValueAssign(llvm::Value* left_ptr, Pascal_Type* left_type, llvm::Value* right_ptr, Pascal_Type* right_type){
+        if (left_type->isArray()){
+            //todo type transfer
+
+        }
+    }
 
 public:
     enum class Assign_Type
@@ -280,6 +310,15 @@ public:
     Assign_Type Get_Assign_Type() const
     {
         return assign_type;
+    }
+    bool isDirectAssign() const{
+        return assign_type == Assign_Type::I_1_E_1;
+    }
+    bool isArrayAssign() const{
+        return assign_type == Assign_Type::I_1_E_2;
+    }
+    bool isRecordAttrAssign() const{ // record attribute
+        return assign_type == Assign_Type::I_2_E_1;
     }
 };
 

@@ -35,33 +35,37 @@ class Function_Information : public Procedure_Information{
         Our_Type::Pascal_Type* return_type = nullptr;
 
         Function_Information(std::vector<std::string> _name_list, std::vector<Our_Type::Pascal_Type*> _type_list, std::vector<bool> _is_var_list, Our_Type::Pascal_Type* _return_type = nullptr):
-                    return_type(_return_type), Procedure_Information(_name_list, _type_list, _is_var_list){}
-};
-
-class Label_Type{
-    enum class Label_Group{
-        IDENTIFIER,
-        INT
-    };
-    Label_Group label_group;
-    std::string identifier_label;
-    int int_label;
-
-    Label_Type(std::string _identifier_label):
-            identifier_label(_identifier_label), label_group(Label_Group::IDENTIFIER){};
-    Label_Type(int _int_label):
-            int_label(_int_label), label_group(Label_Group::INT){};
-    
+                    return_type(_return_type), Procedure_Information(_name_list, _type_list, _is_var_list){};
 };
 
 class CodeBlock{
-    // std::string codeblock_id;
-    std::map<std::string, llvm::Value *> names_2_values; //variables
-    std::map<std::string, Our_Type::Pascal_Type*> names_2_ourtype;
-    std::map<std::string, Function_Information*> names_2_func_info; //function or procedure
-    std::map<std::string, llvm::Function*> names_2_functions;
-    std::map<Label_Type*, llvm::BasicBlock*> label_2_block; //goto
+    public:
+        // std::string codeblock_id;
+        std::map<std::string, llvm::Value *> names_2_values; //variables
+        std::map<std::string, Our_Type::Pascal_Type*> names_2_ourtype;
+        std::map<std::string, Function_Information*> names_2_func_info; //function or procedure
+        std::map<std::string, llvm::Function*> names_2_functions;
+        std::map<std::shared_ptr<Label_Type>, llvm::BasicBlock*> label_2_block; //goto
 
+};
+
+class Error_Information{
+    public:
+    std::string error_info;
+    std::pair<int, int> error_location;
+
+    Error_Information(std::string _error_info, std::pair<int, int> _error_location):
+            error_info(_error_info), error_location(_error_location){};
+};
+
+class Error_Information_Record{
+    public:
+        std::vector<Error_Information> record;
+
+        Error_Information_Record() = default;
+        void Add_Error_Information(std::string _error_info, std::pair<int, int> _error_location){
+            record.emplace_back(_error_info, _error_location);
+        };
 };
 
 namespace Contents{
@@ -72,8 +76,10 @@ namespace Contents{
     extern std::unique_ptr<llvm::Module> module;
     extern std::map<std::string, llvm::Constant* > names_2_constants; // global constants
     extern std::vector<CodeBlock* > codeblock_list;
-    extern std::vector<std::string> error_message;
-    extern std::vector<std::pair<int, int> > error_position;
+
+    extern std::shared_ptr<Error_Information_Record> error_record;
+    // extern std::vector<std::string> error_message;
+    // extern std::vector<std::pair<int, int> > error_position;
 
     //保存生成的IR代码
     void Save(std::string path);

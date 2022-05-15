@@ -137,8 +137,27 @@ namespace Our_Type
 using namespace Our_Type;
 
 //定义llvm 返回值的类型
+//返回一个值 列表
 class Custom_Result
 {
+};
+
+
+// 普通返回值的列表
+class Custom_List_Result : public Custom_Result
+{
+public:
+    Custom_List_Result(std::vector<std::shared_ptr<Custom_Result>> _custom_list) : custom_list(_custom_list) {}
+
+    ~Custom_List_Result() = default;
+
+    const std::vector<std::shared_ptr<Custom_Result>> &GetCustomList() const
+    {
+        return custom_list;
+    }
+
+private:
+    std::vector<std::shared_ptr<Custom_Result>> custom_list;
 };
 
 //以下类均为Custom_Result的子类
@@ -293,4 +312,29 @@ public:
 
 private:
     std::vector<std::shared_ptr<Type_Declaration_Result>> type_decl_list;
+};
+
+
+// Label type
+
+class Label_Type : public Custom_Result{
+    public:
+        enum class Label_Group{
+            IDENTIFIER,
+            INT
+        };
+        Label_Group label_group;
+        std::string identifier_label;
+        int int_label;
+
+        Label_Type(std::string _identifier_label):
+                identifier_label(_identifier_label), label_group(Label_Group::IDENTIFIER){};
+        Label_Type(int _int_label):
+                int_label(_int_label), label_group(Label_Group::INT){};
+        std::string Get_label_string(){
+            if(label_group == Label_Group::IDENTIFIER)
+                return identifier_label;
+            else
+                return std::to_string(int_label);
+        }
 };
