@@ -57,7 +57,7 @@ namespace Our_Type
     };
 
     // 定义在type.cpp
-    bool isEqual(const Pascal_Type *const a,const Pascal_Type *const b);
+    bool isEqual(const Pascal_Type *const a, const Pascal_Type *const b);
 
     class Buildin_Type : public Pascal_Type
     {
@@ -119,17 +119,53 @@ namespace Our_Type
         {
         }
     };
-    
+
     const Buildin_Type INT_TYPE_INST(Buildin_Type::Buildin_Type_Name::INT);
     const Buildin_Type REAL_TYPE_INST(Buildin_Type::Buildin_Type_Name::FLOAT);
     const Buildin_Type CHAR_TYPE_INST(Buildin_Type::Buildin_Type_Name::CHAR);
     const Buildin_Type BOOLEAN_TYPE_INST(Buildin_Type::Buildin_Type_Name::BOOLEAN);
     const Buildin_Type VOID_TYPE_INST(Buildin_Type::Buildin_Type_Name::VOID);
-    Pascal_Type *const INT_TYPE = (Pascal_Type *) (&INT_TYPE_INST);
-    Pascal_Type *const REAL_TYPE = (Pascal_Type *) (&REAL_TYPE_INST);
-    Pascal_Type *const CHAR_TYPE = (Pascal_Type *) (&CHAR_TYPE_INST);
-    Pascal_Type *const BOOLEAN_TYPE = (Pascal_Type *) (&BOOLEAN_TYPE_INST);
-    Pascal_Type *const VOID_TYPE = (Pascal_Type *) (&VOID_TYPE_INST);
+    Pascal_Type *const INT_TYPE = (Pascal_Type *)(&INT_TYPE_INST);
+    Pascal_Type *const REAL_TYPE = (Pascal_Type *)(&REAL_TYPE_INST);
+    Pascal_Type *const CHAR_TYPE = (Pascal_Type *)(&CHAR_TYPE_INST);
+    Pascal_Type *const BOOLEAN_TYPE = (Pascal_Type *)(&BOOLEAN_TYPE_INST);
+    Pascal_Type *const VOID_TYPE = (Pascal_Type *)(&VOID_TYPE_INST);
+
+    llvm::Type *GetLLVMType(llvm::LLVMContext &context, Pascal_Type *const p_type)
+    {
+        if (p_type->type_group == Pascal_Type::Type_Group::BUILT_IN)
+        {
+            if (isEqual(p_type, INT_TYPE))
+                return llvm::Type::getInt32Ty(context);
+            else if (isEqual(p_type, REAL_TYPE))
+                return llvm::Type::getDoubleTy(context);
+            else if (isEqual(p_type, CHAR_TYPE))
+                return llvm::Type::getInt8Ty(context);
+            else if (isEqual(p_type, BOOLEAN_TYPE))
+                return llvm::Type::getInt1Ty(context);
+            else if (isEqual(p_type, VOID_TYPE))
+                return llvm::Type::getVoidTy(context);
+            else
+                return nullptr;
+        }else if(p_type->type_group == Pascal_Type::Type_Group::STRING){
+            String_Type *str = (String_Type *) p_type;
+            return llvm::ArrayType::get(GetLLVMType(context,CHAR_TYPE),(uint64_t)(str->dim));
+        }else if(p_type->type_group == Pascal_Type::Type_Group::RECORD){
+            Record_Type *record = (Record_Type *) p_type;
+            std::vector<llvm::Type *> llvm_type_vec;
+            for (auto t : record->type_list) {
+                llvm_type_vec.push_back(GetLLVMType(context, t));
+            }
+            return llvm::StructType::get(context, llvm_type_vec);
+        }else if(p_type->type_group == Pascal_Type::Type_Group::ENUMERATE){
+            // does not mean that enum type does not exist
+            // it means that we do not consider it as a basic type
+            return llvm::Type::getInt32Ty(context);
+        }else if(p_type ->type_group == Pascal_Type::Type_Group::SUBRANGE){
+            // not implemented
+            return nullptr;
+        }
+    }
 };
 
 using namespace Our_Type;
@@ -196,17 +232,17 @@ public:
 class Value_List_Result : public Custom_Result
 {
 public:
-    Value_List_Result(std::vector<std::shared_ptr<Value_Result> > _value_list) : value_list(_value_list) {}
+    Value_List_Result(std::vector<std::shared_ptr<Value_Result>> _value_list) : value_list(_value_list) {}
 
     ~Value_List_Result() = default;
 
-    const std::vector<std::shared_ptr<Value_Result> > &GetValueList() const
+    const std::vector<std::shared_ptr<Value_Result>> &GetValueList() const
     {
         return value_list;
     }
 
 private:
-    std::vector<std::shared_ptr<Value_Result> > value_list;
+    std::vector<std::shared_ptr<Value_Result>> value_list;
 };
 
 //返回一个类型
@@ -238,20 +274,20 @@ private:
 class Type_List_Result : public Custom_Result
 {
 public:
-    Type_List_Result(std::vector<std::shared_ptr<Type_Result> > _type_list, std::vector<std::string> _name_list) : type_list(_type_list), name_list(_name_list) {}
+    Type_List_Result(std::vector<std::shared_ptr<Type_Result>> _type_list, std::vector<std::string> _name_list) : type_list(_type_list), name_list(_name_list) {}
 
-    const std::vector<std::shared_ptr<Type_Result> > &GetTypeList ()
+    const std::vector<std::shared_ptr<Type_Result>> &GetTypeList()
     {
         return type_list;
     }
 
-    const std::vector<std::string> &GetNameList ()
+    const std::vector<std::string> &GetNameList()
     {
         return name_list;
     }
 
 private:
-    std::vector<std::shared_ptr<Type_Result> > type_list;
+    std::vector<std::shared_ptr<Type_Result>> type_list;
     std::vector<std::string> name_list;
 };
 
@@ -269,22 +305,26 @@ public:
         return name_list;
     }
 
-    Our_Type::Pascal_Type * GetType()
+    Our_Type::Pascal_Type *GetType()
     {
         return type;
     }
 };
 
 //返回一个 声明类型 列表
-class Type_Declaration_List_Result : public Custom_Result {
+class Type_Declaration_List_Result : public Custom_Result
+{
 public:
     Type_Declaration_List_Result() {}
-    void AddTypeDeclResult(std::shared_ptr<Type_Declaration_Result> _type_decl_result) {
+    void AddTypeDeclResult(std::shared_ptr<Type_Declaration_Result> _type_decl_result)
+    {
         type_decl_list.push_back(_type_decl_result);
     }
-    std::vector<std::shared_ptr<Type_Declaration_Result> > &getTypeDeclList() {
+    std::vector<std::shared_ptr<Type_Declaration_Result>> &getTypeDeclList()
+    {
         return type_decl_list;
     }
+
 private:
-    std::vector<std::shared_ptr<Type_Declaration_Result> > type_decl_list;
+    std::vector<std::shared_ptr<Type_Declaration_Result>> type_decl_list;
 };
