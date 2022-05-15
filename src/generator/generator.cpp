@@ -1,6 +1,8 @@
 #include "../ast/AST.hpp"
 #include "../type/type.hpp"
 #include "../contents/Contents.hpp"
+#include <llvm/IR/Constants.h>
+#include <llvm/IR/Constant.h>
 
 using namespace Our_Type;
 
@@ -175,15 +177,57 @@ std::shared_ptr<Custom_Result> AST_Identifier_Expression::CodeGenerate()
     if(Contents::GetCurrentBlock()->isValue(id)){
         llvm::Value *mem = Contents::GetCurrentBlock()->names_2_values[id];
         llvm::Value *value = Contents::builder.CreateLoad(mem);
-        // return std::make_shared<Value_Result>(this->GetVarType(id), value, mem);
+        return std::make_shared<Value_Result>(Contents::GetVarType(id), value, mem);
     }
-    return nullptr;
     //再判断是否在最外层code_block
+    else if(Contents::codeblock_list[0]->isValue(id)){
+        llvm::Value *mem = Contents::codeblock_list[0]->names_2_values[id];
+        llvm::Value *value = Contents::builder.CreateLoad(mem);
+        return std::make_shared<Value_Result>(Contents::codeblock_list[0]->names_2_ourtype[id], value, mem);
+    }
+    else{
+        //可能是无参数的函数调用
+        //Funcall
+        return nullptr;
+    }
 }
 
 std::shared_ptr<Custom_Result> AST_Array_Expression::CodeGenerate()
 {
-    std::cout << "hello" << std::endl;
+    auto index = std::static_pointer_cast<Value_Result> (expression->CodeGenerate());
+    auto array = std::static_pointer_cast<Value_Result> ((new AST_Identifier_Expression(id))->CodeGenerate());
+    bool isStr = array->GetType()->type_group == Pascal_Type::Type_Group::STRING;
+    bool isArr = array->GetType()->type_group == Pascal_Type::Type_Group::ARRAY;
+    if (array == nullptr || (!isArr && !isStr)) {
+        // report error
+        // std::cerr << get_location() << "Not an array nor str, cannot use index." << std::endl;
+        return nullptr;
+    }
+
+    Array_Type* array_type = (Array_Type*)(array->GetType());
+    if (!isEqual(index->GetType(), Our_Type::INT_TYPE) && !isEqual(index->GetType(), Our_Type::CHAR_TYPE)) 
+        return nullptr;
+
+    llvm::Value *base;  //获取数组的基址
+    if (isArr) {
+        base = array_type->GetLLVMLow(Contents::context);
+    } else {
+        base = llvm::ConstantInt::get(llvm::Type::getInt32Ty(Contents::context), 0, true);
+    }
+
+    auto offset = Contents::builder.CreateSub(index->GetValue(),base,"subtmp");
+    std::vector<llvm::Value *> offset_vec = {
+        llvm::ConstantInt::get(llvm::Type::getInt32Ty(Contents::context),0),
+        offset
+    };
+
+    llvm::Value *mem = Contents::builder.CreateGEP( array->GetMemory(), offset_vec, "ArrayCall");
+    llvm::Value *value = Contents::builder.CreateLoad(mem);
+    if (isArr) {
+        return std::make_shared<Value_Result>(array_type->element_type, value, mem);
+    } else {
+        return std::make_shared<Value_Result>(Our_Type::CHAR_TYPE, value, mem);
+    }
 }
 
 // AST_Program.hpp
@@ -351,52 +395,258 @@ std::shared_ptr<Custom_Result> AST_Goto_Statement::CodeGenerate()
 // AST_Type.hpp
 std::shared_ptr<Custom_Result> AST_Type::CodeGenerate()
 {
-    std::cout << "hello" << std::endl;
+    AST_Type::Type_Name type_name = Get_Type_Name();
+    if (type_name == AST_Type::Type_Name::INT)
+        return std::make_shared<Type_Result>(INT_TYPE);
+    else if (type_name == AST_Type::Type_Name::FLOAT)
+        return std::make_shared<Type_Result>(REAL_TYPE);
+    else if (type_name == AST_Type::Type_Name::BOOLEAN)
+        return std::make_shared<Type_Result>(BOOLEAN_TYPE);
+    else if (type_name == AST_Type::Type_Name::CHAR)
+        return std::make_shared<Type_Result>(CHAR_TYPE);
+    else 
+        return nullptr;
 }
 
 std::shared_ptr<Custom_Result> AST_Simple_Type_Declaration::CodeGenerate()
 {
-    std::cout << "hello" << std::endl;
+    if (my_type == My_Type::EASY_TYPE) {
+        return my_typename->CodeGenerate();
+    } else if (my_type == My_Type::IDENTIFIER) {
+        Pascal_Type *ret = nullptr;
+        
+        if (Contents::GetCurrentBlock()->names_2_values.count(define_id) > 0) {
+            // return RecordErrorMessage("The variable " + define_id + " Can not be defined again.", get_location_pairs());
+            return nullptr;
+        }
+
+        for (int i = Contents::codeblock_list.size()-1; i >= 0; i--) {
+            CodeBlock *block = Contents::codeblock_list[i];
+            if (block->names_2_ourtype.find(define_id) != block->names_2_ourtype.end()) {
+                ret = block->names_2_ourtype[define_id];
+            }
+        }
+        if (ret == nullptr) {
+            // return RecordErrorMessage("Can not find the definition of type '" + define_id + "'.", get_location_pairs());
+            return nullptr;
+        }
+        return std::make_shared<Type_Result>(ret);
+    } else if (my_type == My_Type::VALUE_RANGE) {
+        std::shared_ptr<Value_Result> low_ret = std::static_pointer_cast<Value_Result>(low->CodeGenerate());
+        std::shared_ptr<Value_Result> high_ret = std::static_pointer_cast<Value_Result>(high->CodeGenerate());
+        
+        int low, high;
+        if (llvm::ConstantInt *CI = llvm::dyn_cast<llvm::ConstantInt>(low_ret->GetValue())) {
+            low = CI->getSExtValue();
+        } else {
+            // return RecordErrorMessage("The low number in range is incorrect.", get_location_pairs());
+            return nullptr;
+        }
+        if (llvm::ConstantInt *CI = llvm::dyn_cast<llvm::ConstantInt>(high_ret->GetValue())) {
+            high = CI->getSExtValue();
+        } else {
+            // return RecordErrorMessage("The high number in range is incorrect.", get_location_pairs());
+            return nullptr;
+        }
+
+        // if (neg_low) low *= -1;
+        // if (neg_high) high *= -1;
+        
+        Pascal_Type *range = new Subrange_Type(low, high);
+        return std::make_shared<Type_Result>(range);
+    } else if (my_type == My_Type::IDENTIFIER_RANGE) {
+        std::string low_id = low_name;
+        std::string high_id = high_name;
+
+        // grab constant variable
+        llvm::Constant *low, *high;
+        if (Contents::names_2_constants.find(low_id) != Contents::names_2_constants.end()) {
+            low = Contents::names_2_constants[low_id];
+        } else {
+            // return RecordErrorMessage("The low ID in range is incorrect.", get_location_pairs());
+            return nullptr;
+        }
+        if (Contents::names_2_constants.find(high_id) != Contents::names_2_constants.end()) {
+            high = Contents::names_2_constants[high_id];
+        } else {
+            //  return RecordErrorMessage("The high ID in range is incorrect.", get_location_pairs());
+            return nullptr;
+        }
+
+        // grab int from ConstantInt*
+        int low_int, high_int;
+        if (llvm::ConstantInt *CI = llvm::dyn_cast<llvm::ConstantInt>(low)) {
+            low_int = CI->getSExtValue();
+        } else {
+            // return RecordErrorMessage("The low ID in range is incorrect.", get_location_pairs());
+            return nullptr;
+        }
+        if (llvm::ConstantInt *CI = llvm::dyn_cast<llvm::ConstantInt>(high)) {
+            high_int = CI->getSExtValue();
+        } else {
+            // return RecordErrorMessage("The high ID in range is incorrect.", get_location_pairs());
+            return nullptr;
+        }
+        Pascal_Type *range = new Subrange_Type(low_int, high_int);
+        return std::make_shared<Type_Result>(range);
+
+    } else if (my_type == My_Type::ENUMERATE) {
+        std::shared_ptr<Name_List> list_ret;
+        std::vector<std::string> name_list;
+        if (list_ret = std::static_pointer_cast<Name_List>(this->name_list->CodeGenerate())) {
+            name_list = list_ret->GetNameList();
+        } else{
+            // return RecordErrorMessage("Enum type does not has a name list.", get_location_pairs());
+            return nullptr;
+        }
+        Enumerate_Type *new_enum = new Enumerate_Type(name_list);
+        return std::make_shared<Type_Result>(new_enum);
+    }
+    // return RecordErrorMessage("Can not recognize the current type.", get_location_pairs());
+    return nullptr;
 }
 
 std::shared_ptr<Custom_Result> AST_Array_Type_Declaration::CodeGenerate()
 {
-    std::cout << "hello" << std::endl;
+    std::shared_ptr<Type_Result> tr;
+    int low, high;
+    tr = std::static_pointer_cast<Type_Result>(simple_type_decl->CodeGenerate());
+    if (tr->GetType()->type_group == Pascal_Type::Type_Group::SUBRANGE) {
+        Subrange_Type *range = (Subrange_Type *)tr->GetType();
+        low = range->begin_2_end.first;
+        high = range->begin_2_end.second;
+    } else {
+        // not a range
+        // std::cout << node->get_location() << "index_range is not a range" << std::endl;
+        return nullptr;
+    }
+    
+    std::shared_ptr< Type_Result > type_ret;
+    Pascal_Type *array_type;
+    if (type_ret = std::static_pointer_cast< Type_Result >(type_decl->CodeGenerate())) {
+        array_type = type_ret->GetType();
+    } else {
+        // not a type
+        // std::cout << node->get_location() << "array_type is not a type" << std::endl;
+        return nullptr;
+    }
+    Subrange_Type *_subrange = new Subrange_Type(low,high);
+    Array_Type *this_type = new Array_Type(
+        *_subrange,array_type
+    ); 
+    return std::make_shared<Type_Result>(this_type);
 }
 
 std::shared_ptr<Custom_Result> AST_Record_Type_Declaration::CodeGenerate()
 {
-    std::cout << "hello" << std::endl;
+    std::shared_ptr<Type_Declaration_List_Result> decls = std::static_pointer_cast<Type_Declaration_List_Result>(
+        field_decl_list->CodeGenerate());
+
+    if (decls) {
+        std::vector<std::string> name_vec;
+        std::vector<Pascal_Type *> type_vec;
+        for(auto tdr : decls->GetTypeDeclList()) {
+            Pascal_Type *type = tdr->GetType();
+            for(auto attr_name : tdr->GetNameList()) {
+                name_vec.push_back(attr_name);
+                type_vec.push_back(type);
+            }
+        }
+        Pascal_Type *record_type = new Record_Type(name_vec, type_vec);
+        return std::make_shared<Type_Result>(record_type);
+    } else {
+        //report error
+        // std::cout << get_location() << "fail to generate a record type." << std::endl;
+        return nullptr;
+    }
 }
 
 std::shared_ptr<Custom_Result> AST_Field_Declaration_List::CodeGenerate()
 {
-    std::cout << "hello" << std::endl;
+    std::shared_ptr<Custom_Result> fd_ret;
+    std::shared_ptr<Type_Declaration_List_Result> ret(new Type_Declaration_List_Result());
+    for (auto fd : field_decl_list) {
+        fd_ret = fd->CodeGenerate();
+        
+        std::shared_ptr<Type_Declaration_Result> tdr;
+        if (tdr = std::static_pointer_cast<Type_Declaration_Result>(fd_ret)) {
+            ret->AddTypeDeclResult(tdr);
+        } else {
+            //report error
+            // std::cout << fd->get_location() << "in a record_decl but not a type_decl" << std::endl;
+        }
+    }
+    return ret;
 }
 
 std::shared_ptr<Custom_Result> AST_Field_Declaration::CodeGenerate()
 {
-    std::cout << "hello" << std::endl;
+    std::shared_ptr<Name_List> list_ret;
+    std::vector<std::string> name_list;
+    if (list_ret = std::static_pointer_cast<Name_List>(type_decl->CodeGenerate())) {
+        name_list = list_ret->GetNameList();
+    } else {
+        //report error
+        // std::cout << get_location() << " not a name list." << endl;
+    }
+
+    std::shared_ptr< Type_Result > type_ret;
+    Pascal_Type *type;
+    if (type_ret = std::static_pointer_cast< Type_Result >(type_decl->CodeGenerate())) {
+        type = type_ret->GetType();
+    } else {
+        // not a type
+        // std::cout << get_location() << "type_decl does not have a type" << std::endl;
+        return nullptr;
+    }
+
+    return std::make_shared<Type_Declaration_Result>(list_ret->GetNameList(), type_ret->GetType());
 }
 
 std::shared_ptr<Custom_Result> AST_Name_List::CodeGenerate()
 {
-    std::cout << "hello" << std::endl;
+    return std::make_shared<Name_List>(identifier_list);
 }
 
 std::shared_ptr<Custom_Result> AST_Type_Declaration_List::CodeGenerate()
 {
-    std::cout << "hello" << std::endl;
+    for(auto td : type_definition_list){
+        td->CodeGenerate();
+    }
+    return nullptr;
 }
 
 std::shared_ptr<Custom_Result> AST_Type_Definition::CodeGenerate()
 {
-    std::cout << "hello" << std::endl;
+    std::shared_ptr<Type_Result> tr = std::static_pointer_cast<Type_Result>(
+        type_decl->CodeGenerate());
+
+    if (tr) {
+        Pascal_Type *type = tr->GetType();
+        bool defined = false;
+        for (int i = Contents::codeblock_list.size()-1; i >= 0; i--) {
+            CodeBlock *block = Contents::codeblock_list[i];
+            if (block->names_2_ourtype.find(identifier) != block->names_2_ourtype.end()) {
+                defined = true;
+                break;
+            }
+        }
+        if (defined) {
+            // std::cout << get_location() << "multiple type definition." << std::endl;
+            // report error
+        } else {
+            Contents::GetCurrentBlock()->names_2_ourtype[identifier] = type;
+        }
+    } else {
+        // report error
+        // std::cout << get_location() << "fail to generate a type." << std::endl;
+    }
+    return nullptr;
 }
 
 std::shared_ptr<Custom_Result> AST_Type_Part::CodeGenerate()
 {
-    std::cout << "hello" << std::endl;
+    return type_decl_list->CodeGenerate();
 }
 
 // AST_Value.hpp

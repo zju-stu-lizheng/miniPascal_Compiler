@@ -31,7 +31,8 @@ public:
         INT,
         FLOAT,
         BOOLEAN,
-        CHAR
+        CHAR,
+        STRING
     };
     AST_Type(AST_Type::Type_Name _typename) : my_typename(_typename){};
 

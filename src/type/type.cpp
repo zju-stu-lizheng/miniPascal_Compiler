@@ -2,6 +2,16 @@
 
 using namespace Our_Type;
 
+llvm::ConstantInt *Array_Type::GetLLVMLow(llvm::LLVMContext &context)
+{
+    return llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), subrange.begin_2_end.first, true);
+}
+
+llvm::ConstantInt *Array_Type::GetLLVMHigh(llvm::LLVMContext &context)
+{
+    return llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), subrange.begin_2_end.second, true);
+}
+
 llvm::Type *Our_Type::GetLLVMType(llvm::LLVMContext &context, Pascal_Type *const p_type)
 {
     if (p_type->type_group == Pascal_Type::Type_Group::BUILT_IN)
