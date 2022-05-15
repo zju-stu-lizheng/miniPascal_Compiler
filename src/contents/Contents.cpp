@@ -1,4 +1,9 @@
 #include "Contents.hpp"
+#include <cstdio>
+
+#include <iostream>
+#include <vector>
+#include <map>
 
 namespace Contents
 {
@@ -6,7 +11,7 @@ namespace Contents
     llvm::LLVMContext context;
     llvm::IRBuilder<> builder(context);
     std::unique_ptr<llvm::Module> module = std::make_unique<llvm::Module>("pascal_module", context);
-    std::map<std::string, llvm::Constant *> names_2_constants; // global constants
+    std::map <std::string, llvm::Constant *> names_2_constants; // global constants
     std::vector<CodeBlock *> codeblock_list;
     std::vector<std::string> error_message;
     std::vector<std::pair<int, int>> error_position;

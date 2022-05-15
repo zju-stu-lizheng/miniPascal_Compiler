@@ -3,6 +3,8 @@
 #include "../contents/Contents.hpp"
 #include <llvm/IR/Constants.h>
 #include <llvm/IR/Constant.h>
+#include <llvm/IR/GlobalValue.h>
+#include <llvm/IR/GlobalVariable.h>
 
 using namespace Our_Type;
 
@@ -652,35 +654,147 @@ std::shared_ptr<Custom_Result> AST_Type_Part::CodeGenerate()
 // AST_Value.hpp
 std::shared_ptr<Custom_Result> AST_Const_Value::CodeGenerate()
 {
-    std::cout << "hello" << std::endl;
+    llvm::Type * tp;
+    //整数常量
+    if(this->value_type == AST_Const_Value::Value_Type::INT){
+        tp = llvm::Type::getInt32Ty(Contents::context);
+        int v_int = atoi(this->content.c_str());
+        return std::make_shared<Value_Result>(INT_TYPE,llvm::ConstantInt::get(tp,(uint64_t)v_int,true),nullptr);
+    }
+    //浮点常量
+    else if(this->value_type == AST_Const_Value::Value_Type::FLOAT){
+        tp = llvm::Type::getDoubleTy(Contents::context);
+        double v_double = atof(this->content.c_str());
+        return std::make_shared<Value_Result>(REAL_TYPE,llvm::ConstantFP::get(tp,v_double),nullptr);
+    }
+    //字符常量
+    else if(this->value_type == AST_Const_Value::Value_Type::CHAR){
+        tp = llvm::Type::getInt8Ty(Contents::context);
+        char v_char = this->content[1]; //这里应该是第二个字符 'a'
+        return std::make_shared<Value_Result>(CHAR_TYPE,llvm::ConstantInt::get(tp,v_char),nullptr);
+    }
+    //字面量：字符串
+    else if(this->value_type == AST_Const_Value::Value_Type::STRING){
+        // to make str things can store, alloc with each other
+        // we have to make all string values have the same length
+        // we make this 256
+        // so we add suffix zero to all constant string
+        std::string tmp = this->content.substr(1,this->content.length() - 2);
+        int tmp_len = tmp.size();
+        //如果大于255.报错
+        char zero = 0;
+        for(int i=0;i<255 - tmp_len;i++) tmp = tmp+zero;//填充0
+        llvm::Value * mem_str = Contents::builder.CreateGlobalString(tmp);
+        llvm::Value * v_str = Contents::builder.CreateLoad(mem_str);
+        return std::make_shared<Value_Result> (new String_Type(),v_str,mem_str);
+        // return nullptr;
+    }
+    //布尔常量
+    else if(this->value_type == AST_Const_Value::Value_Type::FALSE){
+        tp = llvm::Type::getInt1Ty(Contents::context);
+        return std::make_shared<Value_Result> (BOOLEAN_TYPE,llvm::ConstantInt::get(tp,(u_int64_t)false,true),nullptr);
+    }
+    else if(this->value_type == AST_Const_Value::Value_Type::TRUE){
+        tp = llvm::Type::getInt1Ty(Contents::context);
+        return std::make_shared<Value_Result> (BOOLEAN_TYPE,llvm::ConstantInt::get(tp,(u_int64_t)true,true),nullptr);
+    }
+    return nullptr;
 }
 
+/*
+const_expr_list->
+    {const_expr}
+*/
 std::shared_ptr<Custom_Result> AST_Const_Expression_List::CodeGenerate()
 {
-    std::cout << "hello" << std::endl;
+    for(AST_Const_Expression * const_expr: this->const_expr_list){
+        const_expr->CodeGenerate();
+    }
+    return nullptr;
 }
 
 std::shared_ptr<Custom_Result> AST_Const_Expression::CodeGenerate()
 {
-    std::cout << "hello" << std::endl;
+    std::shared_ptr<Value_Result> res = std::static_pointer_cast<Value_Result>(this->value->CodeGenerate());
+    llvm::GlobalVariable *constant = new llvm::GlobalVariable(
+            /*Module=*/*(Contents::module),
+            /*Type=*/GetLLVMType(Contents::context, res->GetType()),
+            /*isConstant=*/true,
+            /*Linkage=*/llvm::GlobalValue::CommonLinkage,
+            /*Initializer=*/(llvm::Constant *) res->GetValue(), // has initializer, specified below
+            /*Name=*/this->id );
+    if (Contents::codeblock_list.back()->names_2_values.count(this->id) || Contents::names_2_constants.count(this->id)) {
+        //error 
+    }
+    Contents::names_2_constants[this->id] = (llvm::Constant *) (res->GetValue());
+    Contents::codeblock_list[0]->names_2_values[this->id] = constant;
+    return nullptr;
 }
 
 std::shared_ptr<Custom_Result> AST_Const_Part::CodeGenerate()
 {
-    std::cout << "hello" << std::endl;
+    return this->const_expr_list->CodeGenerate();
 }
 
 std::shared_ptr<Custom_Result> AST_Variable_Part::CodeGenerate()
 {
-    std::cout << "hello" << std::endl;
+    return this->var_decl_list->CodeGenerate();
 }
 
 std::shared_ptr<Custom_Result> AST_Variable_Declaration_List::CodeGenerate()
 {
-    std::cout << "hello" << std::endl;
+    for(auto var_decl : this->var_decl_list){
+        var_decl->CodeGenerate();
+    }
+    return nullptr;
 }
 
+/**
+ * @brief 
+ * var_decl:
+    name_list SYM_COLON type_decl SYM_SEMICOLON 
+ * @return std::shared_ptr<Custom_Result> 
+ */
 std::shared_ptr<Custom_Result> AST_Variable_Declaration::CodeGenerate()
 {
-    std::cout << "hello" << std::endl;
+    auto name_list = std::static_pointer_cast<Name_List>(this->name_list->CodeGenerate());
+    auto type_decl = std::static_pointer_cast<Type_Result>(this->type_decl->CodeGenerate());
+
+    if(type_decl == nullptr) return nullptr;    //error
+    for(auto identifier : name_list->GetNameList()){
+        llvm::Type *ty = GetLLVMType(Contents::context,type_decl->GetType());
+        if(Contents::codeblock_list.size() == 1){
+            //是全局变量
+            llvm::Constant * init_const;
+            if(type_decl->GetType()->isSimple()){
+                init_const = llvm::Constant::getNullValue(ty);
+            }else{
+                init_const = llvm::ConstantAggregateZero::get(ty);
+            }
+            llvm::GlobalVariable * var = new llvm::GlobalVariable(
+                /*Module=*/*(Contents::module),
+                /*Type=*/ty,
+                /*isConstant=*/false,
+                /*Linkage=*/llvm::GlobalValue::CommonLinkage,
+                /*Initializer=*/init_const, // has initializer, specified below
+                /*Name=*/identifier);
+            if(Contents::codeblock_list.back()->names_2_values.count(identifier)){
+                //error
+            }
+            Contents::codeblock_list.back()->names_2_values[identifier] = var;
+            Contents::codeblock_list.back()->names_2_ourtype[identifier] = type_decl->GetType();
+        }else{
+            //是局部变量
+            llvm::AllocaInst *var = Contents::builder.CreateAlloca(
+                ty,
+                nullptr,
+                identifier
+            );
+            if(Contents::codeblock_list.back()->names_2_values.count(identifier)){
+                //error
+            }
+            Contents::codeblock_list.back()->names_2_values[identifier] = var;
+            Contents::codeblock_list.back()->names_2_ourtype[identifier] = type_decl->GetType();
+        }
+    }
 }
