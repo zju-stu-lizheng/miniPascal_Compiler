@@ -8,6 +8,7 @@
 #include <llvm/IR/Type.h>
 #include <llvm/IR/Function.h>
 #include <llvm/IR/Constants.h>
+#include <llvm/IR/LLVMContext.h>
 
 namespace Our_Type
 {

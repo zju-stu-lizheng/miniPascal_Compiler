@@ -1,10 +1,16 @@
 #include "../ast/AST.hpp"
 #include "../type/type.hpp"
 #include "../contents/Contents.hpp"
+#include "generator_error_check.hpp"
+#include <iostream>
 #include <llvm/IR/Constants.h>
 #include <llvm/IR/Constant.h>
 #include <llvm/IR/GlobalValue.h>
 #include <llvm/IR/GlobalVariable.h>
+#include <llvm/IR/Function.h>
+#include <llvm/IR/DerivedTypes.h>
+#include <llvm/IR/BasicBlock.h>
+#define GEN_DEBUG
 
 using namespace Our_Type;
 
@@ -248,37 +254,149 @@ std::shared_ptr<Custom_Result> AST_Array_Expression::CodeGenerate()
 // AST_Program.hpp
 std::shared_ptr<Custom_Result> AST_Program::CodeGenerate()
 {
-    std::cout << "hello" << std::endl;
+    #ifdef GEN_DEBUG
+    /*Debug output*/
+    std::cout << "start program"<<std::endl;
+    #endif
+    this->program_head->CodeGenerate();
+    #ifdef GEN_DEBUG
+    /*Debug output*/
+    std::cout << "program_head ready"<<std::endl;
+    #endif
+    Contents::codeblock_list.push_back(new CodeBlock());
+    #ifdef GEN_DEBUG
+    /*Debug output*/
+    std::cout << "new CodeBlock"<<std::endl;
+    #endif
+    //下面定义主函数： int main(void); 
+    llvm::FunctionType * function_type  = llvm::FunctionType::get(GetLLVMType(Contents::context,INT_TYPE),false);
+    llvm::Function * main_function = llvm::Function::Create(
+        /*函数类型:包括返回值和函数参数*/function_type,
+        /*ExternalLink表示能够模块外使用*/llvm::Function::ExternalLinkage,
+        /*函数名*/"main",
+        &*(Contents::module));
+    llvm::BasicBlock *entry = llvm::BasicBlock::Create(Contents::context,"entry",main_function);
+    Contents::builder.SetInsertPoint(entry);
+    #ifdef GEN_DEBUG
+    /*Debug output*/
+    std::cout << "define main"<<std::endl;
+    #endif
+    this->routine->CodeGenerate();
+    #ifdef GEN_DEBUG
+    /*Debug output*/
+    std::cout << "routine ready"<<std::endl;
+    #endif
+    //创建返回值,正常返回0
+    Contents::builder.CreateRet(llvm::ConstantInt::get(llvm::Type::getInt32Ty(Contents::context),0,true));
+    return nullptr;
 }
 
 std::shared_ptr<Custom_Result> AST_Program_Head::CodeGenerate()
 {
-    std::cout << "hello" << std::endl;
+    //do nothing
+    return nullptr;
 }
 
 std::shared_ptr<Custom_Result> AST_Routine::CodeGenerate()
 {
-    std::cout << "hello" << std::endl;
+    this->routine_head->CodeGenerate();
+    #ifdef GEN_DEBUG
+    /*Debug output*/
+    std::cout << "routine_head ready"<<std::endl;
+    #endif
+    this->routine_body->CodeGenerate();
 }
 
 std::shared_ptr<Custom_Result> AST_Routine_Head::CodeGenerate()
 {
-    std::cout << "hello" << std::endl;
+    if(this->const_part) this->const_part->CodeGenerate();
+    #ifdef GEN_DEBUG
+    std::cout << "const_part ready"<<std::endl;
+    #endif
+    if(this->type_part) this->type_part->CodeGenerate();
+    #ifdef GEN_DEBUG
+    std::cout << "type_part ready"<<std::endl;
+    #endif
+    if(this->var_part) this->var_part->CodeGenerate();
+    #ifdef GEN_DEBUG
+    std::cout << "var_part ready"<<std::endl;
+    #endif
+    if(this->routine_part) this->routine_part->CodeGenerate();
+    #ifdef GEN_DEBUG
+    std::cout << "routine_part ready"<<std::endl;
+    #endif
 }
 
 std::shared_ptr<Custom_Result> AST_Declaration_BaseClass::CodeGenerate()
 {
-    std::cout << "hello" << std::endl;
+    bool is_function = (this->declaration_type == ENUM_Declaration_Type::FUNCTION_DECLARATION);
+    auto parameters = std::static_pointer_cast<Type_List_Result>(
+        is_function ? this->Get_Function_Declaration()->Get_Function_Head()->Get_Parameters()->CodeGenerate()
+                    : this->Get_Procedure_Declaration()->Get_Procedure_Head()->Get_Parameters()->CodeGenerate()
+    );
+
+    if(parameters == nullptr){
+        Record_and_Output_Error(true,"Can not recognize the parameters for function/procedure definition.",this->GetLocation());
+        return nullptr;
+    }
+
+    Pascal_Type * return_type = Our_Type::VOID_TYPE;
+    std::string function_name;
+    if(is_function){
+        //有返回值
+        function_name = this->Get_Function_Declaration()->Get_Function_Head()->Get_Identifier();
+        auto return_type_result = std::static_pointer_cast<Type_Result>(this->Get_Function_Declaration()->Get_Function_Head()->Get_Simple_Type_Declaration()->CodeGenerate());
+        if(return_type_result == nullptr){
+            Record_and_Output_Error(true,"Can not recognize the return type for the function definition.",this->GetLocation());
+            return nullptr;
+        }
+        return_type = return_type_result->GetType();
+    }else{
+        function_name = this->Get_Procedure_Declaration()->Get_Procedure_Head()->Get_Identifier();
+    }
+    llvm::Type *llvm_return_type = GetLLVMType(Contents::context,return_type);
+    auto name_list = parameters->GetNameList();
+    auto type_var_list = parameters->GetTypeList();
+    std::vector<llvm::Type*> llvm_type_list;
+    std::vector<Pascal_Type*> type_list;
+    std::vector<bool> var_list;
+
+    for(int i=0;i <name_list.size();i++){
+        for(int j=i+1;j<name_list.size();j++){
+            if(name_list[i] == name_list[j]){
+                Record_and_Output_Error(true,"The parameters in the function/procedure definition are duplicated.",this->GetLocation());
+                return nullptr;
+            }
+        }
+    }
+
+    // Adding local variables
+    // we must put local variables first
+    // because after we create this function, 
+    // we have to add the variables to the next CodeBlock
+    // in this step, we must add the function parameters later
+    // so as to overwrite the older local variables
+
+
+    return nullptr;
 }
 
 std::shared_ptr<Custom_Result> AST_Routine_Part::CodeGenerate()
 {
-    std::cout << "hello" << std::endl;
+    for(AST_Declaration_BaseClass* decl : this->declaration_list){
+        decl->CodeGenerate();
+        #ifdef GEN_DEBUG
+        std::cout << "funtion declaration ready"<<std::endl;
+        #endif
+    }
+    return nullptr;
 }
 
 std::shared_ptr<Custom_Result> AST_Routine_Body::CodeGenerate()
 {
-    std::cout << "hello" << std::endl;
+    #ifdef GEN_DEBUG
+    std::cout << "Routine_Body ready" << std::endl;
+    #endif
 }
 
 std::shared_ptr<Custom_Result> AST_Function_Declaration::CodeGenerate()
