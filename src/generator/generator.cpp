@@ -17,7 +17,7 @@ using namespace Our_Type;
 // AST_Expression.hpp
 std::shared_ptr<Custom_Result> AST_Expression_List::CodeGenerate()
 {
-    std::vector<std::shared_ptr<Value_Result>> ret;
+    std::vector<std::shared_ptr<Value_Result> > ret;
     int cnt = 0;
     for (auto expression_node : expr_list)
     {
@@ -312,6 +312,7 @@ std::shared_ptr<Custom_Result> AST_Routine::CodeGenerate()
     std::cout << "routine_head ready"<<std::endl;
     #endif
     this->routine_body->CodeGenerate();
+    return nullptr;
 }
 
 std::shared_ptr<Custom_Result> AST_Routine_Head::CodeGenerate()
@@ -332,20 +333,36 @@ std::shared_ptr<Custom_Result> AST_Routine_Head::CodeGenerate()
     #ifdef GEN_DEBUG
     std::cout << "routine_part ready"<<std::endl;
     #endif
+    return nullptr;
 }
 
+//这里处理函数/过程定义
 std::shared_ptr<Custom_Result> AST_Declaration_BaseClass::CodeGenerate()
 {
+    #ifdef GEN_DEBUG
+    std::cout << "function start"<<std::endl;
+    #endif
     bool is_function = (this->declaration_type == ENUM_Declaration_Type::FUNCTION_DECLARATION);
     auto parameters = std::static_pointer_cast<Type_List_Result>(
         is_function ? this->Get_Function_Declaration()->Get_Function_Head()->Get_Parameters()->CodeGenerate()
                     : this->Get_Procedure_Declaration()->Get_Procedure_Head()->Get_Parameters()->CodeGenerate()
     );
 
+    #ifdef GEN_DEBUG
+    std::cout << "is_function :" << is_function <<std::endl;
+    #endif
+
     if(parameters == nullptr){
+        #ifdef GEN_DEBUG
+        std::cout << "Can not recognize the parameters for function/procedure definition." <<std::endl;
+        #endif
         Record_and_Output_Error(true,"Can not recognize the parameters for function/procedure definition.",this->GetLocation());
         return nullptr;
     }
+
+    #ifdef GEN_DEBUG
+    std::cout << "recognize the parameters" <<std::endl;
+    #endif
 
     Pascal_Type * return_type = Our_Type::VOID_TYPE;
     std::string function_name;
@@ -378,6 +395,10 @@ std::shared_ptr<Custom_Result> AST_Declaration_BaseClass::CodeGenerate()
         }
     }
 
+    #ifdef GEN_DEBUG
+    std::cout << "Adding local variables" <<std::endl;
+    #endif
+
     // Adding local variables
     // we must put local variables first
     // because after we create this function, 
@@ -394,6 +415,10 @@ std::shared_ptr<Custom_Result> AST_Declaration_BaseClass::CodeGenerate()
         var_list.push_back(true);
         llvm_type_list.push_back(llvm::PointerType::getUnqual(GetLLVMType(Contents::context,local_type_list[i])));
     }
+
+    #ifdef GEN_DEBUG
+    std::cout << "adding function parameters" <<std::endl;
+    #endif
 
     //adding function parameters
     for(std::shared_ptr<Type_Result> type : type_var_list){
@@ -415,6 +440,11 @@ std::shared_ptr<Custom_Result> AST_Declaration_BaseClass::CodeGenerate()
     llvm::BasicBlock* oldBlock = Contents::builder.GetInsertBlock();
     llvm::BasicBlock* basicBlock = llvm::BasicBlock::Create(Contents::context,"entry",function,nullptr);
     Contents::builder.SetInsertPoint(basicBlock);
+
+
+    #ifdef GEN_DEBUG
+    std::cout << "MODIFY PARAMETERS PASSING" <<std::endl;
+    #endif
 
     //MODIFY PARAMETERS PASSING
     Contents::codeblock_list.push_back(new CodeBlock());
@@ -488,14 +518,15 @@ std::shared_ptr<Custom_Result> AST_Routine_Part::CodeGenerate()
 std::shared_ptr<Custom_Result> AST_Routine_Body::CodeGenerate()
 {
     #ifdef GEN_DEBUG
-    std::cout << "Compound_Statement ready" << std::endl;
+    std::cout << "Compound_Statement start" << std::endl;
     #endif
     return this->Get_Compound_Statement()->CodeGenerate();
 }
 
 std::shared_ptr<Custom_Result> AST_Function_Declaration::CodeGenerate()
 {
-    //
+    //实现在AST_Declaration_BaseClass
+    return nullptr;
 }
 
 std::shared_ptr<Custom_Result> AST_Function_Head::CodeGenerate()
@@ -506,7 +537,8 @@ std::shared_ptr<Custom_Result> AST_Function_Head::CodeGenerate()
 
 std::shared_ptr<Custom_Result> AST_Procedure_Declaration::CodeGenerate()
 {
-    std::cout << "hello" << std::endl;
+    //实现在AST_Declaration_BaseClass
+    return nullptr;
 }
 
 std::shared_ptr<Custom_Result> AST_Procedure_Head::CodeGenerate()
@@ -517,22 +549,53 @@ std::shared_ptr<Custom_Result> AST_Procedure_Head::CodeGenerate()
 
 std::shared_ptr<Custom_Result> AST_Parameters::CodeGenerate()
 {
-    std::cout << "hello" << std::endl;
+    //直接进入para_decl_list进行代码生成
+    auto result = this->Get_Parameters_Declaration_List()->CodeGenerate();
+    #ifdef GEN_DEBUG
+    std::cout << "para_decl_list ready"  <<std::endl;
+    #endif
+    return result;
 }
 
 std::shared_ptr<Custom_Result> AST_Parameters_Declaration_List::CodeGenerate()
 {
-    std::cout << "hello" << std::endl;
+    std::vector<std::string> name_list;
+    std::vector<std::shared_ptr<Type_Result> > type_list;
+    for(auto son : this->Get_Parameter_Type_List_List()){
+        //将parameter_type_list逐一添加
+        auto temp_list = std::static_pointer_cast<Type_List_Result>(son->CodeGenerate());
+        name_list.insert(name_list.end(),temp_list->GetNameList().begin(),temp_list->GetNameList().end());
+        type_list.insert(type_list.end(),temp_list->GetTypeList().begin(),temp_list->GetTypeList().end());
+        #ifdef GEN_DEBUG
+        std::cout << temp_list->GetNameList()[0]<< " " << temp_list->GetTypeList()[0]->GetType() <<std::endl;
+        #endif
+    }
+    return std::make_shared<Type_List_Result>(type_list,name_list);
 }
 
 std::shared_ptr<Custom_Result> AST_Parameters_Type_List::CodeGenerate()
 {
-    std::cout << "hello" << std::endl;
+    std::shared_ptr<Custom_Result> list;
+    if(this->isVar()){
+        //是Variable
+        list = this->Get_Variable_Parameters_List()->CodeGenerate();
+    }else{
+        //是name_list
+        list = this->Get_Name_List()->CodeGenerate();
+    }
+
+    auto name_list = std::static_pointer_cast<Name_List>(list)->GetNameList();
+    auto type_value = std::static_pointer_cast<Type_Result>(this->Get_Simple_Type_Declaration()->CodeGenerate());
+    if(this->isVar()){
+        type_value->SetIsVal(true);
+    }
+    std::vector<std::shared_ptr<Type_Result> > type_list(name_list.size(),type_value);
+    return std::make_shared<Type_List_Result>(type_list,name_list);
 }
 
 std::shared_ptr<Custom_Result> AST_Variable_Parameters_List::CodeGenerate()
 {
-    std::cout << "hello" << std::endl;
+    return this->Get_Name_List()->CodeGenerate();
 }
 
 // AST_Statement.hpp
