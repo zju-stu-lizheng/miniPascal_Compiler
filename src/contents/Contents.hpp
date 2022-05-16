@@ -102,7 +102,7 @@ class CodeBlock{
 };
 
 namespace Contents{
-    extern int num_of_global_variables;
+    extern int temp_variable_count;
 
     extern llvm::LLVMContext context;
     extern llvm::IRBuilder<> builder;
