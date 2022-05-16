@@ -441,6 +441,9 @@ public:
     {
         return this->list_type;
     }
+    bool isVar(){
+        return this->list_type == List_Type::VARIABLE_PARAMETERS_LIST;
+    }
 };
 
 /*

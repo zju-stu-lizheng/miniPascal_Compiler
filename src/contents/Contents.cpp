@@ -7,7 +7,7 @@
 
 namespace Contents
 {
-    int num_of_global_variables = 0;
+    int temp_variable_count = 0;
     llvm::LLVMContext context;
     llvm::IRBuilder<> builder(context);
     std::unique_ptr<llvm::Module> module = std::make_unique<llvm::Module>("pascal_module", context);

@@ -63,7 +63,7 @@ class CodeBlock{
     // std::string codeblock_id;
     std::map<std::string, llvm::Value *> names_2_values; //variables
     std::map<std::string, Our_Type::Pascal_Type*> names_2_ourtype;
-    std::map<std::string, Function_Information*> names_2_func_info; //function or procedure
+    std::map<std::string, FuncSign*> names_2_funcsign; //function or procedure
     std::map<std::string, llvm::Function*> names_2_functions;
     std::map<std::shared_ptr<Label_Type>, llvm::BasicBlock*> label_2_block; //goto
     std::vector<llvm::BasicBlock*> loop_return_blocks; // for multiple loop break
@@ -79,10 +79,31 @@ class CodeBlock{
     bool isValue(std::string id) {
         return names_2_values.find(id) != names_2_values.end();
     }
+
+    //返回LLVM function指针
+    llvm::Function* Find_Function(std::string id){
+        if(names_2_functions.find(id) == names_2_functions.end()){
+            return nullptr;
+        }
+        return names_2_functions[id];
+    }
+
+    //返回函数特征
+    FuncSign * Find_FuncSign(std::string id){
+        if(names_2_funcsign.find(id) == names_2_funcsign.end()){
+            return nullptr;
+        }
+        return names_2_funcsign[id];
+    }
+
+    void Set_Function(std::string id,llvm::Function *function,FuncSign *func_sign){
+        names_2_funcsign[id] = func_sign;
+        names_2_functions[id] = function;
+    }
 };
 
 namespace Contents{
-    extern int num_of_global_variables;
+    extern int temp_variable_count;
 
     extern llvm::LLVMContext context;
     extern llvm::IRBuilder<> builder;

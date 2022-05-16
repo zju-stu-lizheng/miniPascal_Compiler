@@ -835,6 +835,10 @@ factor:
         $$ = new AST_Unary_Expression(AST_Unary_Expression::Operation::SUB,$2);
         SET_LOCATION($$);
     }
+    | SYM_ADD factor{
+        $$ = new AST_Unary_Expression(AST_Unary_Expression::Operation::ADD,$2);
+        SET_LOCATION($$);
+    }
     | IDENTIFIER SYM_LBRAC expression SYM_RBRAC{
         $$ = new AST_Array_Expression($1,$3);
         SET_LOCATION($$);

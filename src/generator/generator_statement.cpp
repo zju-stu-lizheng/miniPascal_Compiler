@@ -7,18 +7,21 @@ std::shared_ptr<Custom_Result> AST_Compound_Statement::CodeGenerate(){
     std::shared_ptr<Custom_Result> stmt_list_ret = std::static_pointer_cast<Custom_Result>(statement_list->CodeGenerate());
     // Check_Result_NULLPtr(stmt_list_ret,"AST_Compound_Statement", this->GetLocation());
     #ifdef GEN_DEBUG
-    std::cout << "Compound assign done" << std::endl;
+    std::cout << "statement_list ready" <<std::endl;
     #endif
     return stmt_list_ret;
 }
 
 std::shared_ptr<Custom_Result> AST_Statement_List::CodeGenerate(){
     // std::cout << "hello" << std::endl;
-    std::vector<std::shared_ptr<Custom_Result>> ret;
+    std::vector<std::shared_ptr<Custom_Result> > ret;
     int cnt = 0;
     for( auto stmt_node : this->statement_list){
         auto stmt_ret = std::static_pointer_cast<Custom_Result>(stmt_node->CodeGenerate());
         // Check_Result_NULLPtr(stmt_ret,"AST_Statement_List", this->GetLocation(), cnt);
+        #ifdef GEN_DEBUG
+        std::cout << "statement ready " << cnt <<std::endl;
+        #endif
         ret.push_back(stmt_ret);
         cnt ++;
     }
@@ -46,6 +49,9 @@ std::shared_ptr<Custom_Result> AST_Statement::CodeGenerate(){
     }
 
     auto ret =  std::static_pointer_cast<Custom_Result>(non_label_statement->CodeGenerate());
+    #ifdef GEN_DEBUG
+    std::cout << "non_label_statement ready" <<std::endl;
+    #endif
 
     #ifdef GEN_DEBUG
     std::cout << "Statement done" << std::endl;

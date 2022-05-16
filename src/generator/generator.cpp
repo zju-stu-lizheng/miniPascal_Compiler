@@ -10,13 +10,14 @@
 #include <llvm/IR/Function.h>
 #include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/BasicBlock.h>
+#include <llvm/IR/Instruction.h>
 
 using namespace Our_Type;
 
 // AST_Expression.hpp
 std::shared_ptr<Custom_Result> AST_Expression_List::CodeGenerate()
 {
-    std::vector<std::shared_ptr<Value_Result>> ret;
+    std::vector<std::shared_ptr<Value_Result> > ret;
     int cnt = 0;
     for (auto expression_node : expr_list)
     {
@@ -88,7 +89,7 @@ std::shared_ptr<Custom_Result> AST_Binary_Expression::CodeGenerate()
             // 报告错误
             // error_message.push_back(cur_error_message);
             // error_position.push_back(location);
-            // return RecordErrorMessage("The type of two side in div must be INTEGER.", GetLocation());
+            // return RecordErrorMessage("The type of two side in div must be INTEGER.", GetLocationString());
         }
         return std::make_shared<Value_Result>(INT_TYPE, Contents::builder.CreateSDiv(L, R, "divtmp"));
     case Operation::MOD:
@@ -97,7 +98,7 @@ std::shared_ptr<Custom_Result> AST_Binary_Expression::CodeGenerate()
             // 报告错误
             // error_message.push_back(cur_error_message);
             // error_position.push_back(location);
-            // return RecordErrorMessage("The type of two side in div must be INTEGER.", GetLocation());
+            // return RecordErrorMessage("The type of two side in div must be INTEGER.", GetLocationString());
         }
         return std::make_shared<Value_Result>(INT_TYPE, Contents::builder.CreateSRem(L, R, "modtmp"));
     case Operation::REALDIV:
@@ -134,6 +135,13 @@ std::shared_ptr<Custom_Result> AST_Unary_Expression::CodeGenerate()
             return std::make_shared<Value_Result>(t->GetType(), Contents::builder.CreateFSub(zero, t->GetValue(), "negaftmp"));
         else
             return std::make_shared<Value_Result>(t->GetType(), Contents::builder.CreateSub(zero, t->GetValue(), "negatmp"));
+    }else if(my_operation == Operation::ADD){
+        if(!isEqual(t->GetType(),INT_TYPE) && !isEqual(t->GetType(),REAL_TYPE)){
+            //report error
+            return nullptr;
+        }
+
+        return std::make_shared<Value_Result>(t->GetType(), t->GetValue());
     }
 }
 
@@ -186,8 +194,102 @@ std::shared_ptr<Custom_Result> AST_Function_Call::CodeGenerate()
     }
 
     //获取函数名称    this->func_id;
-    
+    using namespace std;
+    vector<CodeBlock *>::reverse_iterator block_sp = Contents::codeblock_list.rbegin();
+	for (; block_sp != Contents::codeblock_list.rend(); ++block_sp){
+		//block_sp 指向当前CodeBlock
+        FuncSign *funcsign = (*block_sp)->Find_FuncSign(this->func_id);
+        if(funcsign == nullptr) continue;
+        // Note the function/procedure can not be overridden in pascal, so the function is matched iff the name is matched.
+        // NameList().size include all local variables that require to be passed
+        // we should compare NameList.size() - n_local
+        // which is the actual arg size
+        if(funcsign->GetNameList().size() - funcsign->GetLocalVariablesNum() != value_vec.size()){
+            Record_and_Output_Error(true,"Can't find function" + this->func_id + ": you have "+std::to_string(value_vec.size()) + "parameters, but the defined one has " 
+            +std::to_string(funcsign->GetNameList().size() - funcsign->GetLocalVariablesNum()) + "parameters.",this->GetLocation());
+            return nullptr;
+        }
+        auto name_list = funcsign->GetNameList();
+        auto type_list = funcsign->GetTypeList();
+        auto var_list = funcsign->GetVarList();
+        auto return_type = funcsign->GetReturnType();
 
+        llvm::Function *callee = (*block_sp)->Find_Function(this->func_id);
+        std::vector<llvm::Value*> parameters;
+
+        // 添加局部变量
+        // in generator_program.cpp, we define all locals at the head of the para list
+        int cur;
+        int n_local = funcsign->GetLocalVariablesNum();
+        for(cur = 0; cur < n_local; cur++) {
+            std::string local_name = name_list[cur];
+            if (Contents::GetCurrentBlock()->names_2_values.find(local_name) == Contents::GetCurrentBlock()->names_2_values.end()) {
+                #ifdef GEN_DEBUG
+                std::cout << this->GetLocationString() << "local variable " << local_name << " need to be passed, but not found." << std::endl;
+                #endif
+                
+                parameters.push_back(nullptr);
+            } else {
+                parameters.push_back(Contents::GetCurrentBlock()->names_2_values[local_name]);
+            }
+        }
+
+        // 函数传参
+        for (auto value: value_vec){
+            if (!isEqual(value->GetType(), type_list[cur])){
+                Record_and_Output_Error(true,"Type does not match on function " + this->func_id + " calling.",this->GetLocation());
+                return nullptr;
+            }
+            if (value->GetMemory() != nullptr) {
+                parameters.push_back(value->GetMemory());
+            } else {
+                Contents::temp_variable_count++;    //不重复编码
+                // here we encounter a literally const value as a parameter
+                // we add a local variable to the IRBuilder
+                // but do not reflect it in Current_CodeBlock->named_values
+                // thus we do not add abnormal local variables when we declare another function/procedure
+                llvm::AllocaInst *mem = Contents::builder.CreateAlloca(
+                    GetLLVMType(Contents::context, type_list[cur]), 
+                    nullptr, 
+                    "0_" + std::to_string(Contents::temp_variable_count)
+                );
+                Contents::builder.CreateStore(value->GetValue(), mem);
+                parameters.push_back(mem);
+            }
+            cur++;
+        } 
+        auto ret = Contents::builder.CreateCall(callee, parameters);
+
+        if (funcsign->GetReturnType()->type_group == Our_Type::Pascal_Type::Type_Group::STRING) {
+            // to return a str type for writeln to print
+            // we have to use its pointer
+            // to achieve this, we add a never used variable here
+            Contents::temp_variable_count++;
+            #ifdef GEN_DEBUG
+            std::cout << ((String_Type *)funcsign->GetReturnType())->len << std::endl;
+            #endif
+            
+            llvm::AllocaInst *mem = Contents::builder.CreateAlloca(
+                GetLLVMType(Contents::context, funcsign->GetReturnType()),
+                nullptr,
+                "0_" + this->func_id + std::to_string(Contents::temp_variable_count)
+            );
+            Contents::builder.CreateStore(ret, mem);
+            llvm::Value *value = Contents::builder.CreateLoad(mem);
+            return std::make_shared<Value_Result>(funcsign->GetReturnType(), value, mem); //, ret->getPointerOperand()); //, "call_"+ node->getFuncId()
+        } else {
+            return std::make_shared<Value_Result>(funcsign->GetReturnType(), ret); 
+        }
+	}
+    using namespace Our_Type;
+
+    // To do list : 系统调用
+    // Currently, sys_function will use no local variables that has cascade relation
+    // So we do not need to deal with the locals and do it simply
+    // if (isSysFunc(this->func_id)) {
+    //     return std::make_shared<Value_Result>(VOID_TYPE, genSysFunc(node->getFuncId(), value_vector));
+    // }
+    Record_and_Output_Error(true,"Function " + this->func_id + " not found.",this->GetLocation());
     return nullptr;
 }
 
@@ -304,6 +406,7 @@ std::shared_ptr<Custom_Result> AST_Routine::CodeGenerate()
     std::cout << "routine_head ready"<<std::endl;
     #endif
     this->routine_body->CodeGenerate();
+    return nullptr;
 }
 
 std::shared_ptr<Custom_Result> AST_Routine_Head::CodeGenerate()
@@ -324,20 +427,36 @@ std::shared_ptr<Custom_Result> AST_Routine_Head::CodeGenerate()
     #ifdef GEN_DEBUG
     std::cout << "routine_part ready"<<std::endl;
     #endif
+    return nullptr;
 }
 
+//这里处理函数/过程定义
 std::shared_ptr<Custom_Result> AST_Declaration_BaseClass::CodeGenerate()
 {
+    #ifdef GEN_DEBUG
+    std::cout << "function start"<<std::endl;
+    #endif
     bool is_function = (this->declaration_type == ENUM_Declaration_Type::FUNCTION_DECLARATION);
     auto parameters = std::static_pointer_cast<Type_List_Result>(
         is_function ? this->Get_Function_Declaration()->Get_Function_Head()->Get_Parameters()->CodeGenerate()
                     : this->Get_Procedure_Declaration()->Get_Procedure_Head()->Get_Parameters()->CodeGenerate()
     );
 
+    #ifdef GEN_DEBUG
+    std::cout << "is_function :" << is_function <<std::endl;
+    #endif
+
     if(parameters == nullptr){
+        #ifdef GEN_DEBUG
+        std::cout << "Can not recognize the parameters for function/procedure definition." <<std::endl;
+        #endif
         Record_and_Output_Error(true,"Can not recognize the parameters for function/procedure definition.",this->GetLocation());
         return nullptr;
     }
+
+    #ifdef GEN_DEBUG
+    std::cout << "recognize the parameters" <<std::endl;
+    #endif
 
     Pascal_Type * return_type = Our_Type::VOID_TYPE;
     std::string function_name;
@@ -370,6 +489,10 @@ std::shared_ptr<Custom_Result> AST_Declaration_BaseClass::CodeGenerate()
         }
     }
 
+    #ifdef GEN_DEBUG
+    std::cout << "Adding local variables" <<std::endl;
+    #endif
+
     // Adding local variables
     // we must put local variables first
     // because after we create this function, 
@@ -387,6 +510,10 @@ std::shared_ptr<Custom_Result> AST_Declaration_BaseClass::CodeGenerate()
         llvm_type_list.push_back(llvm::PointerType::getUnqual(GetLLVMType(Contents::context,local_type_list[i])));
     }
 
+    #ifdef GEN_DEBUG
+    std::cout << "adding function parameters" <<std::endl;
+    #endif
+
     //adding function parameters
     for(std::shared_ptr<Type_Result> type : type_var_list){
         type_list.push_back(type->GetType());
@@ -395,12 +522,79 @@ std::shared_ptr<Custom_Result> AST_Declaration_BaseClass::CodeGenerate()
     }
 
     FuncSign *funcsign = new FuncSign((int)local_name_list.size(),name_list,type_list,var_list,return_type);
-    llvm::FunctionType *functionType = llvm::FunctionType::get(
+    llvm::FunctionType *functiontype = llvm::FunctionType::get(
         /*返回类型*/llvm_return_type,
         /*参数类型列表*/llvm_type_list,
         /*isVar*/false
-    ) ;
+    );
+    llvm::Function *function = llvm::Function::Create(functiontype,llvm::GlobalVariable::ExternalLinkage,function_name,Contents::module.get());
 
+    Contents::GetCurrentBlock()->Set_Function(function_name,function,funcsign);
+
+    llvm::BasicBlock* oldBlock = Contents::builder.GetInsertBlock();
+    llvm::BasicBlock* basicBlock = llvm::BasicBlock::Create(Contents::context,"entry",function,nullptr);
+    Contents::builder.SetInsertPoint(basicBlock);
+
+
+    #ifdef GEN_DEBUG
+    std::cout << "MODIFY PARAMETERS PASSING" <<std::endl;
+    #endif
+
+    //MODIFY PARAMETERS PASSING
+    Contents::codeblock_list.push_back(new CodeBlock());
+    Contents::GetCurrentBlock()->block_name = function_name;
+    Contents::GetCurrentBlock()->is_function = is_function;
+    int j = 0;
+    llvm::Function::arg_iterator arg_id;
+    for(arg_id = function->arg_begin();arg_id != function->arg_end();arg_id++,j++){
+        if(var_list[j]){
+            Contents::GetCurrentBlock()->names_2_values[name_list[j]] = (llvm::Value *) arg_id;
+            if(j >= local_name_list.size()){
+                Contents::GetCurrentBlock()->names_2_ourtype[name_list[j]] = type_list[j];
+            }
+            std::cout << "Inserted var param " << name_list[j] << std::endl;
+        }else{
+            llvm::Value *value = Contents::builder.CreateLoad((llvm::Value*)arg_id);
+            llvm::AllocaInst *mem = Contents::builder.CreateAlloca(
+                GetLLVMType(Contents::context,type_list[j]),
+                nullptr,
+                name_list[j]
+            );
+            Contents::builder.CreateStore(value,mem);
+            Contents::GetCurrentBlock()->names_2_values[name_list[j]] = mem;
+            if(j >= local_name_list.size())
+                Contents::GetCurrentBlock()->names_2_ourtype[name_list[j]] = type_list[j];
+            std::cout << "Inserted val param " << name_list[j] << std::endl;
+        }
+    }
+
+    
+    if(is_function){
+        //add function to named_value for itself
+        llvm::AllocaInst *mem = Contents::builder.CreateAlloca(
+                GetLLVMType(Contents::context,return_type),
+                nullptr,
+                function_name
+        );
+        Contents::GetCurrentBlock()->names_2_values[function_name] = mem;
+        Contents::GetCurrentBlock()->names_2_ourtype[function_name] = return_type;
+        std::cout << "Inserted val param " << function_name << std::endl;
+
+        //add return mechanism
+        this->Get_Function_Declaration()->Get_routine()->CodeGenerate();
+        if(Contents::codeblock_list.size() == 1){
+            Contents::builder.CreateRet(llvm::ConstantInt::get(llvm::Type::getInt32Ty(Contents::context),0,true));
+        }else {
+            llvm::Value * ret = Contents::builder.CreateLoad(Contents::GetCurrentBlock()->names_2_values[function_name]);
+            Contents::builder.CreateRet(ret);
+        }
+    }else{
+        this->Get_Procedure_Declaration()->Get_Routine()->CodeGenerate();
+        Contents::builder.CreateRetVoid();
+    }
+
+    Contents::builder.SetInsertPoint(oldBlock);
+    Contents::codeblock_list.pop_back();
     return nullptr;
 }
 
@@ -425,7 +619,8 @@ std::shared_ptr<Custom_Result> AST_Routine_Body::CodeGenerate()
 
 std::shared_ptr<Custom_Result> AST_Function_Declaration::CodeGenerate()
 {
-    //
+    //实现在AST_Declaration_BaseClass
+    return nullptr;
 }
 
 std::shared_ptr<Custom_Result> AST_Function_Head::CodeGenerate()
@@ -436,7 +631,8 @@ std::shared_ptr<Custom_Result> AST_Function_Head::CodeGenerate()
 
 std::shared_ptr<Custom_Result> AST_Procedure_Declaration::CodeGenerate()
 {
-    std::cout << "hello" << std::endl;
+    //实现在AST_Declaration_BaseClass
+    return nullptr;
 }
 
 std::shared_ptr<Custom_Result> AST_Procedure_Head::CodeGenerate()
@@ -447,22 +643,53 @@ std::shared_ptr<Custom_Result> AST_Procedure_Head::CodeGenerate()
 
 std::shared_ptr<Custom_Result> AST_Parameters::CodeGenerate()
 {
-    std::cout << "hello" << std::endl;
+    //直接进入para_decl_list进行代码生成
+    auto result = this->Get_Parameters_Declaration_List()->CodeGenerate();
+    #ifdef GEN_DEBUG
+    std::cout << "para_decl_list ready"  <<std::endl;
+    #endif
+    return result;
 }
 
 std::shared_ptr<Custom_Result> AST_Parameters_Declaration_List::CodeGenerate()
 {
-    std::cout << "hello" << std::endl;
+    std::vector<std::string> name_list;
+    std::vector<std::shared_ptr<Type_Result> > type_list;
+    for(auto son : this->Get_Parameter_Type_List_List()){
+        //将parameter_type_list逐一添加
+        auto temp_list = std::static_pointer_cast<Type_List_Result>(son->CodeGenerate());
+        name_list.insert(name_list.end(),temp_list->GetNameList().begin(),temp_list->GetNameList().end());
+        type_list.insert(type_list.end(),temp_list->GetTypeList().begin(),temp_list->GetTypeList().end());
+        #ifdef GEN_DEBUG
+        std::cout << temp_list->GetNameList()[0]<< " " << temp_list->GetTypeList()[0]->GetType() <<std::endl;
+        #endif
+    }
+    return std::make_shared<Type_List_Result>(type_list,name_list);
 }
 
 std::shared_ptr<Custom_Result> AST_Parameters_Type_List::CodeGenerate()
 {
-    std::cout << "hello" << std::endl;
+    std::shared_ptr<Custom_Result> list;
+    if(this->isVar()){
+        //是Variable
+        list = this->Get_Variable_Parameters_List()->CodeGenerate();
+    }else{
+        //是name_list
+        list = this->Get_Name_List()->CodeGenerate();
+    }
+
+    auto name_list = std::static_pointer_cast<Name_List>(list)->GetNameList();
+    auto type_value = std::static_pointer_cast<Type_Result>(this->Get_Simple_Type_Declaration()->CodeGenerate());
+    if(this->isVar()){
+        type_value->SetIsVal(true);
+    }
+    std::vector<std::shared_ptr<Type_Result> > type_list(name_list.size(),type_value);
+    return std::make_shared<Type_List_Result>(type_list,name_list);
 }
 
 std::shared_ptr<Custom_Result> AST_Variable_Parameters_List::CodeGenerate()
 {
-    std::cout << "hello" << std::endl;
+    return this->Get_Name_List()->CodeGenerate();
 }
 
 // AST_Statement.hpp
@@ -871,4 +1098,5 @@ std::shared_ptr<Custom_Result> AST_Variable_Declaration::CodeGenerate()
             Contents::codeblock_list.back()->names_2_ourtype[identifier] = type_decl->GetType();
         }
     }
+    return nullptr;
 }

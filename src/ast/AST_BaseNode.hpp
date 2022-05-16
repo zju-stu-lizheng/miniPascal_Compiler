@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <string>
 #include "../type/type.hpp"
 #include <llvm/IR/Value.h>
 
@@ -19,6 +20,10 @@ class AST_BaseNode{
         int GetRow() const{
             return this->row;
         }
+        std::string GetLocationString() const{
+            return "(" + std::to_string(this->row) + "," + std::to_string(this->column) + ")";
+        }
+
         std::pair<int,int> GetLocation() const{
             return std::make_pair(this->column, this->row);
         }
