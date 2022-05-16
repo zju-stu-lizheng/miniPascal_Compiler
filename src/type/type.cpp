@@ -2,6 +2,8 @@
 
 namespace Our_Type
 {
+    class Pascal_Type;
+
     const Buildin_Type INT_TYPE_INST(Buildin_Type::Buildin_Type_Name::INT);
     const Buildin_Type REAL_TYPE_INST(Buildin_Type::Buildin_Type_Name::FLOAT);
     const Buildin_Type CHAR_TYPE_INST(Buildin_Type::Buildin_Type_Name::CHAR);
@@ -13,9 +15,9 @@ namespace Our_Type
     Pascal_Type *const BOOLEAN_TYPE = (Pascal_Type *)(&BOOLEAN_TYPE_INST);
     Pascal_Type *const VOID_TYPE = (Pascal_Type *)(&VOID_TYPE_INST);
 
-    llvm::Type *GetLLVMType(llvm::LLVMContext &context, Our_Type::Pascal_Type *const p_type)
+    llvm::Type *GetLLVMType(llvm::LLVMContext &context, Pascal_Type *const p_type)
     {
-        if (p_type->type_group == Our_Type::Pascal_Type::Type_Group::BUILT_IN)
+        if (p_type->type_group == Pascal_Type::Type_Group::BUILT_IN)
         {
             if (isEqual(p_type, INT_TYPE))
                 return llvm::Type::getInt32Ty(context);
