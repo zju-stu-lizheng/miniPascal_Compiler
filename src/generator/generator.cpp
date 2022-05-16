@@ -418,7 +418,7 @@ std::shared_ptr<Custom_Result> AST_Routine_Part::CodeGenerate()
 std::shared_ptr<Custom_Result> AST_Routine_Body::CodeGenerate()
 {
     #ifdef GEN_DEBUG
-    std::cout << "Compound_Statement ready" << std::endl;
+    std::cout << "Routine_Body start" << std::endl;
     #endif
     return this->Get_Compound_Statement()->CodeGenerate();
 }

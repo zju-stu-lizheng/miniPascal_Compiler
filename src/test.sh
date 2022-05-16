@@ -1,0 +1,1 @@
+./build/opc < ../test/test.pas

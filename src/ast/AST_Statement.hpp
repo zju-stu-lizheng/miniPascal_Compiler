@@ -388,7 +388,7 @@ public:
     AST_Else_Clause() = default;
     AST_Else_Clause(AST_Statement *_statement) : statement(_statement) {}
     bool isEmpty(){
-        return (statement == nullptr);
+        return (this->statement == nullptr);
     }
 };
 
@@ -536,6 +536,9 @@ public:
     {
         to_or_downto = To_or_DownTo::DownTo;
     }
+    bool isTo(){
+        return to_or_downto == To_or_DownTo::To;
+    }
 };
 
 /*
@@ -552,4 +555,11 @@ public:
 public:
     AST_Label *label;
     AST_Goto_Statement(AST_Label *_label) : label(_label) {}
+};
+
+class AST_Break_Statement : public AST_BaseNode{
+    public:
+        std::shared_ptr<Custom_Result>CodeGenerate() override;
+    public:
+        AST_Break_Statement() = default();
 };
