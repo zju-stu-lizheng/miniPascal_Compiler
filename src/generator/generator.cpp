@@ -395,12 +395,33 @@ std::shared_ptr<Custom_Result> AST_Declaration_BaseClass::CodeGenerate()
     }
 
     FuncSign *funcsign = new FuncSign((int)local_name_list.size(),name_list,type_list,var_list,return_type);
-    llvm::FunctionType *functionType = llvm::FunctionType::get(
+    llvm::FunctionType *functiontype = llvm::FunctionType::get(
         /*返回类型*/llvm_return_type,
         /*参数类型列表*/llvm_type_list,
         /*isVar*/false
-    ) ;
+    );
+    llvm::Function *function = llvm::Function::Create(functiontype,llvm::GlobalVariable::ExternalLinkage,function_name,Contents::module.get());
 
+    Contents::GetCurrentBlock()->Set_Function(function_name,function,funcsign);
+
+    llvm::BasicBlock* oldBlock = Contents::builder.GetInsertBlock();
+    llvm::BasicBlock* basicBlock = llvm::BasicBlock::Create(Contents::context,"entry",function,nullptr);
+    Contents::builder.SetInsertPoint(basicBlock);
+
+    //MODIFY PARAMETERS PASSING
+    Contents::codeblock_list.push_back(new CodeBlock());
+    Contents::GetCurrentBlock()->block_name = function_name;
+    Contents::GetCurrentBlock()->is_function = is_function;
+    int j = 0;
+    for(llvm::Funtion::arg_iterator arg_id = function->arg_begin();arg_it != function->arg_end;arg_it++,j++){
+        if(var_list[j]){
+            Contents::GetCurrentBlock()->names_2_values[name_list[j]] = (llvm::Value *) arg_it;
+            if(j >= local_name_list.size()){
+                Contents::GetCurrentBlock()->
+            }
+        }
+    }
+    
     return nullptr;
 }
 
