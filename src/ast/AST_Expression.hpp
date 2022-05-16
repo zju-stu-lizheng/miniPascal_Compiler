@@ -129,7 +129,8 @@ public:
     enum class Operation
     {
         NOT,
-        SUB
+        SUB,
+        ADD
     };
     AST_Unary_Expression(Operation _my_operation, AST_Expression *_expression) : my_operation(_my_operation), expression(_expression){};
 

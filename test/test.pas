@@ -5,4 +5,5 @@ Const
 var
     curTerm1 :integer;
 begin
+    curTerm1 := 3+(2+-+3);
 end.

@@ -85,7 +85,6 @@ std::shared_ptr<Custom_Result> AST_Assign_Statement::CodeGenerate(){
     // std::cout << "hello" << std::endl;
     if(isDirectAssign()){
         // Todo: type transfer
-        print('direct assign');
         llvm::Value* left_mem = Contents::GetCurrentBlock()->names_2_values[identifier1];
         auto right = std::static_pointer_cast<Value_Result>(expression1->CodeGenerate());
         Contents::builder.CreateStore(right->GetValue(), left_mem);

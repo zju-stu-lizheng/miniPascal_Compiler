@@ -10,6 +10,7 @@
 #include <llvm/IR/Function.h>
 #include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/BasicBlock.h>
+#include <llvm/IR/Instruction.h>
 
 using namespace Our_Type;
 
@@ -134,6 +135,13 @@ std::shared_ptr<Custom_Result> AST_Unary_Expression::CodeGenerate()
             return std::make_shared<Value_Result>(t->GetType(), Contents::builder.CreateFSub(zero, t->GetValue(), "negaftmp"));
         else
             return std::make_shared<Value_Result>(t->GetType(), Contents::builder.CreateSub(zero, t->GetValue(), "negatmp"));
+    }else if(my_operation == Operation::ADD){
+        if(!isEqual(t->GetType(),INT_TYPE) && !isEqual(t->GetType(),REAL_TYPE)){
+            //report error
+            return nullptr;
+        }
+
+        return std::make_shared<Value_Result>(t->GetType(), t->GetValue());
     }
 }
 
@@ -413,15 +421,56 @@ std::shared_ptr<Custom_Result> AST_Declaration_BaseClass::CodeGenerate()
     Contents::GetCurrentBlock()->block_name = function_name;
     Contents::GetCurrentBlock()->is_function = is_function;
     int j = 0;
-    for(llvm::Funtion::arg_iterator arg_id = function->arg_begin();arg_it != function->arg_end;arg_it++,j++){
+    llvm::Function::arg_iterator arg_id;
+    for(arg_id = function->arg_begin();arg_id != function->arg_end();arg_id++,j++){
         if(var_list[j]){
-            Contents::GetCurrentBlock()->names_2_values[name_list[j]] = (llvm::Value *) arg_it;
+            Contents::GetCurrentBlock()->names_2_values[name_list[j]] = (llvm::Value *) arg_id;
             if(j >= local_name_list.size()){
-                Contents::GetCurrentBlock()->
+                Contents::GetCurrentBlock()->names_2_ourtype[name_list[j]] = type_list[j];
             }
+            std::cout << "Inserted var param " << name_list[j] << std::endl;
+        }else{
+            llvm::Value *value = Contents::builder.CreateLoad((llvm::Value*)arg_id);
+            llvm::AllocaInst *mem = Contents::builder.CreateAlloca(
+                GetLLVMType(Contents::context,type_list[j]),
+                nullptr,
+                name_list[j]
+            );
+            Contents::builder.CreateStore(value,mem);
+            Contents::GetCurrentBlock()->names_2_values[name_list[j]] = mem;
+            if(j >= local_name_list.size())
+                Contents::GetCurrentBlock()->names_2_ourtype[name_list[j]] = type_list[j];
+            std::cout << "Inserted val param " << name_list[j] << std::endl;
         }
     }
+
     
+    if(is_function){
+        //add function to named_value for itself
+        llvm::AllocaInst *mem = Contents::builder.CreateAlloca(
+                GetLLVMType(Contents::context,return_type),
+                nullptr,
+                function_name
+        );
+        Contents::GetCurrentBlock()->names_2_values[function_name] = mem;
+        Contents::GetCurrentBlock()->names_2_ourtype[function_name] = return_type;
+        std::cout << "Inserted val param " << function_name << std::endl;
+
+        //add return mechanism
+        this->Get_Function_Declaration()->Get_routine()->CodeGenerate();
+        if(Contents::codeblock_list.size() == 1){
+            Contents::builder.CreateRet(llvm::ConstantInt::get(llvm::Type::getInt32Ty(Contents::context),0,true));
+        }else {
+            llvm::Value * ret = Contents::builder.CreateLoad(Contents::GetCurrentBlock()->names_2_values[function_name]);
+            Contents::builder.CreateRet(ret);
+        }
+    }else{
+        this->Get_Procedure_Declaration()->Get_Routine()->CodeGenerate();
+        Contents::builder.CreateRetVoid();
+    }
+
+    Contents::builder.SetInsertPoint(oldBlock);
+    Contents::codeblock_list.pop_back();
     return nullptr;
 }
 
