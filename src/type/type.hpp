@@ -142,12 +142,51 @@ namespace Our_Type
 
 using namespace Our_Type;
 
+class Value_Result;
+
+//定义函数特征类，包括函数的返回类型，参数，局部变量（名字+类型）
+class FuncSign
+{
+public:
+    FuncSign(int n_local,std::vector<std::string> _name_list,std::vector<Pascal_Type*> _type_list,std::vector<bool> _is_var,Pascal_Type * _return_type):
+        name_list(_name_list),type_list(_type_list),is_var(_is_var),return_type(_return_type),num_local_variables(n_local){
+            if(return_type == nullptr) return_type = VOID_TYPE;
+        }
+    std::vector<Pascal_Type *> &GetTypeList()
+    {
+        return this->type_list;
+    }
+
+    std::vector<std::string> &GetNameList()
+    {
+        return this->name_list;
+    }
+
+    std::vector<bool> &GetVarList(){
+        return this->is_var;
+    }
+
+    Pascal_Type * GetReturnType(){
+        return this->return_type;
+    }
+
+    int GetLocalVariablesNum(){
+        return this->num_local_variables;
+    }
+
+private:
+    int num_local_variables; // the number of local var
+    std::vector<Pascal_Type *> type_list;
+    std::vector<std::string> name_list;
+    std::vector<bool> is_var;
+    Pascal_Type *return_type;
+};
+
 //定义llvm 返回值的类型
 //返回一个值 列表
 class Custom_Result
 {
 };
-
 
 // 普通返回值的列表
 class Custom_List_Result : public Custom_Result
@@ -320,27 +359,27 @@ private:
     std::vector<std::shared_ptr<Type_Declaration_Result>> type_decl_list;
 };
 
-
 // Label type
 
-class Label_Type : public Custom_Result{
-    public:
-        enum class Label_Group{
-            IDENTIFIER,
-            INT
-        };
-        Label_Group label_group;
-        std::string identifier_label;
-        int int_label;
+class Label_Type : public Custom_Result
+{
+public:
+    enum class Label_Group
+    {
+        IDENTIFIER,
+        INT
+    };
+    Label_Group label_group;
+    std::string identifier_label;
+    int int_label;
 
-        Label_Type(std::string _identifier_label):
-                identifier_label(_identifier_label), label_group(Label_Group::IDENTIFIER){};
-        Label_Type(int _int_label):
-                int_label(_int_label), label_group(Label_Group::INT){};
-        std::string Get_label_string(){
-            if(label_group == Label_Group::IDENTIFIER)
-                return identifier_label;
-            else
-                return std::to_string(int_label);
-        }
+    Label_Type(std::string _identifier_label) : identifier_label(_identifier_label), label_group(Label_Group::IDENTIFIER){};
+    Label_Type(int _int_label) : int_label(_int_label), label_group(Label_Group::INT){};
+    std::string Get_label_string()
+    {
+        if (label_group == Label_Group::IDENTIFIER)
+            return identifier_label;
+        else
+            return std::to_string(int_label);
+    }
 };

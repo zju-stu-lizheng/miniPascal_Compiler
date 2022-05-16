@@ -5,7 +5,7 @@
 
 std::shared_ptr<Custom_Result> AST_Compound_Statement::CodeGenerate(){
     std::shared_ptr<Custom_Result> stmt_list_ret = std::static_pointer_cast<Custom_Result>(statement_list->CodeGenerate());
-    Check_Result_NULLPtr(stmt_list_ret,"AST_Compound_Statement", this->GetLocation());
+    // Check_Result_NULLPtr(stmt_list_ret,"AST_Compound_Statement", this->GetLocation());
     return stmt_list_ret;
 }
 
@@ -15,7 +15,7 @@ std::shared_ptr<Custom_Result> AST_Statement_List::CodeGenerate(){
     int cnt = 0;
     for( auto stmt_node : statement_list){
         auto stmt_ret = std::static_pointer_cast<Custom_Result>(stmt_node->CodeGenerate());
-        Check_Result_NULLPtr(stmt_ret,"AST_Statement_List", this->GetLocation(), cnt);
+        // Check_Result_NULLPtr(stmt_ret,"AST_Statement_List", this->GetLocation(), cnt);
         ret.push_back(stmt_ret);
         cnt ++;
     }
@@ -88,13 +88,15 @@ std::shared_ptr<Custom_Result> AST_Assign_Statement::CodeGenerate(){
         llvm::Value* left_mem = Contents::GetCurrentBlock()->names_2_values[identifier1];
         auto right = std::static_pointer_cast<Value_Result>(expression1->CodeGenerate());
         Contents::builder.CreateStore(right->GetValue(), left_mem);
-
+        #ifdef GEN_DEBUG
+        std::cout << "assign statement ready" << std::endl;
+        #endif
     }else if(isArrayAssign()){
 
     }else if(isRecordAttrAssign()){
 
     }
-
+    return nullptr;
 }
 
 std::shared_ptr<Custom_Result> AST_Procedure_Statement::CodeGenerate(){

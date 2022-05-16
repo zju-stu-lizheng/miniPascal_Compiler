@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include "../contents/Contents.hpp"
+#define GEN_DEBUG
 
 
 void Record_and_Output_Error(bool is_error, std::string error_str, std::pair<int, int> location);

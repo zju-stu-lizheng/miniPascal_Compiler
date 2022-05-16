@@ -100,7 +100,7 @@ namespace Contents{
     CodeBlock* GetCurrentBlock(void);
 
     //获取当前所有局部变量
-    // std::pair<std::vector<std::string>, std::vector<Our_Type::Pascal_Type *> > GetAllLocalVarNameType();
+    std::pair<std::vector<std::string>, std::vector<Our_Type::Pascal_Type *> > GetAllLocalVarNameType();
 
     //获取变量的类型
     Our_Type::Pascal_Type *GetVarType(std::string id);

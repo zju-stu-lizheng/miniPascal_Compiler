@@ -10,7 +10,6 @@
 #include <llvm/IR/Function.h>
 #include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/BasicBlock.h>
-#define GEN_DEBUG
 
 using namespace Our_Type;
 
@@ -356,11 +355,12 @@ std::shared_ptr<Custom_Result> AST_Declaration_BaseClass::CodeGenerate()
     }
     llvm::Type *llvm_return_type = GetLLVMType(Contents::context,return_type);
     auto name_list = parameters->GetNameList();
-    auto type_var_list = parameters->GetTypeList();
+    std::vector<std::shared_ptr<Type_Result>> type_var_list = parameters->GetTypeList();
     std::vector<llvm::Type*> llvm_type_list;
     std::vector<Pascal_Type*> type_list;
     std::vector<bool> var_list;
 
+    //检查是否有重名变量
     for(int i=0;i <name_list.size();i++){
         for(int j=i+1;j<name_list.size();j++){
             if(name_list[i] == name_list[j]){
@@ -376,7 +376,30 @@ std::shared_ptr<Custom_Result> AST_Declaration_BaseClass::CodeGenerate()
     // we have to add the variables to the next CodeBlock
     // in this step, we must add the function parameters later
     // so as to overwrite the older local variables
+    auto local_vars = Contents::GetAllLocalVarNameType();
+    std::vector<std::string> local_name_list = local_vars.first;
+    std::vector<Pascal_Type*> local_type_list = local_vars.second;
 
+    for(int i=0;i<local_name_list.size();i++){
+        name_list.push_back(local_name_list[i]);
+        type_list.push_back(local_type_list[i]);
+        var_list.push_back(true);
+        llvm_type_list.push_back(llvm::PointerType::getUnqual(GetLLVMType(Contents::context,local_type_list[i])));
+    }
+
+    //adding function parameters
+    for(std::shared_ptr<Type_Result> type : type_var_list){
+        type_list.push_back(type->GetType());
+        var_list.push_back(type->GetIsVal());
+        llvm_type_list.push_back(llvm::PointerType::getUnqual(GetLLVMType(Contents::context,type->GetType())));
+    }
+
+    FuncSign *funcsign = new FuncSign((int)local_name_list.size(),name_list,type_list,var_list,return_type);
+    llvm::FunctionType *functionType = llvm::FunctionType::get(
+        /*返回类型*/llvm_return_type,
+        /*参数类型列表*/llvm_type_list,
+        /*isVar*/false
+    ) ;
 
     return nullptr;
 }
@@ -395,18 +418,20 @@ std::shared_ptr<Custom_Result> AST_Routine_Part::CodeGenerate()
 std::shared_ptr<Custom_Result> AST_Routine_Body::CodeGenerate()
 {
     #ifdef GEN_DEBUG
-    std::cout << "Routine_Body ready" << std::endl;
+    std::cout << "Compound_Statement ready" << std::endl;
     #endif
+    return this->Get_Compound_Statement()->CodeGenerate();
 }
 
 std::shared_ptr<Custom_Result> AST_Function_Declaration::CodeGenerate()
 {
-    std::cout << "hello" << std::endl;
+    //
 }
 
 std::shared_ptr<Custom_Result> AST_Function_Head::CodeGenerate()
 {
-    std::cout << "hello" << std::endl;
+    //do nothing
+    return nullptr;
 }
 
 std::shared_ptr<Custom_Result> AST_Procedure_Declaration::CodeGenerate()
@@ -416,7 +441,8 @@ std::shared_ptr<Custom_Result> AST_Procedure_Declaration::CodeGenerate()
 
 std::shared_ptr<Custom_Result> AST_Procedure_Head::CodeGenerate()
 {
-    std::cout << "hello" << std::endl;
+    //do nothing
+    return nullptr;
 }
 
 std::shared_ptr<Custom_Result> AST_Parameters::CodeGenerate()
