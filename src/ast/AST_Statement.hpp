@@ -387,6 +387,9 @@ public:
     AST_Statement *statement;
     AST_Else_Clause() = default;
     AST_Else_Clause(AST_Statement *_statement) : statement(_statement) {}
+    bool isEmpty(){
+        return (statement == nullptr);
+    }
 };
 
 /*
