@@ -499,7 +499,7 @@ public:
 
 /*
 for_stmt:
-    KEY_FOR IDENTIFIER SYM_ASSIGN expression direction expression KEY_DO stmt
+    KEY_FOR IDENTIFIER SYM_ASSIGN expression my_direction expression KEY_DO stmt
 ;
 */
 class AST_For_Statement : public AST_BaseNode
@@ -510,15 +510,15 @@ public:
 public:
     std::string identifier;
     AST_Expression *expression1;
-    AST_Direction *direction;
+    AST_Direction *my_direction;
     AST_Expression *expression2;
     AST_Statement *statement;
 
-    AST_For_Statement(std::string _identifier, AST_Expression *_expression1, AST_Direction *_direction, AST_Expression *_expression2, AST_Statement *_statement) : identifier(_identifier), expression1(_expression1), direction(_direction), expression2(_expression2), statement(_statement) {}
+    AST_For_Statement(std::string _identifier, AST_Expression *_expression1, AST_Direction *_direction, AST_Expression *_expression2, AST_Statement *_statement) : identifier(_identifier), expression1(_expression1), my_direction(_direction), expression2(_expression2), statement(_statement) {}
 };
 
 /*
-direction:
+my_direction:
     KEY_TO
     | KEY_DOWNTO
 ;
