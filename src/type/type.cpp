@@ -37,6 +37,15 @@ namespace Our_Type
             Our_Type::String_Type *str = (Our_Type::String_Type *)p_type;
             return llvm::ArrayType::get(GetLLVMType(context, CHAR_TYPE), (uint64_t)(str->len));
         }
+        else if (p_type->type_group == Our_Type::Pascal_Type::Type_Group::ARRAY) {
+            Our_Type::Array_Type *array = (Our_Type::Array_Type *) p_type;
+            llvm::ArrayType *ret = nullptr;
+            int len = array->subrange.begin_2_end.second - array->subrange.begin_2_end.first + 1;
+            std::cout << "creating array of length " <<len << std::endl;
+            
+            ret = llvm::ArrayType::get(GetLLVMType(context, array->element_type), (uint64_t) len);
+            return ret;
+        }
         else if (p_type->type_group == Our_Type::Pascal_Type::Type_Group::RECORD)
         {
             Our_Type::Record_Type *record = (Our_Type::Record_Type *)p_type;

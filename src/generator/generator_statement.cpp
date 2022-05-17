@@ -135,7 +135,14 @@ std::shared_ptr<Custom_Result> AST_Assign_Statement::CodeGenerate(){
         #endif
         llvm::Value* left_mem = Contents::GetCurrentBlock()->names_2_values[identifier1];
         // Contents::codeblock_list[0]
+        #ifdef GEN_DEBUG
+        std::cout << "get the value of right expression start" <<std::endl;
+        #endif
+
         auto right = std::static_pointer_cast<Value_Result>(expression1->CodeGenerate());
+        #ifdef GEN_DEBUG
+        std::cout << "get the value of right expression ready" <<std::endl;
+        #endif
         Contents::builder.CreateStore(right->GetValue(), left_mem);
         
     }else if(isArrayAssign()){
