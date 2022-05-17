@@ -114,6 +114,8 @@ namespace Contents{
     extern std::vector<CodeBlock* > codeblock_list;
 
     extern std::shared_ptr<Error_Information_Record> error_record;
+
+    // extern std::vector<llvm::BasicBlock*> loop_return_blocks;
     // extern std::vector<std::string> error_message;
     // extern std::vector<std::pair<int, int> > error_position;
 

@@ -333,7 +333,7 @@ std::shared_ptr<Custom_Result> AST_Array_Expression::CodeGenerate()
     bool isArr = array->GetType()->type_group == Pascal_Type::Type_Group::ARRAY;
     if (array == nullptr || (!isArr && !isStr)) {
         // report error
-        // std::cerr << get_location() << "Not an array nor str, cannot use index." << std::endl;
+        std::cerr << get_location() << "Not an array nor str, cannot use index." << std::endl;
         return nullptr;
     }
 

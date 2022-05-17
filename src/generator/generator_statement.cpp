@@ -133,14 +133,22 @@ std::shared_ptr<Custom_Result> AST_Assign_Statement::CodeGenerate(){
         #ifdef GEN_DEBUG
         std::cout << "direct assign" << std::endl;
         #endif
-
-        
         llvm::Value* left_mem = Contents::GetCurrentBlock()->names_2_values[identifier1];
         // Contents::codeblock_list[0]
         auto right = std::static_pointer_cast<Value_Result>(expression1->CodeGenerate());
         Contents::builder.CreateStore(right->GetValue(), left_mem);
         
     }else if(isArrayAssign()){
+        #ifdef GEN_DEBUG
+        std::cout << "array assign" << std::endl;
+        #endif
+        // llvm::Value* left_mem = Contents::GetCurrentBlock()->names_2_values[identifier1];
+        // auto expidx = std::static_pointer_cast<Value_Result>(expression1->CodeGenerate());
+        auto ast_array_expression = std::make_shared<AST_Array_Expression>(this->identifier1, this->expression1);
+        std::shared_ptr<Value_Result> left_array_ret = std::static_pointer_cast<Value_Result>(ast_array_expression->CodeGenerate());
+        auto right = std::static_pointer_cast<Value_Result>(expression2->CodeGenerate());
+
+        Contents::builder.CreateStore(right->GetValue(), left_array_ret->GetMemory());
 
     }else if(isRecordAttrAssign()){
 
@@ -315,16 +323,25 @@ std::shared_ptr<Custom_Result> AST_For_Statement::CodeGenerate(){
     // llvm::BasicBlock* for_condition_block = llvm::BasicBlock::Create(Contents::context, "for_condition", function);
     // llvm::BasicBlock* for_end_block = llvm::BasicBlock::Create(Contents::context, "for_end", function);
 
-    // Contents::GetCurrentBlock()->loop_return_blocks.push_back(end_block);
+    // Contents::GetCurrentBlock()->loop_return_blocks.push_back(for_end_block);
 
     // //start 
     // Contents::builder.CreateBr(for_start_block);
     // Contents::builder.SetInsertPoint(for_start_block);
 
-    // //reuse ast code generator
+    //reuse ast code generator
     // auto ast_assign_statement = std::make_shared<AST_Assign_Statement>(this->identifier, this->expression1);
     // ast_assign_statement->CodeGenerate(); // local varaibla
     
+    // auto ast_statement = new ASTBinaryExpr(
+    //         node->getDir() == ASTForStmt::ForDir::TO ? ASTBinaryExpr::Oper::GT : ASTBinaryExpr::Oper::LT,
+    //         ast_id_expr,
+    //         node->getToExpr()
+    // );
+    // auto st_cmp_res = std::static_pointer_cast<ValueResult>(ast_st_cmp->Accept(this));
+    // this->builder.CreateCondBr(st_cmp_res->getValue(), end_block, body_block);
+    // this->builder.SetInsertPoint(body_block);
+    // node->getStmt()->Accept(this);
 
 
     // auto ast_assign = new ASTAssignStmt(ast_id_expr, node->getForExpr());
