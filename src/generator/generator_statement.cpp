@@ -70,22 +70,49 @@ std::shared_ptr<Custom_Result> AST_Non_Label_Statement::CodeGenerate(){
     // std::cout << "hello" << std::endl;
     std::shared_ptr<Custom_Result> stmt_ret;
     if(this->isAssign()){
+        #ifdef GEN_DEBUG
+        std::cout << "isAssign " <<std::endl;
+        #endif
         stmt_ret = std::static_pointer_cast<Custom_Result>(this->assgin_statement->CodeGenerate());
     }else if (this->isProcedure()){
+        #ifdef GEN_DEBUG
+        std::cout << "isProcedure " <<std::endl;
+        #endif
         stmt_ret = std::static_pointer_cast<Custom_Result>(this->procedure_statement->CodeGenerate());
     }else if (this->isCompound()){
+        #ifdef GEN_DEBUG
+        std::cout << "isCompound " <<std::endl;
+        #endif
         stmt_ret = std::static_pointer_cast<Custom_Result>(this->compound_statement->CodeGenerate());
     }else if (this->isIf()){
+        #ifdef GEN_DEBUG
+        std::cout << "isIf " <<std::endl;
+        #endif
         stmt_ret = std::static_pointer_cast<Custom_Result>(this->if_statement->CodeGenerate());
     }else if (this->isCase()){
+        #ifdef GEN_DEBUG
+        std::cout << "isCase " <<std::endl;
+        #endif
         stmt_ret = std::static_pointer_cast<Custom_Result>(this->case_statement->CodeGenerate());
     }else if (this->isRepeat()){
+        #ifdef GEN_DEBUG
+        std::cout << "isRepeat " <<std::endl;
+        #endif
         stmt_ret = std::static_pointer_cast<Custom_Result>(this->repeat_statement->CodeGenerate());
     }else if (this->isWhile()){
+        #ifdef GEN_DEBUG
+        std::cout << "isWhile " <<std::endl;
+        #endif
         stmt_ret = std::static_pointer_cast<Custom_Result>(this->while_statement->CodeGenerate());
     }else if (this->isFor()){
+        #ifdef GEN_DEBUG
+        std::cout << "isFor " <<std::endl;
+        #endif
         stmt_ret = std::static_pointer_cast<Custom_Result>(this->for_statement->CodeGenerate());
     }else if (this->isGoto()){
+        #ifdef GEN_DEBUG
+        std::cout << "isGoto " <<std::endl;
+        #endif
         stmt_ret = std::static_pointer_cast<Custom_Result>(this->goto_statement->CodeGenerate());
     }
     return stmt_ret;
@@ -110,8 +137,10 @@ std::shared_ptr<Custom_Result> AST_Assign_Statement::CodeGenerate(){
 }
 
 std::shared_ptr<Custom_Result> AST_Procedure_Statement::CodeGenerate(){
-    // std::cout << "hello" << std::endl;
-
+    AST_Function_Call *ast_func = new AST_Function_Call(this->identifier, this->expresion_list);
+    auto res = ast_func->CodeGenerate();
+    delete ast_func;
+    return res;
 }
 
 

@@ -56,6 +56,9 @@ namespace Our_Type
         {
             return type_group == Type_Group::RECORD;
         }
+        bool isIntegerTy() const;
+        bool isCharTy() const;
+        bool isFloatingPointTy() const;
     };
 
     extern Pascal_Type *const INT_TYPE;

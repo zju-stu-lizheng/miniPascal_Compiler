@@ -126,4 +126,16 @@ namespace Our_Type
             return false;
         }
     }
+
+    bool Pascal_Type::isIntegerTy() const{
+        return isEqual(this,INT_TYPE);
+    }
+
+    bool Pascal_Type::isCharTy() const{
+        return isEqual(this,CHAR_TYPE);
+    }
+
+    bool Pascal_Type::isFloatingPointTy() const{
+        return isEqual(this,REAL_TYPE);
+    }
 }

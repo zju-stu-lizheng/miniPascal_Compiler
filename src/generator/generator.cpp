@@ -286,9 +286,9 @@ std::shared_ptr<Custom_Result> AST_Function_Call::CodeGenerate()
     // To do list : 系统调用
     // Currently, sys_function will use no local variables that has cascade relation
     // So we do not need to deal with the locals and do it simply
-    // if (isSysFunc(this->func_id)) {
-    //     return std::make_shared<Value_Result>(VOID_TYPE, genSysFunc(node->getFuncId(), value_vector));
-    // }
+    if (Contents::isSysFunc(this->func_id)) {
+        return std::make_shared<Value_Result>(VOID_TYPE, Contents::GenSysFunc(this->func_id, value_vec));
+    }
     Record_and_Output_Error(true,"Function " + this->func_id + " not found.",this->GetLocation());
     return nullptr;
 }
@@ -296,20 +296,30 @@ std::shared_ptr<Custom_Result> AST_Function_Call::CodeGenerate()
 std::shared_ptr<Custom_Result> AST_Identifier_Expression::CodeGenerate()
 {
     //判断是否在当前code_block
-    if(Contents::GetCurrentBlock()->isValue(id)){
-        llvm::Value *mem = Contents::GetCurrentBlock()->names_2_values[id];
+    if(Contents::GetCurrentBlock()->isValue(this->id)){
+        llvm::Value *mem = Contents::GetCurrentBlock()->names_2_values[this->id];
         llvm::Value *value = Contents::builder.CreateLoad(mem);
-        return std::make_shared<Value_Result>(Contents::GetVarType(id), value, mem);
+        return std::make_shared<Value_Result>(Contents::GetVarType(this->id), value, mem);
     }
     //再判断是否在最外层code_block
-    else if(Contents::codeblock_list[0]->isValue(id)){
-        llvm::Value *mem = Contents::codeblock_list[0]->names_2_values[id];
+    else if(Contents::codeblock_list[0]->isValue(this->id)){
+        llvm::Value *mem = Contents::codeblock_list[0]->names_2_values[this->id];
         llvm::Value *value = Contents::builder.CreateLoad(mem);
-        return std::make_shared<Value_Result>(Contents::codeblock_list[0]->names_2_ourtype[id], value, mem);
+        return std::make_shared<Value_Result>(Contents::codeblock_list[0]->names_2_ourtype[this->id], value, mem);
     }
     else{
         //可能是无参数的函数调用
+        #ifdef GEN_DEBUG
+        std::cout << "start calling no arg func : " << this->id << std::endl;
+        #endif
         //Funcall
+        AST_Function_Call *func_call = new AST_Function_Call(this->id, nullptr);
+        auto ret = func_call->CodeGenerate();
+        #ifdef GEN_DEBUG
+        std::cout << "finish calling no arg func : " << this->id << " , return " << (ret == nullptr ? "is" : "is not") << " nullptr" << std::endl;
+        #endif
+        if (ret != nullptr) return ret;
+        Record_and_Output_Error(true,this->id + " is neither a variable nor a no-arg function. Cannot get named value: ",this->GetLocation());
         return nullptr;
     }
 }

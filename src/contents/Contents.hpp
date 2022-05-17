@@ -4,6 +4,8 @@
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Value.h>
 #include <llvm/IR/Module.h>
+#include <llvm/IR/Function.h>
+#include <llvm/IR/DerivedTypes.h>
 #include <iostream>
 #include <vector>
 #include <map>
@@ -125,5 +127,13 @@ namespace Contents{
 
     //获取变量的类型
     Our_Type::Pascal_Type *GetVarType(std::string id);
+
+    //系统调用相关
+
+    //判断是否是系统函数
+    bool isSysFunc(std::string id) ;
+
+    //生成系统函数，并执行
+    llvm::Value* GenSysFunc(std::string id, const std::vector<std::shared_ptr<Value_Result> > &args_list) ;
 };
 
