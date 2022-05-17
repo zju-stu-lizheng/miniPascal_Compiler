@@ -18,6 +18,7 @@ class AST_While_Statement;
 class AST_For_Statement;
 class AST_Goto_Statement;
 class AST_Else_Clause;
+class AST_Break_Statement;
 
 class AST_Case_Expression_List;
 class AST_Case_Expression;
@@ -191,7 +192,8 @@ public:
         REPEAT,
         WHILE,
         FOR,
-        GOTO
+        GOTO,
+        BREAK
     };
     Statement_Type statement_type;
 
@@ -204,6 +206,7 @@ public:
     AST_While_Statement *while_statement;
     AST_For_Statement *for_statement;
     AST_Goto_Statement *goto_statement;
+    AST_Break_Statement *break_statement;
 
 public:
     AST_Non_Label_Statement(AST_Assign_Statement *_assgin_statement) : assgin_statement(_assgin_statement)
@@ -241,6 +244,10 @@ public:
     AST_Non_Label_Statement(AST_Goto_Statement *_goto_statement) : goto_statement(_goto_statement)
     {
         this->statement_type = Statement_Type::GOTO;
+    }
+    AST_Non_Label_Statement(AST_Break_Statement *_break_statement) : break_statement(_break_statement)
+    {
+        this->statement_type = Statement_Type::BREAK;
     }
     Statement_Type Get_Statement_Type() const
     {
@@ -286,6 +293,7 @@ public:
             //todo type transfer
 
         }
+        return true;
     }
 
 public:
@@ -561,5 +569,5 @@ class AST_Break_Statement : public AST_BaseNode{
     public:
         std::shared_ptr<Custom_Result>CodeGenerate() override;
     public:
-        AST_Break_Statement() = default();
+        AST_Break_Statement() = default;
 };

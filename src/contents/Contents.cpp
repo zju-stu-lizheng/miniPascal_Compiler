@@ -194,6 +194,7 @@ namespace Contents
         if (id == "writeln") return true;
         if (id == "read") return true;
         if (id == "readln") return true;
+        return false;
     }
 
     llvm::Value* GenSysFunc(std::string id, const std::vector<std::shared_ptr<Value_Result> > &args_list) {
@@ -202,5 +203,7 @@ namespace Contents
         if (id == "writeln") return GenSysWrite(args_list, true);
         if (id == "read") return GenSysRead(args_list, false);
         if (id == "readln") return GenSysRead(args_list, true);
+        //report error
+        return nullptr;
     }
 }

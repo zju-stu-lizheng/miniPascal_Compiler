@@ -136,7 +136,7 @@ std::shared_ptr<Custom_Result> AST_Assign_Statement::CodeGenerate(){
 
         
         llvm::Value* left_mem = Contents::GetCurrentBlock()->names_2_values[identifier1];
-        Contents::codeblock_list[0]
+        // Contents::codeblock_list[0]
         auto right = std::static_pointer_cast<Value_Result>(expression1->CodeGenerate());
         Contents::builder.CreateStore(right->GetValue(), left_mem);
         
@@ -153,6 +153,7 @@ std::shared_ptr<Custom_Result> AST_Assign_Statement::CodeGenerate(){
 
 
 std::shared_ptr<Custom_Result> AST_Procedure_Statement::CodeGenerate(){
+    //作为Function_Call进行代码生成
     AST_Function_Call *ast_func = new AST_Function_Call(this->identifier, this->expresion_list);
     auto res = ast_func->CodeGenerate();
     delete ast_func;
@@ -308,26 +309,26 @@ std::shared_ptr<VisitorResult> Generator::VisitASTForStmt(ASTForStmt *node) {
 */
 std::shared_ptr<Custom_Result> AST_For_Statement::CodeGenerate(){
     // std::cout << "hello" << std::endl;
-    llvm::Function * function = Contents::builder.GetInsertBlock()->getParent();
-    llvm::BasicBlock* for_start_block = llvm::BasicBlock::Create(Contents::context, "for_start", function);
-    llvm::BasicBlock* for_handle_block = llvm::BasicBlock::Create(Contents::context, "for_handle", function);
-    llvm::BasicBlock* for_condition_block = llvm::BasicBlock::Create(Contents::context, "for_condition", function);
-    llvm::BasicBlock* for_end_block = llvm::BasicBlock::Create(Contents::context, "for_end", function);
+    // llvm::Function * function = Contents::builder.GetInsertBlock()->getParent();
+    // llvm::BasicBlock* for_start_block = llvm::BasicBlock::Create(Contents::context, "for_start", function);
+    // llvm::BasicBlock* for_handle_block = llvm::BasicBlock::Create(Contents::context, "for_handle", function);
+    // llvm::BasicBlock* for_condition_block = llvm::BasicBlock::Create(Contents::context, "for_condition", function);
+    // llvm::BasicBlock* for_end_block = llvm::BasicBlock::Create(Contents::context, "for_end", function);
 
-    Contents::GetCurrentBlock()->loop_return_blocks.push_back(end_block);
+    // Contents::GetCurrentBlock()->loop_return_blocks.push_back(end_block);
 
-    //start 
-    Contents::builder.CreateBr(for_start_block);
-    Contents::builder.SetInsertPoint(for_start_block);
+    // //start 
+    // Contents::builder.CreateBr(for_start_block);
+    // Contents::builder.SetInsertPoint(for_start_block);
 
-    //reuse ast code generator
-    auto ast_assign_statement = std::make_shared<AST_Assign_Statement>(this->identifier, this->expression1);
-    ast_assign_statement->CodeGenerate(); // local varaibla
+    // //reuse ast code generator
+    // auto ast_assign_statement = std::make_shared<AST_Assign_Statement>(this->identifier, this->expression1);
+    // ast_assign_statement->CodeGenerate(); // local varaibla
     
 
 
-    auto ast_assign = new ASTAssignStmt(ast_id_expr, node->getForExpr());
-    ast_assign->Accept(this);
+    // auto ast_assign = new ASTAssignStmt(ast_id_expr, node->getForExpr());
+    // ast_assign->Accept(this);
 
 }
 
@@ -337,6 +338,12 @@ std::shared_ptr<Custom_Result> AST_Direction::CodeGenerate(){
 }
 
 std::shared_ptr<Custom_Result> AST_Goto_Statement::CodeGenerate()
+{
+    std::cout << "hello" << std::endl;
+}
+
+// 增加的语句块
+std::shared_ptr<Custom_Result> AST_Break_Statement::CodeGenerate()
 {
     std::cout << "hello" << std::endl;
 }

@@ -3,6 +3,7 @@
 #include <string>
 #include <memory>
 #include <iostream>
+#include "../type/type.hpp"
 
 #include <llvm/IR/Value.h>
 #include <llvm/IR/Type.h>

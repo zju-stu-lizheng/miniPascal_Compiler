@@ -119,13 +119,13 @@ std::shared_ptr<Custom_Result> AST_Unary_Expression::CodeGenerate()
     if(t == nullptr) return nullptr;
     if(my_operation == Operation::NOT){
         if(!isEqual(t->GetType(),BOOLEAN_TYPE)){
-            //report error
+            Record_and_Output_Error(true,"Operation::NOT 作用的 operand 必须是布尔类型!",this->GetLocation());
             return nullptr;
         }
         return std::make_shared<Value_Result> (t->GetType(),Contents::builder.CreateNot(t->GetValue(),"nottmp"));
     }else if(my_operation == Operation::SUB){
         if(!isEqual(t->GetType(),INT_TYPE) && !isEqual(t->GetType(),REAL_TYPE)){
-            //report error
+            Record_and_Output_Error(true,"Operation::SUB 作用的 operand 必须是数值类型!",this->GetLocation());
             return nullptr;
         }
         llvm::Type *tp = t->Get_llvm_Type();
@@ -137,12 +137,13 @@ std::shared_ptr<Custom_Result> AST_Unary_Expression::CodeGenerate()
             return std::make_shared<Value_Result>(t->GetType(), Contents::builder.CreateSub(zero, t->GetValue(), "negatmp"));
     }else if(my_operation == Operation::ADD){
         if(!isEqual(t->GetType(),INT_TYPE) && !isEqual(t->GetType(),REAL_TYPE)){
-            //report error
+            Record_and_Output_Error(true,"Operation::ADD 作用的 operand 必须是数值类型!",this->GetLocation());
             return nullptr;
         }
-
         return std::make_shared<Value_Result>(t->GetType(), t->GetValue());
     }
+    Record_and_Output_Error(true,"未定义的操作符!",this->GetLocation());
+    return nullptr;
 }
 
 std::shared_ptr<Custom_Result> AST_Property_Expression::CodeGenerate()

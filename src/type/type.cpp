@@ -58,6 +58,8 @@ namespace Our_Type
             // not implemented
             return nullptr;
         }
+        //report error
+        return nullptr;
     }
     bool isEqual(const Our_Type::Pascal_Type *const a, const Our_Type::Pascal_Type *const b)
     {
@@ -122,9 +124,16 @@ namespace Our_Type
         }
         else
         {
+            #ifdef GEN_DEBUG
             std::cout << "Unknown Error Occurred at Our_Type::isEqual" << std::endl;
+            #endif
+            
             return false;
         }
+        #ifdef GEN_DEBUG
+        std::cout << "Bad Error Occurred at Our_Type::isEqual" << std::endl;
+        #endif
+        return false;
     }
 
     bool Pascal_Type::isIntegerTy() const{

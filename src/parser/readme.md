@@ -362,6 +362,8 @@ A label can be an identifier or an integer digit.
 
   | goto_stmt
 
+  | break_stmt
+
 ```pascal
 //排除label的语句类型
 1. 赋值语句
@@ -370,6 +372,7 @@ A label can be an identifier or an integer digit.
 4. 条件判断语句块 : 包含 if case
 5. 循环语句块 : 包括 repeat while for
 6. Go-to语句块
+7. break语句
 ```
 
 
