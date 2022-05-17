@@ -133,8 +133,6 @@ std::shared_ptr<Custom_Result> AST_Assign_Statement::CodeGenerate(){
         #ifdef GEN_DEBUG
         std::cout << "direct assign" << std::endl;
         #endif
-
-        
         llvm::Value* left_mem = Contents::GetCurrentBlock()->names_2_values[identifier1];
         // Contents::codeblock_list[0]
         #ifdef GEN_DEBUG
@@ -148,6 +146,17 @@ std::shared_ptr<Custom_Result> AST_Assign_Statement::CodeGenerate(){
         Contents::builder.CreateStore(right->GetValue(), left_mem);
         
     }else if(isArrayAssign()){
+        #ifdef GEN_DEBUG
+        std::cout << "array assign" << std::endl;
+        #endif
+        // llvm::Value* left_mem = Contents::GetCurrentBlock()->names_2_values[identifier1];
+        // auto expidx = std::static_pointer_cast<Value_Result>(expression1->CodeGenerate());
+        auto ast_array_expression = std::make_shared<AST_Array_Expression>(this->identifier1, this->expression1);
+        std::shared_ptr<Value_Result> left_array_ret = std::static_pointer_cast<Value_Result>(ast_array_expression->CodeGenerate());
+        auto right = std::static_pointer_cast<Value_Result>(expression2->CodeGenerate());
+
+        Contents::builder.CreateStore(right->GetValue(), left_array_ret->GetMemory());
+        //TODO : 强制类型转换
 
     }else if(isRecordAttrAssign()){
 
@@ -315,27 +324,92 @@ std::shared_ptr<VisitorResult> Generator::VisitASTForStmt(ASTForStmt *node) {
 
 */
 std::shared_ptr<Custom_Result> AST_For_Statement::CodeGenerate(){
+    std::cout << "begin for" << std::endl;
     // std::cout << "hello" << std::endl;
-    // llvm::Function * function = Contents::builder.GetInsertBlock()->getParent();
-    // llvm::BasicBlock* for_start_block = llvm::BasicBlock::Create(Contents::context, "for_start", function);
-    // llvm::BasicBlock* for_handle_block = llvm::BasicBlock::Create(Contents::context, "for_handle", function);
-    // llvm::BasicBlock* for_condition_block = llvm::BasicBlock::Create(Contents::context, "for_condition", function);
-    // llvm::BasicBlock* for_end_block = llvm::BasicBlock::Create(Contents::context, "for_end", function);
+    llvm::Function * function = Contents::builder.GetInsertBlock()->getParent();
+    llvm::BasicBlock* for_start_block = llvm::BasicBlock::Create(Contents::context, "for_start", function);
+    llvm::BasicBlock* for_handle_block = llvm::BasicBlock::Create(Contents::context, "for_handle", function);
+    llvm::BasicBlock* for_condition_block = llvm::BasicBlock::Create(Contents::context, "for_condition", function);
+    llvm::BasicBlock* for_end_block = llvm::BasicBlock::Create(Contents::context, "for_end", function);
 
-    // Contents::GetCurrentBlock()->loop_return_blocks.push_back(end_block);
+    // TODO: continue
+    Contents::GetCurrentBlock()->loop_return_blocks.push_back(for_end_block);
 
-    // //start 
-    // Contents::builder.CreateBr(for_start_block);
-    // Contents::builder.SetInsertPoint(for_start_block);
+    //start 
+    Contents::builder.CreateBr(for_start_block);
+    Contents::builder.SetInsertPoint(for_start_block);
 
-    // //reuse ast code generator
-    // auto ast_assign_statement = std::make_shared<AST_Assign_Statement>(this->identifier, this->expression1);
-    // ast_assign_statement->CodeGenerate(); // local varaibla
+    // definition once
+    // TODO enum class step add
+    std::cout << "begin const value" << std::endl;
+    auto ast_const_value = new AST_Const_Value(
+            this->my_direction->isTo() ? "1" : "-1",
+            AST_Const_Value::Value_Type::INT
+    );
+    auto const_value_ret = std::static_pointer_cast<Value_Result>(ast_const_value->CodeGenerate());
+
+    // reuse ast code generator
+    std::cout << "begin for assign" << std::endl;
+    auto ast_assign_statement = new AST_Assign_Statement(this->identifier, this->expression1);
+    ast_assign_statement->CodeGenerate(); // local varaibla
+    
+    std::cout << "begin first cmp" << std::endl;
+    // compare iteration assign
+    auto ast_cmp_statement =  new AST_Binary_Expression(
+                this->my_direction->isTo() ? AST_Binary_Expression::Operation::GT :
+                                             AST_Binary_Expression::Operation::LT,
+                this->expression1, this->expression2
+    );
+    auto ast_cmp_ret = std::static_pointer_cast<Value_Result>(ast_cmp_statement->CodeGenerate());
+
+    //branch
+    std::cout << "begin first condition br" << std::endl;
+    Contents::builder.CreateCondBr(ast_cmp_ret->GetValue(), for_end_block, for_handle_block);
+
+    // handle
+    std::cout << "begin handle" << std::endl;
+    Contents::builder.SetInsertPoint(for_handle_block);
+    this->statement->CodeGenerate();
+
+    // condition: step -> cmp ? contine(->handle) or end
+    std::cout << "begin condition" << std::endl;
+    Contents::builder.CreateBr(for_condition_block);
+    Contents::builder.SetInsertPoint(for_condition_block);
+    // step
+    std::cout << "begin step" << std::endl;
+
+    auto left_id = new AST_Identifier_Expression(this->identifier); // left value for step
+    auto left_ret = std::static_pointer_cast<Value_Result>(left_id->CodeGenerate());
+
+    std::cout << "begin step add" << std::endl;
+    llvm::Value* add_ret = Contents::builder.CreateAdd(left_ret->GetValue(),const_value_ret->GetValue());
+    
+    std::cout << "begin step store" << std::endl;
+    Contents::builder.CreateStore(add_ret, left_ret->GetMemory());
+    // auto ast_step_statement = new AST_Binary_Expression( // has symbol
+    //     AST_Binary_Expression::Operation::PLUS,
+    //     left_ret, ast_const_value_expression
+    // );
     
 
+    // compare (loop end )
+    std::cout << "begin compare" << std::endl;
+    left_id = new AST_Identifier_Expression(this->identifier);
+    ast_cmp_statement =  new AST_Binary_Expression(
+                this->my_direction->isTo() ? AST_Binary_Expression::Operation::GT :
+                                             AST_Binary_Expression::Operation::LT,
+                left_id, this->expression2
+    );
+    ast_cmp_ret = std::static_pointer_cast<Value_Result>(ast_cmp_statement->CodeGenerate());
 
-    // auto ast_assign = new ASTAssignStmt(ast_id_expr, node->getForExpr());
-    // ast_assign->Accept(this);
+    Contents::builder.CreateCondBr(ast_cmp_ret->GetValue(), for_end_block, for_handle_block);
+    
+    Contents::builder.CreateBr(for_end_block);
+    Contents::builder.SetInsertPoint(for_end_block);
+    Contents::GetCurrentBlock()->loop_return_blocks.pop_back();
+
+    std::cout << "for success" << std::endl;
+    return nullptr;
 
 }
 

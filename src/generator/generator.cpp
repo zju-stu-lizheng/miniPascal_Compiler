@@ -388,6 +388,7 @@ std::shared_ptr<Custom_Result> AST_Array_Expression::CodeGenerate()
     if (array == nullptr || (!isArr && !isStr)) {
         // report error
         // std::cerr << get_location() << "Not an array nor str, cannot use index." << std::endl;
+        std::cout << "array exp fail" << std::endl;
         return nullptr;
     }
 

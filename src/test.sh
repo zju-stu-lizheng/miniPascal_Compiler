@@ -1,1 +1,1 @@
-./build/opc < ../test/test.pas
+./build/opc < ../test/typearray.pas
