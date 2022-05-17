@@ -1142,7 +1142,7 @@ std::shared_ptr<Custom_Result> AST_Const_Expression::CodeGenerate()
             /*Module=*/*(Contents::module),
             /*Type=*/GetLLVMType(Contents::context, res->GetType()),
             /*isConstant=*/true,
-            /*Linkage=*/llvm::GlobalValue::CommonLinkage,
+            /*Linkage=*/llvm::GlobalValue::PrivateLinkage,
             /*Initializer=*/(llvm::Constant *) res->GetValue(), // has initializer, specified below
             /*Name=*/this->id );
     if (Contents::codeblock_list.back()->names_2_values.count(this->id) || Contents::names_2_constants.count(this->id)) {
