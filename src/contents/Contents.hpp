@@ -68,7 +68,8 @@ class CodeBlock{
     std::map<std::string, FuncSign*> names_2_funcsign; //function or procedure
     std::map<std::string, llvm::Function*> names_2_functions;
     std::map<std::shared_ptr<Label_Type>, llvm::BasicBlock*> label_2_block; //goto
-
+    std::vector<llvm::BasicBlock*> loop_return_blocks; // for multiple loop break
+    
     std::string block_name;
     bool is_function;
 

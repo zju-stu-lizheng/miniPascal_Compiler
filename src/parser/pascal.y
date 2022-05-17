@@ -77,6 +77,7 @@ using namespace std;
     AST_For_Statement* ast_for_statement;
     AST_Direction* ast_direction;
     AST_Goto_Statement* ast_goto_statement;
+    AST_Break_Statement* ast_break_statement;
 }   
 
 %token<token_type> KEY_BREAK KEY_EXIT
@@ -87,7 +88,7 @@ using namespace std;
 %token<token_type> SYM_ADD SYM_SUB SYM_MUL SYM_DIV SYM_EQ SYM_LT SYM_GT SYM_LBRAC SYM_RBRAC SYM_PERIOD SYM_COMMA SYM_COLON
 %token<token_type> SYM_SEMICOLON SYM_AT SYM_CARET SYM_LPAREN SYM_RPAREN SYM_NE SYM_LE SYM_GE SYM_ASSIGN SYM_RANGE COMMENT
 %token<token_type> KEY_AND KEY_ARRAY KEY_ASM KEY_BEGIN KEY_CASE KEY_CONST KEY_CONSTRUCTOR KEY_DESTRUCTOR KEY_DIV
-%token<token_type> KEY_DO KEY_DOWNTO KEY_ELSE KEY_END KEY_FILE KEY_FOR KEY_FUNCTION KEY_GOTO KEY_IF KEY_IMPLEMENTATION KEY_IN 
+%token<token_type> KEY_DO KEY_DOWNTO KEY_ELSE KEY_END KEY_FILE KEY_FOR KEY_FUNCTION KEY_GOTO KEY_IF KEY_IMPLEMENTATION KEY_IN
 %token<token_type> KEY_INHERITED KEY_INLINE KEY_INTERFACE KEY_LABEL KEY_MOD KEY_NIL KEY_NOT KEY_OBJECT KEY_OF KEY_OPERATOR KEY_OR
 %token<token_type> KEY_PACKED KEY_PROCEDURE KEY_PROGRAM KEY_RECORD KEY_REINTRODUCE KEY_REPEAT KEY_SELF KEY_SET KEY_SHL KEY_SHR
 %token<token_type> KEY_THEN KEY_TO KEY_TYPE KEY_UNIT KEY_UNTIL KEY_USES KEY_VAR KEY_WHILE KEY_WITH KEY_XOR
@@ -148,6 +149,7 @@ using namespace std;
 %type<ast_for_statement> for_stmt;
 %type<ast_direction> direction;
 %type<ast_goto_statement> goto_stmt;
+%type<ast_break_statement> break_stmt;
 
 %%
 program: 
@@ -513,11 +515,14 @@ var_para_list:
 
 stmt_list:
     stmt_list stmt SYM_SEMICOLON {
+        std::cout << "yacc add stmt" << std::endl;
         ($1) -> Add_Statement($2);
         $$ = $1;
         SET_LOCATION($$);
     }
     | {
+        std::cout << "yacc empty stmt" << std::endl;
+
         $$ = new AST_Statement_List();
         SET_LOCATION($$);
     }
@@ -581,6 +586,10 @@ non_label_stmt:
         SET_LOCATION($$);
     }
     | goto_stmt {
+        $$ = new AST_Non_Label_Statement($1);
+        SET_LOCATION($$);
+    }
+    | break_stmt {
         $$ = new AST_Non_Label_Statement($1);
         SET_LOCATION($$);
     }
@@ -700,6 +709,13 @@ direction:
 goto_stmt:
     KEY_GOTO label {
         $$ = new AST_Goto_Statement($2);
+        SET_LOCATION($$);
+    }
+;
+
+break_stmt:
+    KEY_BREAK {
+        $$ = new AST_Break_Statement();
         SET_LOCATION($$);
     }
 ;

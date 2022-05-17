@@ -4,16 +4,16 @@ Const
     constTerm2 = 3.14;
 var
     curTerm1 :integer;
-Procedure DoSomething (Para : integer);
-Const
-    constTerm3 = 3;
-    constTerm4 = 3.14;
-var
     curTerm2 :integer;
 begin
-    curTerm1 := 4;
-end;
-
-begin
-    curTerm1 := 3+(2+-+3);
+    curTerm1 := constTerm1;
+    curTerm1 := 1 + 2*(2 + 3);
+    
+    if curTerm1 = 11 then
+        curTerm2 := 5
+    else
+        if curTerm1 = 12 then
+            curTerm2 := 6
+        else
+            curTerm2 := 7;
 end.

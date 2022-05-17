@@ -33,7 +33,7 @@ add_custom_command(
 
 add_custom_command(
     OUTPUT pascal.y.hpp pascal.y.cpp 
-    COMMAND bison -d -Wcounterexamples -o pascal.y.cpp ${CMAKE_CURRENT_LIST_DIR}/parser/pascal.y
+    COMMAND bison -d -o pascal.y.cpp ${CMAKE_CURRENT_LIST_DIR}/parser/pascal.y
     DEPENDS ${CMAKE_CURRENT_LIST_DIR}/parser/pascal.y
 )
 
