@@ -3,7 +3,6 @@
 #include <string>
 #include <memory>
 #include <iostream>
-#include "../type/type.hpp"
 
 #include <llvm/IR/Value.h>
 #include <llvm/IR/Type.h>
@@ -349,7 +348,7 @@ public:
 class Type_Declaration_List_Result : public Custom_Result
 {
 public:
-    Type_Declaration_List_Result() {}
+    Type_Declaration_List_Result() = default;
     void AddTypeDeclResult(std::shared_ptr<Type_Declaration_Result> _type_decl_result)
     {
         type_decl_list.push_back(_type_decl_result);
@@ -360,7 +359,7 @@ public:
     }
 
 private:
-    std::vector<std::shared_ptr<Type_Declaration_Result>> type_decl_list;
+    std::vector<std::shared_ptr<Type_Declaration_Result> > type_decl_list;
 };
 
 // Label type

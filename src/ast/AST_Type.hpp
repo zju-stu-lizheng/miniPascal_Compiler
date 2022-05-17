@@ -19,7 +19,7 @@ class AST_Field_Declaration_List;
 class AST_Field_Declaration;
 class AST_Name_List;
 
-// easy_type -> int / char / boolean / float
+// easy_type -> int / char / boolean / float / string
 class AST_Type : public AST_BaseNode
 {
 public:
@@ -47,6 +47,8 @@ public:
 // type_decl -> SimpleTypeDecl / ArrayTypeDecl / RecordTypeDecl
 class AST_Type_Declaration : public AST_BaseNode
 {
+public:
+    virtual std::shared_ptr<Custom_Result> CodeGenerate()=0;
 };
 
 /*
@@ -132,7 +134,7 @@ public:
  * @brief
  * field_decl_list -> {field_decl}
  */
-class AST_Field_Declaration_List : public AST_Type_Declaration
+class AST_Field_Declaration_List : public AST_BaseNode
 {
 public:
     std::shared_ptr<Custom_Result>CodeGenerate() override;
@@ -156,7 +158,7 @@ public:
  * field_decl->
     name_list SYM_COLON type_decl SYM_SEMICOLON
  */
-class AST_Field_Declaration : public AST_Type_Declaration
+class AST_Field_Declaration : public AST_BaseNode
 {
 public:
     std::shared_ptr<Custom_Result>CodeGenerate() override;
@@ -172,7 +174,7 @@ public:
  * name_list->
     {IDENTIFIER}
 */
-class AST_Name_List : public AST_Type_Declaration
+class AST_Name_List : public AST_BaseNode
 {
 public:
     std::shared_ptr<Custom_Result>CodeGenerate() override;
@@ -226,7 +228,7 @@ public:
 type_part->
     KEY_TYPE type_decl_list | %empty
 */
-class AST_Type_Part : public AST_Type_Declaration
+class AST_Type_Part : public AST_BaseNode
 {
 public:
     std::shared_ptr<Custom_Result>CodeGenerate() override;

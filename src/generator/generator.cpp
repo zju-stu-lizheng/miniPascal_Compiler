@@ -425,6 +425,7 @@ std::shared_ptr<Custom_Result> AST_Routine_Head::CodeGenerate()
     if(this->const_part) this->const_part->CodeGenerate();
     #ifdef GEN_DEBUG
     std::cout << "const_part ready"<<std::endl;
+    std::cout << "type_part start"<<std::endl;
     #endif
     if(this->type_part) this->type_part->CodeGenerate();
     #ifdef GEN_DEBUG
@@ -711,14 +712,16 @@ std::shared_ptr<Custom_Result> AST_Type::CodeGenerate()
 {
     AST_Type::Type_Name type_name = Get_Type_Name();
     if (type_name == AST_Type::Type_Name::INT)
-        return std::make_shared<Type_Result>(INT_TYPE);
+        return std::make_shared<Type_Result>(Our_Type::INT_TYPE);
     else if (type_name == AST_Type::Type_Name::FLOAT)
-        return std::make_shared<Type_Result>(REAL_TYPE);
+        return std::make_shared<Type_Result>(Our_Type::REAL_TYPE);
     else if (type_name == AST_Type::Type_Name::BOOLEAN)
-        return std::make_shared<Type_Result>(BOOLEAN_TYPE);
+        return std::make_shared<Type_Result>(Our_Type::BOOLEAN_TYPE);
     else if (type_name == AST_Type::Type_Name::CHAR)
-        return std::make_shared<Type_Result>(CHAR_TYPE);
-    else 
+        return std::make_shared<Type_Result>(Our_Type::CHAR_TYPE);
+    else if (type_name == AST_Type::Type_Name::STRING)
+        return std::make_shared<Type_Result>(new Our_Type::String_Type());
+    else
         return nullptr;
 }
 
@@ -853,8 +856,15 @@ std::shared_ptr<Custom_Result> AST_Array_Type_Declaration::CodeGenerate()
 
 std::shared_ptr<Custom_Result> AST_Record_Type_Declaration::CodeGenerate()
 {
+    #ifdef GEN_DEBUG
+    std::cout << "field_decl_list start" <<std::endl;
+    #endif
     std::shared_ptr<Type_Declaration_List_Result> decls = std::static_pointer_cast<Type_Declaration_List_Result>(
         field_decl_list->CodeGenerate());
+    
+    #ifdef GEN_DEBUG
+    std::cout << "field_decl_list ready" <<std::endl;
+    #endif
 
     if (decls) {
         std::vector<std::string> name_vec;
@@ -880,7 +890,13 @@ std::shared_ptr<Custom_Result> AST_Field_Declaration_List::CodeGenerate()
     std::shared_ptr<Custom_Result> fd_ret;
     std::shared_ptr<Type_Declaration_List_Result> ret(new Type_Declaration_List_Result());
     for (auto fd : field_decl_list) {
+        #ifdef GEN_DEBUG
+        std::cout << "field_decl start" <<std::endl;
+        #endif
         fd_ret = fd->CodeGenerate();
+        #ifdef GEN_DEBUG
+        std::cout << "field_decl ready" <<std::endl;
+        #endif
         
         std::shared_ptr<Type_Declaration_Result> tdr;
         if (tdr = std::static_pointer_cast<Type_Declaration_Result>(fd_ret)) {
@@ -897,12 +913,21 @@ std::shared_ptr<Custom_Result> AST_Field_Declaration::CodeGenerate()
 {
     std::shared_ptr<Name_List> list_ret;
     std::vector<std::string> name_list;
-    if (list_ret = std::static_pointer_cast<Name_List>(type_decl->CodeGenerate())) {
+    #ifdef GEN_DEBUG
+    std::cout << "name_list start" <<std::endl;
+    #endif
+    if (list_ret = std::static_pointer_cast<Name_List>(this->name_list->CodeGenerate())) {
         name_list = list_ret->GetNameList();
     } else {
         //report error
-        // std::cout << get_location() << " not a name list." << endl;
+        #ifdef GEN_DEBUG
+        std::cout << GetLocationString() << " not a name list." <<std::endl;
+        #endif
+        return nullptr;
     }
+    #ifdef GEN_DEBUG
+    std::cout << GetLocationString() << "name_list ready" <<std::endl;
+    #endif
 
     std::shared_ptr< Type_Result > type_ret;
     Pascal_Type *type;
@@ -910,9 +935,14 @@ std::shared_ptr<Custom_Result> AST_Field_Declaration::CodeGenerate()
         type = type_ret->GetType();
     } else {
         // not a type
-        // std::cout << get_location() << "type_decl does not have a type" << std::endl;
+        #ifdef GEN_DEBUG
+        std::cout << GetLocationString() << "type_decl does not have a type" <<std::endl;
+        #endif
         return nullptr;
     }
+    #ifdef GEN_DEBUG
+    std::cout << GetLocationString() << "type_decl ready" <<std::endl;
+    #endif
 
     return std::make_shared<Type_Declaration_Result>(list_ret->GetNameList(), type_ret->GetType());
 }
@@ -924,14 +954,27 @@ std::shared_ptr<Custom_Result> AST_Name_List::CodeGenerate()
 
 std::shared_ptr<Custom_Result> AST_Type_Declaration_List::CodeGenerate()
 {
+    #ifdef GEN_DEBUG
+    std::cout << "AST_Type_Declaration_List start" <<std::endl;
+    #endif
     for(auto td : type_definition_list){
         td->CodeGenerate();
     }
+    #ifdef GEN_DEBUG
+    std::cout << "AST_Type_Declaration_List ready" <<std::endl;
+    #endif
     return nullptr;
 }
 
 std::shared_ptr<Custom_Result> AST_Type_Definition::CodeGenerate()
 {
+    //判断是 SimpleTypeDecl / ArrayTypeDecl / RecordTypeDecl
+    // this->type_decl->
+
+    #ifdef GEN_DEBUG
+    std::cout <<  "AST_Type_Definition start" <<std::endl;
+    #endif
+
     std::shared_ptr<Type_Result> tr = std::static_pointer_cast<Type_Result>(
         type_decl->CodeGenerate());
 
@@ -948,18 +991,24 @@ std::shared_ptr<Custom_Result> AST_Type_Definition::CodeGenerate()
         if (defined) {
             // std::cout << get_location() << "multiple type definition." << std::endl;
             // report error
+            #ifdef GEN_DEBUG
+            std::cout << GetLocationString() << " multiple type definition." <<std::endl;
+            #endif
         } else {
             Contents::GetCurrentBlock()->names_2_ourtype[identifier] = type;
         }
     } else {
         // report error
-        // std::cout << get_location() << "fail to generate a type." << std::endl;
+        #ifdef GEN_DEBUG
+        std::cout << GetLocationString() << " fail to generate a type." <<std::endl;
+        #endif
     }
     return nullptr;
 }
 
 std::shared_ptr<Custom_Result> AST_Type_Part::CodeGenerate()
 {
+    std::cout << "type_decl_list"<<std::endl;
     return type_decl_list->CodeGenerate();
 }
 

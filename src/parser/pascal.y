@@ -310,6 +310,9 @@ type_decl_list:
     | type_definition {
         $$ = new AST_Type_Declaration_List();
         ($$) -> Add_Type_Definition($1);
+        #ifdef GEN_DEBUG
+        std::cout <<  "yacc Add_Type_Definition" <<std::endl;
+        #endif
         SET_LOCATION($$);
     }
 ;
@@ -317,6 +320,9 @@ type_decl_list:
 type_definition:
     IDENTIFIER SYM_EQ type_decl SYM_SEMICOLON {
         $$ = new AST_Type_Definition($1,$3);
+        #ifdef GEN_DEBUG
+        std::cout <<  "yacc new AST_Type_Definition" <<std::endl;
+        #endif
         SET_LOCATION($$);
     }
 ;
@@ -324,14 +330,23 @@ type_definition:
 type_decl:
     simple_type_decl {
         $$ = $1;
+        #ifdef GEN_DEBUG
+        std::cout <<  "yacc simple_type_decl" <<std::endl;
+        #endif
         SET_LOCATION($$);
     }
     | array_type_decl  {
         $$ = $1;
+        #ifdef GEN_DEBUG
+        std::cout <<  "yacc array_type_decl" <<std::endl;
+        #endif
         SET_LOCATION($$);
     }
     | record_type_decl {
         $$ = $1;
+        #ifdef GEN_DEBUG
+        std::cout <<  "yacc record_type_decl" <<std::endl;
+        #endif
         SET_LOCATION($$);
     }
 ;
@@ -374,6 +389,10 @@ easy_type:
     }
     | TYPE_FLOAT {
         $$ = new AST_Type(AST_Type::Type_Name::FLOAT);
+        SET_LOCATION($$);
+    }
+    | TYPE_STRING {
+        $$ = new AST_Type(AST_Type::Type_Name::STRING);
         SET_LOCATION($$);
     }
 ;
