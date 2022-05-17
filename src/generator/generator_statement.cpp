@@ -180,8 +180,10 @@ std::shared_ptr<Custom_Result> AST_Procedure_Statement::CodeGenerate(){
 std::shared_ptr<Custom_Result> AST_If_Statement::CodeGenerate(){
     // std::cout << "hello" << std::endl;
     llvm::Function *function = Contents::builder.GetInsertBlock()->getParent();
+
     llvm::BasicBlock *then_stmt_block = llvm::BasicBlock::Create(Contents::context, "if_then", function);
     llvm::BasicBlock *else_stmt_block = llvm::BasicBlock::Create(Contents::context, "if_else", function);
+
     llvm::BasicBlock *continue_stmt_block = llvm::BasicBlock::Create(Contents::context, "if_continue", function); //continue
 
     auto condition_ret = std::static_pointer_cast<Value_Result>(expression->CodeGenerate());
@@ -195,6 +197,7 @@ std::shared_ptr<Custom_Result> AST_If_Statement::CodeGenerate(){
     //ToDO: not else
     this->else_clause->CodeGenerate();
     Contents::builder.CreateBr(continue_stmt_block); //continue out
+    Contents::builder.SetInsertPoint(continue_stmt_block); // else
 
     return nullptr;
 }
