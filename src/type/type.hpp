@@ -126,7 +126,7 @@ namespace Our_Type
     public:
         int len; // string array
 
-        String_Type(int _len = 255) : len(_len), Pascal_Type(Type_Group::STRING) {}
+        String_Type(int _len = 256) : len(_len), Pascal_Type(Type_Group::STRING) {}
     };
 
     class Record_Type : public Pascal_Type

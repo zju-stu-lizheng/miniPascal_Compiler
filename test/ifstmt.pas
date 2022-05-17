@@ -16,4 +16,7 @@ begin
             curTerm2 := 6
         else
             curTerm2 := 7;
+
+    writeln(curTerm1);
+    WriteLn(curTerm2);
 end.
