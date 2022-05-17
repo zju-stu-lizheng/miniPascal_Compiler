@@ -394,14 +394,15 @@ std::shared_ptr<Custom_Result> AST_For_Statement::CodeGenerate(){
 
     // compare (loop end )
     std::cout << "begin compare" << std::endl;
+    left_id = new AST_Identifier_Expression(this->identifier);
     ast_cmp_statement =  new AST_Binary_Expression(
                 this->my_direction->isTo() ? AST_Binary_Expression::Operation::GT :
                                              AST_Binary_Expression::Operation::LT,
-                this->expression1, this->expression2
+                left_id, this->expression2
     );
     ast_cmp_ret = std::static_pointer_cast<Value_Result>(ast_cmp_statement->CodeGenerate());
 
-    Contents::builder.CreateCondBr(ast_cmp_ret->GetValue(), for_handle_block, for_end_block);
+    Contents::builder.CreateCondBr(ast_cmp_ret->GetValue(), for_end_block, for_handle_block);
     
     Contents::builder.CreateBr(for_end_block);
     Contents::builder.SetInsertPoint(for_end_block);
