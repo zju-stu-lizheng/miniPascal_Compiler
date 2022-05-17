@@ -1,4 +1,4 @@
-program test;
+program ifstmt;
 Const
     constTerm1 = 3;
     constTerm2 = 3.14;

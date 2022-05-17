@@ -183,6 +183,9 @@ std::shared_ptr<Custom_Result> AST_Const_Value_Expression::CodeGenerate()
 
 std::shared_ptr<Custom_Result> AST_Function_Call::CodeGenerate()
 {
+    #ifdef GEN_DEBUG
+    std::cout << "func_call start" <<std::endl;
+    #endif
     std::shared_ptr<Value_List_Result> value_list;
     std::vector<std::shared_ptr<Value_Result> > value_vec;
     //判断是否含有参数
@@ -190,17 +193,34 @@ std::shared_ptr<Custom_Result> AST_Function_Call::CodeGenerate()
     if(this->args_list == nullptr){
         has_args = false;
     }else{
+        #ifdef GEN_DEBUG
+        std::cout << "get args_list start" <<std::endl;
+        #endif
         value_list = std::static_pointer_cast<Value_List_Result> (this->args_list->CodeGenerate());
+        #ifdef GEN_DEBUG
+        std::cout << "get args_list ready" <<std::endl;
+        #endif
         value_vec = value_list->GetValueList();
     }
 
     //获取函数名称    this->func_id;
     using namespace std;
-    vector<CodeBlock *>::reverse_iterator block_sp = Contents::codeblock_list.rbegin();
-	for (; block_sp != Contents::codeblock_list.rend(); ++block_sp){
-		//block_sp 指向当前CodeBlock
-        FuncSign *funcsign = (*block_sp)->Find_FuncSign(this->func_id);
-        if(funcsign == nullptr) continue;
+	for (int i = Contents::codeblock_list.size() - 1; i>= 0; i--){
+        #ifdef GEN_DEBUG
+        std::cout << "enter CodeBlock" <<std::endl;
+        #endif
+        FuncSign *funcsign = (Contents::codeblock_list[i])->Find_FuncSign(this->func_id);
+        if(funcsign == nullptr) {
+            #ifdef GEN_DEBUG
+            std::cout << "continue" <<std::endl;
+            #endif
+            
+            continue;
+        }else{
+            #ifdef GEN_DEBUG
+            std::cout << "find funcSign " <<std::endl;
+            #endif
+        }
         // Note the function/procedure can not be overridden in pascal, so the function is matched iff the name is matched.
         // NameList().size include all local variables that require to be passed
         // we should compare NameList.size() - n_local
@@ -208,6 +228,10 @@ std::shared_ptr<Custom_Result> AST_Function_Call::CodeGenerate()
         if(funcsign->GetNameList().size() - funcsign->GetLocalVariablesNum() != value_vec.size()){
             Record_and_Output_Error(true,"Can't find function" + this->func_id + ": you have "+std::to_string(value_vec.size()) + "parameters, but the defined one has " 
             +std::to_string(funcsign->GetNameList().size() - funcsign->GetLocalVariablesNum()) + "parameters.",this->GetLocation());
+            #ifdef GEN_DEBUG
+            std::cout << "Can't find function" + this->func_id + ": you have "+std::to_string(value_vec.size()) + "parameters, but the defined one has " 
+            +std::to_string(funcsign->GetNameList().size() - funcsign->GetLocalVariablesNum()) + "parameters." <<std::endl;
+            #endif
             return nullptr;
         }
         auto name_list = funcsign->GetNameList();
@@ -215,7 +239,18 @@ std::shared_ptr<Custom_Result> AST_Function_Call::CodeGenerate()
         auto var_list = funcsign->GetVarList();
         auto return_type = funcsign->GetReturnType();
 
-        llvm::Function *callee = (*block_sp)->Find_Function(this->func_id);
+        llvm::Function *callee = (Contents::codeblock_list[i])->Find_Function(this->func_id);
+        if(callee == nullptr) {
+            #ifdef GEN_DEBUG
+            std::cout << "continue" <<std::endl;
+            #endif
+            
+            continue;
+        }else{
+            #ifdef GEN_DEBUG
+            std::cout << "find function " <<std::endl;
+            #endif
+        }
         std::vector<llvm::Value*> parameters;
 
         // 添加局部变量
@@ -234,13 +269,22 @@ std::shared_ptr<Custom_Result> AST_Function_Call::CodeGenerate()
                 parameters.push_back(Contents::GetCurrentBlock()->names_2_values[local_name]);
             }
         }
+        #ifdef GEN_DEBUG
+        std::cout << "添加完局部变量 " <<std::endl;
+        #endif
 
         // 函数传参
         for (auto value: value_vec){
+            #ifdef GEN_DEBUG
+            std::cout << "函数传参 " << cur <<std::endl;
+            #endif
             if (!isEqual(value->GetType(), type_list[cur])){
                 Record_and_Output_Error(true,"Type does not match on function " + this->func_id + " calling.",this->GetLocation());
                 return nullptr;
             }
+            #ifdef GEN_DEBUG
+            std::cout << "类型匹配 " << cur <<std::endl;
+            #endif
             if (value->GetMemory() != nullptr) {
                 parameters.push_back(value->GetMemory());
             } else {
@@ -257,6 +301,9 @@ std::shared_ptr<Custom_Result> AST_Function_Call::CodeGenerate()
                 Contents::builder.CreateStore(value->GetValue(), mem);
                 parameters.push_back(mem);
             }
+            #ifdef GEN_DEBUG
+            std::cout << "传参结束 " << cur <<std::endl;
+            #endif
             cur++;
         } 
         auto ret = Contents::builder.CreateCall(callee, parameters);
@@ -279,6 +326,9 @@ std::shared_ptr<Custom_Result> AST_Function_Call::CodeGenerate()
             llvm::Value *value = Contents::builder.CreateLoad(mem);
             return std::make_shared<Value_Result>(funcsign->GetReturnType(), value, mem); //, ret->getPointerOperand()); //, "call_"+ node->getFuncId()
         } else {
+            #ifdef GEN_DEBUG
+            std::cout << "function call ready" <<std::endl;
+            #endif
             return std::make_shared<Value_Result>(funcsign->GetReturnType(), ret); 
         }
 	}
@@ -430,6 +480,7 @@ std::shared_ptr<Custom_Result> AST_Routine_Head::CodeGenerate()
     if(this->type_part) this->type_part->CodeGenerate();
     #ifdef GEN_DEBUG
     std::cout << "type_part ready"<<std::endl;
+    std::cout << "var_part start"<<std::endl;
     #endif
     if(this->var_part) this->var_part->CodeGenerate();
     #ifdef GEN_DEBUG
@@ -1099,12 +1150,18 @@ std::shared_ptr<Custom_Result> AST_Const_Part::CodeGenerate()
 
 std::shared_ptr<Custom_Result> AST_Variable_Part::CodeGenerate()
 {
+    #ifdef GEN_DEBUG
+    std::cout << "var_decl_list start" <<std::endl;
+    #endif
     return this->var_decl_list->CodeGenerate();
 }
 
 std::shared_ptr<Custom_Result> AST_Variable_Declaration_List::CodeGenerate()
 {
     for(auto var_decl : this->var_decl_list){
+        #ifdef GEN_DEBUG
+        std::cout << "var_decl start" <<std::endl;
+        #endif
         var_decl->CodeGenerate();
     }
     return nullptr;
@@ -1118,20 +1175,46 @@ std::shared_ptr<Custom_Result> AST_Variable_Declaration_List::CodeGenerate()
  */
 std::shared_ptr<Custom_Result> AST_Variable_Declaration::CodeGenerate()
 {
+    #ifdef GEN_DEBUG
+    std::cout << "name_list start" <<std::endl;
+    #endif
     auto name_list = std::static_pointer_cast<Name_List>(this->name_list->CodeGenerate());
+    #ifdef GEN_DEBUG
+    std::cout << "name_list ready" <<std::endl;
+    #endif
     auto type_decl = std::static_pointer_cast<Type_Result>(this->type_decl->CodeGenerate());
+    #ifdef GEN_DEBUG
+    std::cout << "type_decl ready" <<std::endl;
+    #endif
 
-    if(type_decl == nullptr) return nullptr;    //error
+    if(type_decl == nullptr){
+        #ifdef GEN_DEBUG
+        std::cout << "type_decl is null" <<std::endl;
+        #endif
+        return nullptr;    //error
+    } 
     for(auto identifier : name_list->GetNameList()){
+        #ifdef GEN_DEBUG
+        type_decl->PrintType();
+        #endif
         llvm::Type *ty = GetLLVMType(Contents::context,type_decl->GetType());
         if(Contents::codeblock_list.size() == 1){
             //是全局变量
             llvm::Constant * init_const;
             if(type_decl->GetType()->isSimple()){
+                #ifdef GEN_DEBUG
+                std::cout << "is simple type" <<std::endl;
+                #endif
                 init_const = llvm::Constant::getNullValue(ty);
             }else{
+                #ifdef GEN_DEBUG
+                std::cout << "is not simple type" <<std::endl;
+                #endif
                 init_const = llvm::ConstantAggregateZero::get(ty);
             }
+            #ifdef GEN_DEBUG
+            std::cout << "start get global variable" <<std::endl;
+            #endif
             llvm::GlobalVariable * var = new llvm::GlobalVariable(
                 /*Module=*/*(Contents::module),
                 /*Type=*/ty,
@@ -1140,7 +1223,9 @@ std::shared_ptr<Custom_Result> AST_Variable_Declaration::CodeGenerate()
                 /*Initializer=*/init_const, // has initializer, specified below
                 /*Name=*/identifier);
             if(Contents::codeblock_list.back()->names_2_values.count(identifier)){
-                //error
+                #ifdef GEN_DEBUG
+                std::cout << "变量重复定义" <<std::endl;
+                #endif
             }
             Contents::codeblock_list.back()->names_2_values[identifier] = var;
             Contents::codeblock_list.back()->names_2_ourtype[identifier] = type_decl->GetType();

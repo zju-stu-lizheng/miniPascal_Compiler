@@ -90,8 +90,8 @@ TYPE_STRING string
 SIGN "+"|"-"
 LITERAL_TRUE true 
 LITERAL_FALSE false
-LITERAL_INT [0-9]|[1-9][0-9]+
 LITERAL_FLOAT ([0-9]+\.[0-9]+)|([0-9]+\.[0-9]+e{SIGN}?[0-9]+)|([0-9]+e{SIGN}?[0-9]+)
+LITERAL_INT [0-9]|[1-9][0-9]+
 LITERAL_CHAR \'.\'
 LITERAL_ESC_CHAR '\'#\'
 LITERAL_STR \'([^']|{LITERAL_ESC_CHAR})*\'

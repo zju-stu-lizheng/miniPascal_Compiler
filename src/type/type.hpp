@@ -298,6 +298,21 @@ public:
         is_var = _is_var;
     }
 
+    void PrintType()
+    {
+        if(type->isArray()){
+            std::cout<<"this is array type"<<std::endl;
+        }else if(type->isEnumerate()){
+            std::cout<<"this is enumerate type"<<std::endl;
+        }else if(type->isSimple()){
+            std::cout<<"this is simple type"<<std::endl;
+        }else if(type->isRecord()){
+            std::cout<<"this is record type"<<std::endl;
+        }else{
+            std::cout<<"other type"<<std::endl;
+        }
+    }
+
 private:
     Our_Type::Pascal_Type *type;
     bool is_var; // 作为函数参数进行传递时，考虑时值传递还是指针传递
@@ -341,6 +356,21 @@ public:
     Our_Type::Pascal_Type *GetType()
     {
         return type;
+    }
+
+    void PrintType()
+    {
+        if(type->isArray()){
+            std::cout<<"this is array type"<<std::endl;
+        }else if(type->isEnumerate()){
+            std::cout<<"this is enumerate type"<<std::endl;
+        }else if(type->isSimple()){
+            std::cout<<"this is simple type"<<std::endl;
+        }else if(type->isRecord()){
+            std::cout<<"this is record type"<<std::endl;
+        }else{
+            std::cout<<"other type"<<std::endl;
+        }
     }
 };
 
