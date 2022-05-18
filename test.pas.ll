@@ -25,7 +25,7 @@ source_filename = "pascal_module"
 @scanf_format.4 = private unnamed_addr constant [3 x i8] c"%d\00", align 1
 @0 = private unnamed_addr constant [256 x i8] c"Incompatible Dimensions\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00", align 1
 @printf_format = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
-@printf_format.5 = private unnamed_addr constant [5 x i8] c"%d%c\00", align 1
+@printf_format.5 = private unnamed_addr constant [7 x i8] c"%10d%c\00", align 1
 @printf_format.6 = private unnamed_addr constant [2 x i8] c"\0A\00", align 1
 
 define i32 @main() {
@@ -275,7 +275,7 @@ for_handle124:                                    ; preds = %for_condition125, %
   %subtmp136 = sub i32 %"load identifier value135", 0
   %ArrayCall137 = getelementptr [626 x i32], [626 x i32]* @array_c, i32 0, i32 %subtmp136
   %"load array value138" = load i32, i32* %ArrayCall137, align 4
-  %call_printf139 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([5 x i8], [5 x i8]* @printf_format.5, i32 0, i32 0), i32 %"load array value138", i8 32)
+  %call_printf139 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([7 x i8], [7 x i8]* @printf_format.5, i32 0, i32 0), i32 %"load array value138", i8 32)
   br label %for_condition125
 
 for_condition125:                                 ; preds = %for_handle124

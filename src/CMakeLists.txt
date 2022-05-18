@@ -42,6 +42,6 @@ add_executable(
     main.cpp ${TYP_SOURCE} ${AST_SOURCE} ${GEN_SOURCE} ${CON_SOURCE}  pascal.l.cpp
     pascal.y.cpp pascal.y.hpp)
 
-llvm_map_components_to_libnames(llvm_libs support core irreader executionEngine interpreter nativecodegen mcjit)
+llvm_map_components_to_libnames(llvm_libs ${LLVM_TARGETS_TO_BUILD} support core irreader codegen mc mcparser option)
 message(STATUS "llvm_libs: ${llvm_libs}")
 target_link_libraries(opc ${llvm_libs})

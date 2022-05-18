@@ -57,7 +57,7 @@ begin
             for j:=0 to n_b-1 do
             begin
                 k:= i*n_b+j;
-                Write(array_c[k] , ' ');
+                printf(array_c[k],' ');
             end;
             WriteLn;
         end; 
