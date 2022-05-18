@@ -385,7 +385,7 @@ std::shared_ptr<Custom_Result> AST_For_Statement::CodeGenerate(){
     auto left_ret = std::static_pointer_cast<Value_Result>(left_id->CodeGenerate());
 
     std::cout << "begin step add" << std::endl;
-    llvm::Value* add_ret = Contents::builder.CreateAdd(left_ret->GetValue(),const_value_ret->GetValue());
+    llvm::Value* add_ret = Contents::builder.CreateAdd(left_ret->GetValue(),const_value_ret->GetValue(),"tmpadd");
     
     std::cout << "begin step store" << std::endl;
     Contents::builder.CreateStore(add_ret, left_ret->GetMemory());
