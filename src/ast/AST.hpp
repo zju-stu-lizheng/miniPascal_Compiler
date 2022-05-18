@@ -7,7 +7,7 @@
 #include "AST_Value.hpp"
 #include "AST_Statement.hpp"
 //生成代码的debug信息
-// #define GEN_DEBUG
+#define GEN_DEBUG
 
 extern AST_Program* ast_root;
 #endif
