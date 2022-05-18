@@ -183,7 +183,7 @@ std::shared_ptr<Custom_Result> AST_Property_Expression::CodeGenerate()
     #ifdef GEN_DEBUG
     std::cout << "AST_Property_Expression CreateLoad" <<std::endl;
     #endif
-    llvm::Value * ret = Contents::builder.CreateLoad(/*type = */my_type,mem);
+    llvm::Value * ret = Contents::builder.CreateLoad(/*type = */my_type,mem,"load record type");
     return std::make_shared<Value_Result>(type_list[bias],ret,mem);
 }
 
@@ -338,7 +338,7 @@ std::shared_ptr<Custom_Result> AST_Function_Call::CodeGenerate()
             #ifdef GEN_DEBUG
             std::cout << "GetReturnType CreateLoad" <<std::endl;
             #endif
-            llvm::Value *value = Contents::builder.CreateLoad(/*type=*/my_type,mem);
+            llvm::Value *value = Contents::builder.CreateLoad(/*type=*/my_type,mem,"load return value");
             return std::make_shared<Value_Result>(funcsign->GetReturnType(), value, mem); //, ret->getPointerOperand()); //, "call_"+ node->getFuncId()
         } else {
             #ifdef GEN_DEBUG
@@ -368,7 +368,7 @@ std::shared_ptr<Custom_Result> AST_Identifier_Expression::CodeGenerate()
         #ifdef GEN_DEBUG
         std::cout << "AST_Identifier_Expression CreateLoad" <<std::endl;
         #endif
-        llvm::Value *value = Contents::builder.CreateLoad(/*type=*/my_type,mem);
+        llvm::Value *value = Contents::builder.CreateLoad(/*type=*/my_type,mem,"load identifier value");
         return std::make_shared<Value_Result>(Contents::GetVarType(this->id), value, mem);
     }
     //再判断是否在最外层code_block
@@ -378,7 +378,7 @@ std::shared_ptr<Custom_Result> AST_Identifier_Expression::CodeGenerate()
         #ifdef GEN_DEBUG
         std::cout << "AST_Identifier_Expression CreateLoad" <<std::endl;
         #endif
-        llvm::Value *value = Contents::builder.CreateLoad(/*type=*/my_type,mem);
+        llvm::Value *value = Contents::builder.CreateLoad(/*type=*/my_type,mem,"load identifier value");
         return std::make_shared<Value_Result>(Contents::codeblock_list[0]->names_2_ourtype[this->id], value, mem);
     }
     else{
@@ -442,7 +442,7 @@ std::shared_ptr<Custom_Result> AST_Array_Expression::CodeGenerate()
         #ifdef GEN_DEBUG
         std::cout << "AST_Array_Expression CreateLoad" <<std::endl;
         #endif
-        llvm::Value *value = Contents::builder.CreateLoad(/*type=*/my_type,tmp_mem);  //直接从name2_to_value中取
+        llvm::Value *value = Contents::builder.CreateLoad(/*type=*/my_type,tmp_mem,"load array value");  //直接从name2_to_value中取
         return std::make_shared<Value_Result>(array_type->element_type, value, tmp_mem);
     } else {
         llvm::Type *my_type = Our_Type::GetLLVMType(Contents::context,Our_Type::CHAR_TYPE);
@@ -450,7 +450,7 @@ std::shared_ptr<Custom_Result> AST_Array_Expression::CodeGenerate()
         #ifdef GEN_DEBUG
         std::cout << "AST_Array_Expression CreateLoad" <<std::endl;
         #endif
-        llvm::Value *value = Contents::builder.CreateLoad(/*type=*/my_type,tmp_mem);
+        llvm::Value *value = Contents::builder.CreateLoad(/*type=*/my_type,tmp_mem,"load string value");
         return std::make_shared<Value_Result>(Our_Type::CHAR_TYPE, value, tmp_mem);
     }
 }
@@ -660,7 +660,7 @@ std::shared_ptr<Custom_Result> AST_Declaration_BaseClass::CodeGenerate()
             std::cout << "Inserted var param " << name_list[j] << std::endl;
         }else{
             llvm::Type * my_type = Our_Type::GetLLVMType(Contents::context,type_list[j]);
-            llvm::Value *value = Contents::builder.CreateLoad(/*type=*/my_type,(llvm::Value*)arg_id);
+            llvm::Value *value = Contents::builder.CreateLoad(/*type=*/my_type,(llvm::Value*)arg_id,"load var param");
             llvm::AllocaInst *mem = Contents::builder.CreateAlloca(
                 GetLLVMType(Contents::context,type_list[j]),
                 nullptr,
@@ -692,7 +692,7 @@ std::shared_ptr<Custom_Result> AST_Declaration_BaseClass::CodeGenerate()
             Contents::builder.CreateRet(llvm::ConstantInt::get(llvm::Type::getInt32Ty(Contents::context),0,true));
         }else {
             llvm::Type *my_type = Our_Type::GetLLVMType(Contents::context,return_type);
-            llvm::Value * ret = Contents::builder.CreateLoad(/*type=*/my_type,Contents::GetCurrentBlock()->names_2_values[function_name]);
+            llvm::Value * ret = Contents::builder.CreateLoad(/*type=*/my_type,Contents::GetCurrentBlock()->names_2_values[function_name],"load ret param");
             Contents::builder.CreateRet(ret);
         }
     }else{
@@ -1142,7 +1142,7 @@ std::shared_ptr<Custom_Result> AST_Const_Value::CodeGenerate()
         for(int i=0;i<255 - tmp_len;i++) tmp = tmp+zero;//填充0
         llvm::Type * my_type = Our_Type::GetLLVMType(Contents::context,new String_Type());
         llvm::Value * mem_str = Contents::builder.CreateGlobalString(tmp);
-        llvm::Value * v_str = Contents::builder.CreateLoad(/*type=*/my_type,mem_str);
+        llvm::Value * v_str = Contents::builder.CreateLoad(/*type=*/my_type,mem_str,"load const string");
         return std::make_shared<Value_Result> (new String_Type(),v_str,mem_str);
     }
     //布尔常量
