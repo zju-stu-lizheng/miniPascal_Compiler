@@ -166,7 +166,7 @@ std::shared_ptr<Custom_Result> AST_Property_Expression::CodeGenerate()
     auto type_list = record_type->type_list;
     int bias = -1;
     for(int i=0;i<name_list.size();i++){
-        if(name_list[i] == prop_id){
+        if(name_list[i] == this->prop_id){
             bias = i;
             break;
         }

@@ -192,6 +192,17 @@ std::shared_ptr<Custom_Result> AST_Assign_Statement::CodeGenerate()
     }
     else if (isRecordAttrAssign())
     {
+        //​ IDENTIFIER '.' IDENTIFIER ':=' expression
+        #ifdef GEN_DEBUG
+        std::cout << "record assign" << std::endl;
+        #endif
+        // llvm::Value* left_mem = Contents::GetCurrentBlock()->names_2_values[identifier1];
+        // auto expidx = std::static_pointer_cast<Value_Result>(expression1->CodeGenerate());
+        auto ast_record_expression = std::make_shared<AST_Property_Expression>(this->identifier1, this->identifier2);
+        std::shared_ptr<Value_Result> left_array_ret = std::static_pointer_cast<Value_Result>(ast_record_expression->CodeGenerate());
+        auto right = std::static_pointer_cast<Value_Result>(expression1->CodeGenerate());
+
+        Contents::builder.CreateStore(right->GetValue(), left_array_ret->GetMemory());
     }
 #ifdef GEN_DEBUG
     std::cout << "assign statement ready" << std::endl;
@@ -240,10 +251,7 @@ std::shared_ptr<Custom_Result> AST_If_Statement::CodeGenerate()
 std::shared_ptr<Custom_Result> AST_Else_Clause::CodeGenerate()
 {
     // std::cout << "hello" << std::endl;
-    if (not this->isEmpty())
-        return this->statement->CodeGenerate();
-    else
-        return nullptr;
+    return this->statement->CodeGenerate();
 }
 
 /*

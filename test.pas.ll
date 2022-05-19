@@ -1,33 +1,18 @@
 ; ModuleID = 'pascal_module'
 source_filename = "pascal_module"
 
-@array_a = common global [626 x i32] zeroinitializer
-@i = common global i32 0
-@sum = common global i32 0
-@printf_format = private unnamed_addr constant [4 x i8] c"%d\0A\00", align 1
+@Book1 = common global { [256 x i8], i32, i32, i32, i32 } zeroinitializer
+@Book2 = common global { [256 x i8], i32, i32, i32, i32 } zeroinitializer
+@0 = private unnamed_addr constant [256 x i8] c"AI\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00", align 1
+@printf_format = private unnamed_addr constant [3 x i8] c"%s\00", align 1
 
 define i32 @main() {
 entry:
-  br label %while_condition
-
-while_condition:                                  ; preds = %while_body, %entry
-  %"load identifier value" = load i32, i32* @i, align 4
-  %cmptmp = icmp slt i32 %"load identifier value", 10
-  br i1 %cmptmp, label %while_body, label %while_end
-
-while_body:                                       ; preds = %while_condition
-  %"load identifier value1" = load i32, i32* @sum, align 4
-  %"load identifier value2" = load i32, i32* @i, align 4
-  %addtmp = add i32 %"load identifier value1", %"load identifier value2"
-  store i32 %addtmp, i32* @sum, align 4
-  %"load identifier value3" = load i32, i32* @i, align 4
-  %addtmp4 = add i32 %"load identifier value3", 1
-  store i32 %addtmp4, i32* @i, align 4
-  br label %while_condition
-
-while_end:                                        ; preds = %while_condition
-  %"load identifier value5" = load i32, i32* @sum, align 4
-  %call_printf = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @printf_format, i32 0, i32 0), i32 %"load identifier value5")
+  %"load record type" = load [256 x i8], [256 x i8]* getelementptr inbounds ({ [256 x i8], i32, i32, i32, i32 }, { [256 x i8], i32, i32, i32, i32 }* @Book1, i32 0, i32 0), align 1
+  %"load const string" = load [256 x i8], [256 x i8]* @0, align 1
+  store [256 x i8] %"load const string", [256 x i8]* getelementptr inbounds ({ [256 x i8], i32, i32, i32, i32 }, { [256 x i8], i32, i32, i32, i32 }* @Book1, i32 0, i32 0), align 1
+  %"load record type1" = load [256 x i8], [256 x i8]* getelementptr inbounds ({ [256 x i8], i32, i32, i32, i32 }, { [256 x i8], i32, i32, i32, i32 }* @Book1, i32 0, i32 0), align 1
+  %call_printf = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @printf_format, i32 0, i32 0), [256 x i8]* getelementptr inbounds ({ [256 x i8], i32, i32, i32, i32 }, { [256 x i8], i32, i32, i32, i32 }* @Book1, i32 0, i32 0))
   ret i32 0
 }
 

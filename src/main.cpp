@@ -38,7 +38,7 @@ int main()
     std::cout << "accept!" << std::endl;
 
     std::string output_ll_fname = input_fname + ".ll";
-    system(("rm " + output_ll_fname).c_str());
+    int sys_ret = system(("rm " + output_ll_fname).c_str());
     Save(output_ll_fname);
 
     //目标代码生成
@@ -75,6 +75,9 @@ int main()
     Contents::module->setDataLayout(TheTargetMachine->createDataLayout());
 
     auto Filename = input_fname + ".o";
+    if(system(("rm " + Filename).c_str()) == -1){
+        std::cout << "error in rm .o" << std::endl;
+    }
     std::error_code EC;
     raw_fd_ostream dest(Filename, EC, sys::fs::OF_None);
 
