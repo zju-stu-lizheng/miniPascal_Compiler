@@ -326,7 +326,7 @@ std::shared_ptr<Custom_Result> AST_Repeat_Statement::CodeGenerate()
     llvm::BasicBlock *body_block = llvm::BasicBlock::Create(Contents::context, "repeat_body", func);
     llvm::BasicBlock *continue_block = llvm::BasicBlock::Create(Contents::context, "repeat_continue", func);
     
-    // Contents::GetCurrentBlock()->loop_breaks.push_back(end_block);
+    Contents::GetCurrentBlock()->loop_return_blocks.push_back(continue_block);
     
     // 进入body主体
     Contents::builder.CreateBr(body_block);
@@ -348,7 +348,7 @@ std::shared_ptr<Custom_Result> AST_Repeat_Statement::CodeGenerate()
     Contents::builder.CreateCondBr(cond_res->GetValue(),continue_block,body_block);
     Contents::builder.SetInsertPoint(continue_block);
 
-    // Contents::getCurrentBlock()->loop_breaks.pop_back();
+    Contents::GetCurrentBlock()->loop_return_blocks.pop_back();
     return nullptr;
 }
 
@@ -362,7 +362,7 @@ std::shared_ptr<Custom_Result> AST_While_Statement::CodeGenerate()
     llvm::BasicBlock *body_block = llvm::BasicBlock::Create(Contents::context, "while_body", func);
     llvm::BasicBlock *end_block = llvm::BasicBlock::Create(Contents::context, "while_end", func);
     
-    // Contents::GetCurrentBlock()->loop_breaks.push_back(end_block);
+    Contents::GetCurrentBlock()->loop_return_blocks.push_back(end_block);
 
     Contents::builder.CreateBr(conditon_block);
     Contents::builder.SetInsertPoint(conditon_block);
@@ -385,56 +385,11 @@ std::shared_ptr<Custom_Result> AST_While_Statement::CodeGenerate()
     Contents::builder.CreateBr(conditon_block);
     Contents::builder.SetInsertPoint(end_block);
 
-    // Contents::getCurrentBlock()->loop_breaks.pop_back();
+    Contents::GetCurrentBlock()->loop_return_blocks.pop_back();
 
     return nullptr;
 }
 
-/*
-std::shared_ptr<VisitorResult> Generator::VisitASTForStmt(ASTForStmt *node) {
-    llvm::Function *func = this->builder.GetInsertBlock()->getParent();
-    llvm::BasicBlock *start_block = llvm::BasicBlock::Create(this->context, "for_start", func);
-    llvm::BasicBlock *body_block = llvm::BasicBlock::Create(this->context, "for_body", func);
-    llvm::BasicBlock *cond_block = llvm::BasicBlock::Create(this->context, "for_cond", func);
-    llvm::BasicBlock *step_back_block = llvm::BasicBlock::Create(this->context, "for_step_back", func);
-    llvm::BasicBlock *end_block = llvm::BasicBlock::Create(this->context, "for_end", func);
-    this->getCurrentBlock()->loop_breaks.push_back(end_block);
-
-    builder.CreateBr(start_block);
-    builder.SetInsertPoint(start_block);
-
-
-
-
-
-
-    auto ast_id_expr = new ASTIDExpr(node->getId());
-    auto ast_assign = new ASTAssignStmt(ast_id_expr, node->getForExpr());
-    ast_assign->Accept(this);
-    auto ast_st_cmp = new ASTBinaryExpr(
-            node->getDir() == ASTForStmt::ForDir::TO ? ASTBinaryExpr::Oper::GT : ASTBinaryExpr::Oper::LT,
-            ast_id_expr,
-            node->getToExpr()
-    );
-    auto st_cmp_res = std::static_pointer_cast<Value_Result>(ast_st_cmp->Accept(this));
-    this->builder.CreateCondBr(st_cmp_res->getValue(), end_block, body_block);
-    this->builder.SetInsertPoint(body_block);
-    node->getStmt()->Accept(this);
-
-    this->builder.CreateBr(cond_block);
-    this->builder.SetInsertPoint(cond_block);
-    std::string step = node->getDir() == ASTForStmt::ForDir::TO ? "1" : "-1";
-
-    auto ast_const_value = new ASTConstValue(step, ASTConstValue::ValueType::INTEGER);
-    auto ast_const_value_expr = new ASTConstValueExpr(ast_const_value);
-    auto ast_step_add = new ASTBinaryExpr(ASTBinaryExpr::Oper::PLUS, ast_id_expr, ast_const_value_expr);
-    auto ast_step_assign = new ASTAssignStmt(ast_id_expr, ast_step_add);
-    ast_step_assign->Accept(this);
-
-    return nullptr;
-}
-
-*/
 std::shared_ptr<Custom_Result> AST_For_Statement::CodeGenerate()
 {
     std::cout << "begin for" << std::endl;
@@ -527,11 +482,22 @@ std::shared_ptr<Custom_Result> AST_Direction::CodeGenerate()
 
 std::shared_ptr<Custom_Result> AST_Goto_Statement::CodeGenerate()
 {
-    std::cout << "hello" << std::endl;
+    // std::cout << "hello" << std::endl;
+    return nullptr;
 }
 
 // 增加的语句块
 std::shared_ptr<Custom_Result> AST_Break_Statement::CodeGenerate()
 {
-    std::cout << "hello" << std::endl;
+    // std::cout << "hello" << std::endl;
+    if(Contents::GetCurrentBlock()->loop_return_blocks.empty()){
+        Record_and_Output_Error(true,"Cannot use break statement because of no loop.",this->GetLocation());
+        return nullptr;
+    }
+    //跳转出最内层的loop
+    Contents::builder.CreateBr(Contents::GetCurrentBlock()->loop_return_blocks.back());
+    llvm::Function * func = Contents::builder.GetInsertBlock()->getParent();
+    llvm::BasicBlock *continue_block = llvm::BasicBlock::Create(Contents::context,"break_continue",func);
+    Contents::builder.SetInsertPoint(continue_block);
+    return nullptr;
 }
