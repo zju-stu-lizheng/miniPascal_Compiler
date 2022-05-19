@@ -320,6 +320,35 @@ std::shared_ptr<Custom_Result> AST_Case_Expression::CodeGenerate()
 
 std::shared_ptr<Custom_Result> AST_Repeat_Statement::CodeGenerate()
 {
+    // 初始化各个BasicBlock
+    llvm::Function *func = Contents::builder.GetInsertBlock()->getParent();
+    llvm::BasicBlock *conditon_block = llvm::BasicBlock::Create(Contents::context, "repeat_condition", func);
+    llvm::BasicBlock *body_block = llvm::BasicBlock::Create(Contents::context, "repeat_body", func);
+    llvm::BasicBlock *continue_block = llvm::BasicBlock::Create(Contents::context, "repeat_continue", func);
+    
+    // Contents::GetCurrentBlock()->loop_breaks.push_back(end_block);
+    
+    // 进入body主体
+    Contents::builder.CreateBr(body_block);
+    
+    // 在body_block生成需要执行的while主体
+    Contents::builder.SetInsertPoint(body_block);
+    this->statement_list->CodeGenerate();
+
+    // 无条件跳转回condition_block 进行结束条件的判断
+    Contents::builder.CreateBr(conditon_block);
+    Contents::builder.SetInsertPoint(conditon_block);
+
+    auto cond_res = std::static_pointer_cast<Value_Result> (this->expression->CodeGenerate());
+    if (cond_res == nullptr || !isEqual(cond_res->GetType(), BOOLEAN_TYPE)){
+        Record_and_Output_Error(true,"Invalid condition in repeat statement.",this->GetLocation());
+        return nullptr;
+    }
+
+    Contents::builder.CreateCondBr(cond_res->GetValue(),continue_block,body_block);
+    Contents::builder.SetInsertPoint(continue_block);
+
+    // Contents::getCurrentBlock()->loop_breaks.pop_back();
     return nullptr;
 }
 
