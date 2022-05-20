@@ -152,6 +152,13 @@ std::shared_ptr<Custom_Result> AST_Non_Label_Statement::CodeGenerate()
 #endif
         stmt_ret = std::static_pointer_cast<Custom_Result>(this->goto_statement->CodeGenerate());
     }
+    else if (this->isBreak())
+    {
+#ifdef GEN_DEBUG
+        std::cout << "isBreak " << std::endl;
+#endif
+        stmt_ret = std::static_pointer_cast<Custom_Result>(this->break_statement->CodeGenerate());
+    }
     return stmt_ret;
 }
 
