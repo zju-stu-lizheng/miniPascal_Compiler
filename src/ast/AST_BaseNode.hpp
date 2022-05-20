@@ -8,7 +8,7 @@
 
 class AST_BaseNode{
     private:
-        // location for error information
+        // location for error information 
         int column;
         int row;
     public:
