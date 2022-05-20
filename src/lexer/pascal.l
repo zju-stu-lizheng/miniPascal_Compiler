@@ -11,7 +11,7 @@ int yycolumn = 1;
     yycolumn += yyleng;
 
 #ifdef DEBUG_LEXER
-#define OUR_RETURN(X) cout << (#X) << endl;
+#define OUR_RETURN(X) std::cout << (#X) << std::endl;
 #else
 #define OUR_RETURN(X) return(X);
 #endif
@@ -92,7 +92,7 @@ LITERAL_TRUE true
 LITERAL_FALSE false
 LITERAL_FLOAT ([0-9]+\.[0-9]+)|([0-9]+\.[0-9]+e{SIGN}?[0-9]+)|([0-9]+e{SIGN}?[0-9]+)
 LITERAL_INT [0-9]|[1-9][0-9]+
-LITERAL_CHAR \'.\'
+LITERAL_CHAR (\'.\')|(\'\\n\')
 LITERAL_ESC_CHAR '\'#\'
 LITERAL_STR \'([^']|{LITERAL_ESC_CHAR})*\'
 

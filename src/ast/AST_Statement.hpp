@@ -262,7 +262,8 @@ public:
     REPEAT,
     WHILE,
     FOR,
-    GOTO
+    GOTO,
+    BREAK
     */
     bool isAssign(){return statement_type == Statement_Type::ASSIGN;}
     bool isProcedure(){return statement_type == Statement_Type::PROCEDURE;}
@@ -273,6 +274,7 @@ public:
     bool isWhile(){return statement_type == Statement_Type::WHILE;}
     bool isFor(){return statement_type == Statement_Type::FOR;}
     bool isGoto(){return statement_type == Statement_Type::GOTO;}
+    bool isBreak(){return statement_type == Statement_Type::BREAK;}
 };
 
 /*

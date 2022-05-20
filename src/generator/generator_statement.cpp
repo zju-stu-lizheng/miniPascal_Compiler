@@ -6,7 +6,6 @@
 std::shared_ptr<Custom_Result> AST_Compound_Statement::CodeGenerate()
 {
     std::shared_ptr<Custom_Result> stmt_list_ret = std::static_pointer_cast<Custom_Result>(statement_list->CodeGenerate());
-// Check_Result_NULLPtr(stmt_list_ret,"AST_Compound_Statement", this->GetLocation());
 #ifdef GEN_DEBUG
     std::cout << "statement_list ready" << std::endl;
 #endif
@@ -15,13 +14,11 @@ std::shared_ptr<Custom_Result> AST_Compound_Statement::CodeGenerate()
 
 std::shared_ptr<Custom_Result> AST_Statement_List::CodeGenerate()
 {
-    // std::cout << "hello" << std::endl;
     std::vector<std::shared_ptr<Custom_Result>> ret;
     int cnt = 0;
     for (auto stmt_node : this->statement_list)
     {
         auto stmt_ret = std::static_pointer_cast<Custom_Result>(stmt_node->CodeGenerate());
-// Check_Result_NULLPtr(stmt_ret,"AST_Statement_List", this->GetLocation(), cnt);
 #ifdef GEN_DEBUG
         std::cout << "statement ready " << cnt << std::endl;
 #endif
@@ -36,7 +33,6 @@ std::shared_ptr<Custom_Result> AST_Statement_List::CodeGenerate()
 
 std::shared_ptr<Custom_Result> AST_Statement::CodeGenerate()
 {
-    // std::cout << "hello" << std::endl;
     if (has_label == Has_Label::HAS)
     {
         std::shared_ptr<Label_Type> label_ret = std::static_pointer_cast<Label_Type>(label->CodeGenerate());
@@ -53,7 +49,6 @@ std::shared_ptr<Custom_Result> AST_Statement::CodeGenerate()
         {
             return nullptr;
         }
-        // check label number -> cannot goto multiple places
     }
 
     auto ret = std::static_pointer_cast<Custom_Result>(non_label_statement->CodeGenerate());
@@ -69,7 +64,6 @@ std::shared_ptr<Custom_Result> AST_Statement::CodeGenerate()
 
 std::shared_ptr<Custom_Result> AST_Label::CodeGenerate()
 {
-    // std::cout << "hello" << std::endl;
     std::shared_ptr<Label_Type> label_ret;
     if (isIdentifier())
     {
@@ -84,7 +78,6 @@ std::shared_ptr<Custom_Result> AST_Label::CodeGenerate()
 
 std::shared_ptr<Custom_Result> AST_Non_Label_Statement::CodeGenerate()
 {
-// std::cout << "hello" << std::endl;
 #ifdef GEN_DEBUG
     std::cout << "non label statement begin " << std::endl;
 #endif
@@ -152,12 +145,19 @@ std::shared_ptr<Custom_Result> AST_Non_Label_Statement::CodeGenerate()
 #endif
         stmt_ret = std::static_pointer_cast<Custom_Result>(this->goto_statement->CodeGenerate());
     }
+    else if (this->isBreak())
+    {
+#ifdef GEN_DEBUG
+        std::cout << "isBreak " << std::endl;
+#endif
+        stmt_ret = std::static_pointer_cast<Custom_Result>(this->break_statement->CodeGenerate());
+    }
     return stmt_ret;
 }
 
 std::shared_ptr<Custom_Result> AST_Assign_Statement::CodeGenerate()
 {
-    // std::cout << "hello" << std::endl;
+    
     if (isDirectAssign())
     {
 // Todo: type transfer
@@ -221,7 +221,7 @@ std::shared_ptr<Custom_Result> AST_Procedure_Statement::CodeGenerate()
 
 std::shared_ptr<Custom_Result> AST_If_Statement::CodeGenerate()
 {
-    // std::cout << "hello" << std::endl;
+    
     llvm::Function *function = Contents::builder.GetInsertBlock()->getParent();
 
     llvm::BasicBlock *then_stmt_block = llvm::BasicBlock::Create(Contents::context, "if_then", function);
@@ -250,40 +250,13 @@ std::shared_ptr<Custom_Result> AST_If_Statement::CodeGenerate()
 
 std::shared_ptr<Custom_Result> AST_Else_Clause::CodeGenerate()
 {
-    // std::cout << "hello" << std::endl;
+    
     return this->statement->CodeGenerate();
 }
 
-/*
-std::shared_ptr<VisitorResult> Generator::VisitASTCaseStmt(ASTCaseStmt *node) {
-    llvm::Function *func = this->builder.GetInsertBlock()->getParent();
-    auto case_expr_list = node->getCaseExprList()->getCaseExprList();
-    std::vector<llvm::BasicBlock *> cond_vec;
-    std::vector<llvm::BasicBlock *> body_vec;
-    int len = case_expr_list.size();
-    for (int i=0; i < len; i++) {
-        cond_vec.push_back(llvm::BasicBlock::Create(this->context, "case_branch", func));
-        body_vec.push_back(llvm::BasicBlock::Create(this->context, "case_body", func));
-    }
-    auto end_block = llvm::BasicBlock::Create(this->context, "case_end", func);
-    this->builder.CreateBr(len == 0 ? end_block : cond_vec[0]);
-    for (int i=0; i < len; i++) {
-        auto case_expr = case_expr_list[i];
-        this->builder.SetInsertPoint(cond_vec[i]);
-        auto ast_cmp = new ASTBinaryExpr(ASTBinaryExpr::Oper::EQUAL, node->getExpr(), case_expr->getExpr());
-        auto match_res = std::static_pointer_cast<Value_Result>(ast_cmp->Accept(this));
-        delete ast_cmp;
-        this->builder.CreateCondBr(match_res->getValue(), body_vec[i], i == len - 1 ? end_block : cond_vec[i+1]);
-        this->builder.SetInsertPoint(body_vec[i]);
-        case_expr->getStmt()->Accept(this);
-    }
-
-    return nullptr;
-}
-*/
 std::shared_ptr<Custom_Result> AST_Case_Statement::CodeGenerate()
 {
-    // std::cout << "hello" << std::endl;
+    
     llvm::Function *function = Contents::builder.GetInsertBlock()->getParent(); // for Create parent function
     auto case_expression_vec = case_expression_list->case_expression_list;
     int case_num = case_expression_vec.size();
@@ -391,9 +364,7 @@ std::shared_ptr<Custom_Result> AST_While_Statement::CodeGenerate()
 }
 
 std::shared_ptr<Custom_Result> AST_For_Statement::CodeGenerate()
-{
-    std::cout << "begin for" << std::endl;
-    // std::cout << "hello" << std::endl;
+{    
     llvm::Function *function = Contents::builder.GetInsertBlock()->getParent();
     llvm::BasicBlock *for_start_block = llvm::BasicBlock::Create(Contents::context, "for_start", function);
     llvm::BasicBlock *for_handle_block = llvm::BasicBlock::Create(Contents::context, "for_handle", function);
@@ -409,7 +380,6 @@ std::shared_ptr<Custom_Result> AST_For_Statement::CodeGenerate()
 
     // definition once
     // TODO enum class step add
-    std::cout << "begin const value" << std::endl;
     auto ast_const_value = new AST_Const_Value(
         this->my_direction->isTo() ? "1" : "-1",
         AST_Const_Value::Value_Type::INT);
@@ -476,20 +446,19 @@ std::shared_ptr<Custom_Result> AST_For_Statement::CodeGenerate()
 
 std::shared_ptr<Custom_Result> AST_Direction::CodeGenerate()
 {
-    // std::cout << "hello" << std::endl;
+    
     return nullptr;
 }
 
 std::shared_ptr<Custom_Result> AST_Goto_Statement::CodeGenerate()
 {
-    // std::cout << "hello" << std::endl;
+    
     return nullptr;
 }
 
 // 增加的语句块
 std::shared_ptr<Custom_Result> AST_Break_Statement::CodeGenerate()
 {
-    // std::cout << "hello" << std::endl;
     if(Contents::GetCurrentBlock()->loop_return_blocks.empty()){
         Record_and_Output_Error(true,"Cannot use break statement because of no loop.",this->GetLocation());
         return nullptr;

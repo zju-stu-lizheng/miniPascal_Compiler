@@ -1126,8 +1126,16 @@ std::shared_ptr<Custom_Result> AST_Const_Value::CodeGenerate()
     //字符常量
     else if(this->value_type == AST_Const_Value::Value_Type::CHAR){
         tp = llvm::Type::getInt8Ty(Contents::context);
-        char v_char = this->content[1]; //这里应该是第二个字符 'a'
-        return std::make_shared<Value_Result>(CHAR_TYPE,llvm::ConstantInt::get(tp,v_char),nullptr);
+        if(this->content == "'\\n'"){
+            #ifdef GEN_DEBUG
+            std::cout << "读入换行符" <<std::endl;
+            #endif
+            char v_char = '\n'; //换行符
+            return std::make_shared<Value_Result>(CHAR_TYPE,llvm::ConstantInt::get(tp,v_char),nullptr);
+        }else{
+            char v_char = this->content[1]; //这里应该是第二个字符 'a'
+            return std::make_shared<Value_Result>(CHAR_TYPE,llvm::ConstantInt::get(tp,v_char),nullptr);
+        }
     }
     //字面量：字符串
     else if(this->value_type == AST_Const_Value::Value_Type::STRING){
