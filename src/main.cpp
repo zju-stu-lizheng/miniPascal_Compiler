@@ -10,11 +10,23 @@
 #include "llvm/Target/TargetMachine.h"
 #include "llvm/Target/TargetOptions.h"
 #include "llvm/IR/LegacyPassManager.h"
+#include <string>
 
-std::string input_fname = "test.pas";
+std::string input_root = "./";
+std::string input_file_name = "test.pas";
 
-int main()
-{
+int main(int argc,char **argv)
+{   
+    printf("%d\n", argc);
+    if( argc == 3){
+        input_root = argv[1];
+        input_file_name = argv[2];
+        printf("%s, %s\n", argv[1], argv[2]);
+    }else if( (argc > 3) | (argc == 2)){
+        exit(1);
+    }
+    std::string input_fname = input_root + input_file_name;
+
     int fd = open(input_fname.c_str(), O_RDONLY);
     if (fd < 0)
     {
@@ -37,7 +49,8 @@ int main()
     ast_root->CodeGenerate();
     std::cout << "accept!" << std::endl;
 
-    std::string output_ll_fname = input_fname + ".ll";
+    std::string output_ll_fname = input_file_name + ".ll"; //current directory
+    printf("output_ll_fname = %s", output_ll_fname);
     int sys_ret = system(("rm " + output_ll_fname).c_str());
     Save(output_ll_fname);
 
@@ -74,7 +87,7 @@ int main()
 
     Contents::module->setDataLayout(TheTargetMachine->createDataLayout());
 
-    auto Filename = input_fname + ".o";
+    auto Filename = input_file_name + ".o"; //current directory
     if(system(("rm " + Filename).c_str()) == -1){
         std::cout << "error in rm .o" << std::endl;
     }

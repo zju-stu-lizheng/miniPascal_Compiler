@@ -1,0 +1,3 @@
+# Hashes of file build rules.
+82cf8082e91d92aa5cc0fbc5bdfc94ea src/pascal.l.cpp
+c3525a1dc89be48d21d88021c3fdbe1f src/pascal.y.hpp

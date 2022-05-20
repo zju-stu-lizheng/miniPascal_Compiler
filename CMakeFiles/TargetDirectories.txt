@@ -1,0 +1,8 @@
+/home/alicewyp/cp/project/Our_Pascal_Compiler/CMakeFiles/rebuild_cache.dir
+/home/alicewyp/cp/project/Our_Pascal_Compiler/CMakeFiles/edit_cache.dir
+/home/alicewyp/cp/project/Our_Pascal_Compiler/src/CMakeFiles/rebuild_cache.dir
+/home/alicewyp/cp/project/Our_Pascal_Compiler/src/CMakeFiles/opc.dir
+/home/alicewyp/cp/project/Our_Pascal_Compiler/src/CMakeFiles/acc_gen.dir
+/home/alicewyp/cp/project/Our_Pascal_Compiler/src/CMakeFiles/edit_cache.dir
+/home/alicewyp/cp/project/Our_Pascal_Compiler/src/CMakeFiles/omp_gen.dir
+/home/alicewyp/cp/project/Our_Pascal_Compiler/src/CMakeFiles/intrinsics_gen.dir
