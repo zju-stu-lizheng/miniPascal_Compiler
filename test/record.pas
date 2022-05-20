@@ -30,8 +30,8 @@ Var
 Begin
     while True do begin
         Read(ch);
-        Write(ch);
-        if ch = 1 then
+        if ch = '\n' then
+            Write(3);
             break;
         index := 0;
         tmp_idx := num * 100 + index;
