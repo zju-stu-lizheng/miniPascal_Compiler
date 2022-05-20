@@ -10,11 +10,11 @@ int yycolumn = 1;
 	yylloc.first_column = yycolumn; yylloc.last_column = yycolumn + yyleng - 1; \
     yycolumn += yyleng;
 
-#ifdef DEBUG_LEXER
-#define OUR_RETURN(X) std::cout << (#X) << std::endl;
-#else
+// #ifdef DEBUG_LEXER
+// #define OUR_RETURN(X) std::cout << (#X) << std::endl;
+// #else
 #define OUR_RETURN(X) return(X);
-#endif
+// #endif
 %}
 
 KEY_AND and
@@ -92,7 +92,8 @@ LITERAL_TRUE true
 LITERAL_FALSE false
 LITERAL_FLOAT ([0-9]+\.[0-9]+)|([0-9]+\.[0-9]+e{SIGN}?[0-9]+)|([0-9]+e{SIGN}?[0-9]+)
 LITERAL_INT [0-9]|[1-9][0-9]+
-LITERAL_CHAR (\'.\')|(\'\\n\')
+/*LITERAL_CHAR (\'.\') |(\'\\n\')*/
+LITERAL_CHAR (\'.\')
 LITERAL_ESC_CHAR '\'#\'
 LITERAL_STR \'([^']|{LITERAL_ESC_CHAR})*\'
 
@@ -534,6 +535,7 @@ IDENTIFIER [a-zA-Z_][a-zA-Z0-9_]*
 }
 
 \n|(\r\n) {
+    std::cout << "clean column"
     yycolumn = 1;
 }
 " "|\t {}
