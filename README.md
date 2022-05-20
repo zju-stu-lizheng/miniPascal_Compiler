@@ -25,20 +25,9 @@ main: 开始llvm
 5.20: Finish LLVM.
 
 ## Dependencies
-g++
-llvm >= 12.0
-cmake >= 3.10
-
-## llvm test
-在Our_Pascal_Compiler目录下
-```
-mkdir build
-cd build
-cmake ..
-make
-.src/opc < ../test/test.pas
-.src/opc < ../test/test.pas
-```
+* g++
+* llvm >= 12.0
+* cmake >= 3.10
 
 ## Please use cmake to build this project.
 Usage

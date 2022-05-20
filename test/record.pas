@@ -194,9 +194,7 @@ Begin
             end;
             remained_credits := total_credits - passed_credits;
 
-            
-            tmp_value := 'GPA: '; 
-            write(tmp_value);
+            write('GPA: ');
             write(GPA);
             tmp_value := '\n'; write(tmp_value);
 
