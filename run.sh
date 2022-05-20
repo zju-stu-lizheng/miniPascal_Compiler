@@ -1,7 +1,7 @@
 #### at Our_Pascal_Compiler/, run run.sh ###
 
-path="../test/"
-filename="record.pas"
+path="./"
+filename="test.pas"
 
 ## make ##
 cd build && cmake ..
