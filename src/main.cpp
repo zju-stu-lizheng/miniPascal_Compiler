@@ -50,7 +50,7 @@ int main(int argc,char **argv)
     std::cout << "accept!" << std::endl;
 
     std::string output_ll_fname = input_file_name + ".ll"; //current directory
-    printf("output_ll_fname = %s", output_ll_fname);
+    // printf("output_ll_fname = %s", output_ll_fname);
     int sys_ret = system(("rm " + output_ll_fname).c_str());
     Save(output_ll_fname);
 

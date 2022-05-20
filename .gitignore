@@ -3,3 +3,4 @@
 build/
 .gitignore
 test.*
+advisor.c

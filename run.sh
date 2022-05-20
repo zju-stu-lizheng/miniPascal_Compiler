@@ -1,13 +1,16 @@
 #### at Our_Pascal_Compiler/, run run.sh ###
 
-path="../test/"
-filename="record.pas"
+path="./"
+filename="test.pas"
 
 ## make ##
-cmake .
-cd build && make 
+cd build
+cmake ..
+make 
+cd ..
 ## generate .o .ll file ##
-src/opc "$path$filename" 
+echo "$path$filename" 
+build/src/opc "$path" "$filename"
 ## generate executable file ##
 clang++ -o main "$path$filename.o" 
 # debug
