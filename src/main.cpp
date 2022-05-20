@@ -11,6 +11,7 @@
 #include "llvm/Target/TargetOptions.h"
 #include "llvm/IR/LegacyPassManager.h"
 
+std::string input_name = "test";
 std::string input_fname = "test.pas";
 
 int main()
@@ -37,7 +38,7 @@ int main()
     ast_root->CodeGenerate();
     std::cout << "accept!" << std::endl;
 
-    std::string output_ll_fname = input_fname + ".ll";
+    std::string output_ll_fname = input_name + ".ll";
     int sys_ret = system(("rm " + output_ll_fname).c_str());
     Save(output_ll_fname);
 
@@ -74,7 +75,7 @@ int main()
 
     Contents::module->setDataLayout(TheTargetMachine->createDataLayout());
 
-    auto Filename = input_fname + ".o";
+    auto Filename = input_name + ".o";
     if(system(("rm " + Filename).c_str()) == -1){
         std::cout << "error in rm .o" << std::endl;
     }
