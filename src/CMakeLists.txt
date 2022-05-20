@@ -22,7 +22,6 @@ aux_source_directory(ast AST_SOURCE)
 aux_source_directory(generator GEN_SOURCE)
 aux_source_directory(contents CON_SOURCE)
 aux_source_directory(type TYP_SOURCE)
-# aux_source_directory(vis VIS_SOURCE)
 
 # 编译 lex 和 yacc
 add_custom_command(

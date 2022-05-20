@@ -1,1 +1,0 @@
-./build/opc < ../test/typearray.pas

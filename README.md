@@ -31,6 +31,6 @@ cmake >= 3.10
 
 ## Please use cmake to build this project.
 Usage
-* ./opc : Generate IR code and object code from test.pas to test.pas.ll and test.pas.o.
-* lli test.pas.ll: Generate an executable file from IR code test.pas.ll
-* clang++ -o main test.pas.o : Generate an executable file(main) from object code test.pas.o
+* `./opc test.pas` : Generate IR code and object code from test.pas to test.pas.ll and test.pas.o.
+* `lli test.pas.ll`: Generate an executable file from IR code test.pas.ll
+* `clang++ -o main test.pas.o` : Generate an executable file(main) from object code test.pas.o
