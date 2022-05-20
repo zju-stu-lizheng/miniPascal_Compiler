@@ -4,10 +4,10 @@ path="../test/"
 filename="record.pas"
 
 ## make ##
-cmake .
-cd build && make 
+cd build && cmake ..
+make 
 ## generate .o .ll file ##
-src/opc "$path$filename" 
+src/opc $path $filename
 ## generate executable file ##
 clang++ -o main "$path$filename.o" 
 # debug
