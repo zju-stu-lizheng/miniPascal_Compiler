@@ -1,7 +1,8 @@
 #### at Our_Pascal_Compiler/, run run.sh ###
 
 path="../test/"
-filename="record.pas"
+filename="advisor.pas"
+exp_str="< ../test/advisor_input.txt"
 
 ## clean ##
 rm -rf "$filename.o" "$filename.ll"
@@ -20,7 +21,7 @@ echo ""
 echo "test file name: $filename"
 echo "======================== begin debug ===================="
 
-./main
+./main $exp_str
 
 # test quicksort
 # /test/quicksort/linux-amd64 ./build/main
