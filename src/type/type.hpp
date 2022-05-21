@@ -59,6 +59,7 @@ namespace Our_Type
         bool isIntegerTy() const;
         bool isCharTy() const;
         bool isFloatingPointTy() const;
+        bool isBoolean() const;
     };
 
     extern Pascal_Type *const INT_TYPE;

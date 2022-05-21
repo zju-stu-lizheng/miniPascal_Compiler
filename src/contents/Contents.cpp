@@ -81,6 +81,11 @@ llvm::Value *GenSysWrite(const std::vector<std::shared_ptr<Value_Result>> &args_
                 format += "%lf";
                 printf_args.emplace_back(arg->GetValue());
             }
+            else if (tp->isBoolean())
+            {
+                format += "%d";
+                printf_args.emplace_back(arg->GetValue());
+            }
             else if (tp->isCharTy())
             {
                 format += "%c";
@@ -189,6 +194,9 @@ namespace Contents
     // std::vector<std::string> error_message;
     // std::vector<std::pair<int, int> > error_position;
     std::shared_ptr<Error_Information_Record> error_record;
+    bool isConstant(std::string id) {
+        return names_2_constants.find(id) != names_2_constants.end();
+    }
     //保存生成的IR代码
     void Save(std::string path)
     {

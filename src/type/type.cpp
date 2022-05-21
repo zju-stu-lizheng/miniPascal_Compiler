@@ -156,4 +156,7 @@ namespace Our_Type
     bool Pascal_Type::isFloatingPointTy() const{
         return isEqual(this,REAL_TYPE);
     }
+    bool Pascal_Type::isBoolean() const{
+        return isEqual(this,BOOLEAN_TYPE);
+    }
 }

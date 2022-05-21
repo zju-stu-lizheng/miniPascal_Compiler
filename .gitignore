@@ -1,6 +1,12 @@
 #.vscode
 .vscode/
+#cmake cache
 build/
 .gitignore
+#test file
 test.*
+*.pas
+*.pas.ll
+*.pas.o
 advisor.c
+my.sh

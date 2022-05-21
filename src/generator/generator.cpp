@@ -361,23 +361,35 @@ std::shared_ptr<Custom_Result> AST_Function_Call::CodeGenerate()
 
 std::shared_ptr<Custom_Result> AST_Identifier_Expression::CodeGenerate()
 {
+    std::cout << "enter id expression" <<std::endl;
+    //判断是不是全局常数
+    if(Contents::isConstant(this->id)){
+        #ifdef GEN_DEBUG
+        std::cout << "AST_Identifier_Expression CreateLoad constant" << this->id <<std::endl;
+        #endif
+
+        llvm::Type * my_type =Our_Type::GetLLVMType(Contents::context,Contents::GetVarType(this->id));
+        llvm::Value *mem = Contents::codeblock_list[0]->names_2_values[this->id];
+        llvm::Value *value = Contents::builder.CreateLoad(/*type=*/my_type,mem,"load identifier value");
+        return std::make_shared<Value_Result>(Contents::GetVarType(this->id), value, mem);
+    }
     //判断是否在当前code_block
-    if(Contents::GetCurrentBlock()->isValue(this->id)){
+    else if(Contents::GetCurrentBlock()->isValue(this->id)){
+        #ifdef GEN_DEBUG
+        std::cout << "AST_Identifier_Expression CreateLoad 0" << this->id <<std::endl;
+        #endif
         llvm::Type * my_type =Our_Type::GetLLVMType(Contents::context,Contents::GetVarType(this->id));
         llvm::Value *mem = Contents::GetCurrentBlock()->names_2_values[this->id];
-        #ifdef GEN_DEBUG
-        std::cout << "AST_Identifier_Expression CreateLoad" <<std::endl;
-        #endif
         llvm::Value *value = Contents::builder.CreateLoad(/*type=*/my_type,mem,"load identifier value");
         return std::make_shared<Value_Result>(Contents::GetVarType(this->id), value, mem);
     }
     //再判断是否在最外层code_block
     else if(Contents::codeblock_list[0]->isValue(this->id)){
+        #ifdef GEN_DEBUG
+        std::cout << "AST_Identifier_Expression CreateLoad 1" << this->id <<std::endl;
+        #endif
         llvm::Type * my_type =Our_Type::GetLLVMType(Contents::context,Contents::codeblock_list[0]->names_2_ourtype[this->id]);
         llvm::Value *mem = Contents::codeblock_list[0]->names_2_values[this->id];
-        #ifdef GEN_DEBUG
-        std::cout << "AST_Identifier_Expression CreateLoad" <<std::endl;
-        #endif
         llvm::Value *value = Contents::builder.CreateLoad(/*type=*/my_type,mem,"load identifier value");
         return std::make_shared<Value_Result>(Contents::codeblock_list[0]->names_2_ourtype[this->id], value, mem);
     }
@@ -1115,12 +1127,18 @@ std::shared_ptr<Custom_Result> AST_Const_Value::CodeGenerate()
     if(this->value_type == AST_Const_Value::Value_Type::INT){
         tp = llvm::Type::getInt32Ty(Contents::context);
         int v_int = atoi(this->content.c_str());
+        #ifdef GEN_DEBUG
+        std::cout << "整数常量 " << v_int <<std::endl;
+        #endif
         return std::make_shared<Value_Result>(INT_TYPE,llvm::ConstantInt::get(tp,(uint64_t)v_int,true),nullptr);
     }
     //浮点常量
     else if(this->value_type == AST_Const_Value::Value_Type::FLOAT){
         tp = llvm::Type::getDoubleTy(Contents::context);
         double v_double = atof(this->content.c_str());
+        #ifdef GEN_DEBUG
+        std::cout << "浮点常量 " << v_double <<std::endl;
+        #endif
         return std::make_shared<Value_Result>(REAL_TYPE,llvm::ConstantFP::get(tp,v_double),nullptr);
     }
     //字符常量
@@ -1134,6 +1152,9 @@ std::shared_ptr<Custom_Result> AST_Const_Value::CodeGenerate()
             return std::make_shared<Value_Result>(CHAR_TYPE,llvm::ConstantInt::get(tp,v_char),nullptr);
         }else{
             char v_char = this->content[1]; //这里应该是第二个字符 'a'
+            #ifdef GEN_DEBUG
+            std::cout << "字符常量 " << v_char <<std::endl;
+            #endif
             return std::make_shared<Value_Result>(CHAR_TYPE,llvm::ConstantInt::get(tp,v_char),nullptr);
         }
     }
@@ -1156,10 +1177,16 @@ std::shared_ptr<Custom_Result> AST_Const_Value::CodeGenerate()
     //布尔常量
     else if(this->value_type == AST_Const_Value::Value_Type::FALSE){
         tp = llvm::Type::getInt1Ty(Contents::context);
+        #ifdef GEN_DEBUG
+        std::cout << "布尔常量 " << false <<std::endl;
+        #endif
         return std::make_shared<Value_Result> (BOOLEAN_TYPE,llvm::ConstantInt::get(tp,(u_int64_t)false,true),nullptr);
     }
     else if(this->value_type == AST_Const_Value::Value_Type::TRUE){
         tp = llvm::Type::getInt1Ty(Contents::context);
+        #ifdef GEN_DEBUG
+        std::cout << "布尔常量 " << true <<std::endl;
+        #endif
         return std::make_shared<Value_Result> (BOOLEAN_TYPE,llvm::ConstantInt::get(tp,(u_int64_t)true,true),nullptr);
     }
     return nullptr;
@@ -1190,6 +1217,7 @@ std::shared_ptr<Custom_Result> AST_Const_Expression::CodeGenerate()
     if (Contents::codeblock_list.back()->names_2_values.count(this->id) || Contents::names_2_constants.count(this->id)) {
         //error 
     }
+    Contents::codeblock_list[0]->names_2_ourtype[this->id] = res->GetType();
     Contents::names_2_constants[this->id] = (llvm::Constant *) (res->GetValue());
     Contents::codeblock_list[0]->names_2_values[this->id] = constant;
     return nullptr;
