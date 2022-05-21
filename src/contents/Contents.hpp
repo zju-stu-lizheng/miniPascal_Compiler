@@ -119,6 +119,8 @@ namespace Contents{
     // extern std::vector<std::string> error_message;
     // extern std::vector<std::pair<int, int> > error_position;
 
+    bool isConstant(std::string id);
+
     //保存生成的IR代码
     void Save(std::string path);
 
