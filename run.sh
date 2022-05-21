@@ -4,12 +4,14 @@ path="../test/"
 filename="advisor.pas"
 exp_str="< ../test/advisor_input.txt"
 
-## clean ##
+
 rm -rf "$filename.o" "$filename.ll"
 
 ## make ##
 cd build && cmake ..
 make 
+## clean ##
+
 ## generate .o .ll file ##
 ./src/opc $path $filename
 ## generate new executable file ##
@@ -24,5 +26,11 @@ echo "======================== begin debug ===================="
 ./main $exp_str
 
 # test quicksort
-# /test/quicksort/linux-amd64 ./build/main
+# ../test/quicksort/linux-amd64 ./build/main
+# test 
+
+# test advisor (not ok for bash)
+# cd ../test/auto-advisor/
+# ./auto-advisor-x86_64-unknown-linux-gnu ../../build/main
+# ./test/auto-advisor/auto-advisor-x86_64-unknown-linux-gnu ./build/main
 # test 

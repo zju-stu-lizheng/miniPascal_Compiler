@@ -78,7 +78,7 @@ llvm::Value *GenSysWrite(const std::vector<std::shared_ptr<Value_Result>> &args_
             }
             else if (tp->isFloatingPointTy())
             {
-                format += "%lf";
+                format += "%.1lf";
                 printf_args.emplace_back(arg->GetValue());
             }
             else if (tp->isBoolean())
