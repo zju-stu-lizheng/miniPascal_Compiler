@@ -40,6 +40,8 @@ Var
     E : char;
     F : char;
 
+    tmp_string : string;
+
 
 
 function char2int(a: char):integer;
@@ -128,13 +130,13 @@ Begin
 
                     if (field = 0) then begin
                         tmp_idx := i * 100 + index;
-                        if ((courses[tmp_idx] <= '9') and (courses[tmp_idx] >= '0)) then begin
+                        if ((courses[tmp_idx] <= '9') and (courses[tmp_idx] >= '0')) then begin
                             tmp_value := courses[tmp_idx];
                             c_tmp1 := char2int(tmp_value);
                             tmp_value := zero; 
                             c_tmp2 := char2int(tmp_value);
                             key := key * 10 + c_tmp1 - c_tmp2;
-                        end
+                        end;
                         index := index + 1;
                     end;
 
@@ -198,24 +200,24 @@ Begin
             write(GPA);
             tmp_value := '\n'; write(tmp_value);
 
-            tmp_value := 'Hours Attempted: '; write(tmp_value);
+            tmp_string := 'Hours Attempted: '; write(tmp_string);
             write(attempted_credits);
             tmp_value := '\n'; write(tmp_value);
 
-            tmp_value := 'Hours Completed: '; write(tmp_value);
+            tmp_string := 'Hours Completed: '; write(tmp_string);
             write(passed_credits);
             tmp_value := '\n'; write(tmp_value);
 
-            tmp_value := 'Credits Remaining: '; write(tmp_value);
+            tmp_string := 'Credits Remaining: '; write(tmp_string);
             write(remained_credits);
             tmp_value := '\n'; write(tmp_value);
             
-            tmp_value := '\nPossible Courses to Take Next\n'
-            write(tmp_value);
+            tmp_string := '\nPossible Courses to Take Next\n'
+            write(tmp_string);
 
             if (remained_credits = 0) then
-                tmp_value := '  None - Congratulations!\n';
-                write(tmp_value);
+                tmp_string := '  None - Congratulations!\n';
+                write(tmp_string);
             else begin
                 value := 0;
                 flag := 1;
