@@ -1,6 +1,7 @@
 %option noyywrap yylineno caseless
 %{
 #include <cstring>
+#include <iostream>
 #define YYSTYPE char*
 #include "pascal.y.hpp"
 
@@ -11,9 +12,9 @@ int yycolumn = 1;
     yycolumn += yyleng;
 
 // #ifdef DEBUG_LEXER
-// #define OUR_RETURN(X) std::cout << (#X) << std::endl;
+#define OUR_RETURN(X) cout << yylloc.last_line << ":" << (#X) << endl; return(X);
 // #else
-#define OUR_RETURN(X) return(X);
+// #define OUR_RETURN(X) return(X);
 // #endif
 %}
 
@@ -92,8 +93,8 @@ LITERAL_TRUE true
 LITERAL_FALSE false
 LITERAL_FLOAT ([0-9]+\.[0-9]+)|([0-9]+\.[0-9]+e{SIGN}?[0-9]+)|([0-9]+e{SIGN}?[0-9]+)
 LITERAL_INT [0-9]|[1-9][0-9]+
-/*LITERAL_CHAR (\'.\') |(\'\\n\')*/
 LITERAL_CHAR (\'.\')
+LITERAL_CHAR2 (\'\\n\')
 LITERAL_ESC_CHAR '\'#\'
 LITERAL_STR \'([^']|{LITERAL_ESC_CHAR})*\'
 
@@ -414,6 +415,11 @@ IDENTIFIER [a-zA-Z_][a-zA-Z0-9_]*
     OUR_RETURN(LITERAL_CHAR)
 }
 
+{LITERAL_CHAR2} {
+    yylval = strdup(yytext);
+    OUR_RETURN(LITERAL_CHAR)
+}
+
 {LITERAL_ESC_CHAR} {
     yylval = strdup(yytext);
     OUR_RETURN(LITERAL_ESC_CHAR)
@@ -535,7 +541,6 @@ IDENTIFIER [a-zA-Z_][a-zA-Z0-9_]*
 }
 
 \n|(\r\n) {
-    std::cout << "clean column"
     yycolumn = 1;
 }
 " "|\t {}
