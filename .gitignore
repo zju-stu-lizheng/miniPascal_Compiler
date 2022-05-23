@@ -10,3 +10,4 @@ test.*
 *.pas.o
 advisor.c
 my.sh
+error.txt

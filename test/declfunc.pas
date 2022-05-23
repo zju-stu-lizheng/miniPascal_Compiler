@@ -5,8 +5,9 @@ var
     CurTerm2 : integer;
 function myLine(a : integer): integer;
 begin
-	myLine := 2 + 2;
+	myLine := a + a;
 end;
 begin
     CurTerm2 := myLine(CurTerm1);
+    WriteLn(CurTerm2);
 end.

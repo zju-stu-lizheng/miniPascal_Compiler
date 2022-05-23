@@ -217,7 +217,7 @@ Begin
 
             if (field = 0) then begin
                 tmp_idx := i * 400 + index;
-                tmp_int := courses[tmp_idx];
+                tmp_value := courses[tmp_idx];
                 tmp_int := char2int(tmp_value);
 
                 if (( tmp_int <= intnine) and (tmp_int >= intzero)) then begin
