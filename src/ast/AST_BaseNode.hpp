@@ -4,8 +4,10 @@
 #include <iostream>
 #include <string>
 #include "../type/type.hpp"
+#include "../visualization/graph_visual.hpp"
 #include <llvm/IR/Value.h>
 
+//增加一个PrintNode方法
 class AST_BaseNode{
     private:
         // location for error information 
@@ -46,6 +48,8 @@ class AST_BaseNode{
         virtual void LevelOrder(){
             std::cout << "root" << std::endl;
         }
+
+        virtual void PrintNode(GraphViz *) = 0;
 
         virtual std::shared_ptr<Custom_Result> CodeGenerate() = 0;
 };

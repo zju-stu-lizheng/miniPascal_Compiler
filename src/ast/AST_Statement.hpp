@@ -36,7 +36,7 @@ public:
 
 public:
     AST_Statement_List *statement_list;
- 
+
 public:
     AST_Compound_Statement(AST_Statement_List *_statement_list) : statement_list(_statement_list){};
     AST_Statement_List *Get_Statement_List() const
@@ -54,7 +54,16 @@ stmt_list:
 class AST_Statement_List : public AST_BaseNode
 {
 public:
-    std::shared_ptr<Custom_Result>CodeGenerate() override;
+    std::shared_ptr<Custom_Result> CodeGenerate() override;
+    void PrintNode(GraphViz *g)
+    {
+        g->AddNode("stmt_list", GetRow(), GetColumn());
+        for (int i = 0; (int)i < statement_list.size(); i++)
+        {
+            statement_list[i]->PrintNode(g);
+        }
+        g->Pop();
+    }
 
 public:
     std::vector<AST_Statement *> statement_list;
@@ -76,7 +85,20 @@ stmt:
 class AST_Statement : public AST_BaseNode
 {
 public:
-    std::shared_ptr<Custom_Result>CodeGenerate() override;
+    std::shared_ptr<Custom_Result> CodeGenerate() override;
+    void PrintNode(GraphViz *g)
+    {
+        if (has_label == Has_Label::NOT_HAS)
+        {
+            non_label_statement->PrintNode(g);
+        }
+        else
+        {
+            g->AddNode("label_stmt " + label->_is_int ? std::to_string(label->Get_Literal_Int()) : label->identifier, GetRow(), GetColumn());
+            non_label_statement->PrintNode(g);
+            g->Pop();
+        }
+    }
 
 public:
     enum class Has_Label
@@ -124,7 +146,7 @@ label:
 class AST_Label : public AST_BaseNode
 {
 public:
-    std::shared_ptr<Custom_Result>CodeGenerate() override;
+    std::shared_ptr<Custom_Result> CodeGenerate() override;
 
 public:
     enum class Int_or_Identifier
@@ -134,15 +156,18 @@ public:
     };
     int literal_int;
     std::string identifier;
+    bool _is_int;
     Int_or_Identifier int_or_identifier;
 
 public:
     AST_Label(int _literal_int) : literal_int(_literal_int)
     {
+        _is_int = true;
         this->int_or_identifier = Int_or_Identifier::LITERAL_INT;
     }
     AST_Label(std::string _identifier) : identifier(_identifier)
     {
+        _is_int = false;
         this->int_or_identifier = Int_or_Identifier::IDENTIFIER;
     }
 
@@ -158,7 +183,8 @@ public:
     {
         return this->int_or_identifier;
     }
-    bool isIdentifier() const{
+    bool isIdentifier() const
+    {
         return int_or_identifier == Int_or_Identifier::IDENTIFIER;
     }
 };
@@ -179,7 +205,52 @@ non_label_stmt:
 class AST_Non_Label_Statement : public AST_BaseNode
 {
 public:
-    std::shared_ptr<Custom_Result>CodeGenerate() override;
+    std::shared_ptr<Custom_Result> CodeGenerate() override;
+    void PrintNode(GraphViz *g)
+    {
+        g->AddNode("non_label_statement", GetRow(), GetColumn());
+        if (this->isAssign())
+        {
+            this->assgin_statement->PrintNode(g);
+        }
+        else if (this->isProcedure())
+        {
+            this->procedure_statement->PrintNode(g);
+        }
+        else if (this->isCompound())
+        {
+            this->compound_statement->PrintNode(g);
+        }
+        else if (this->isIf())
+        {
+            this->if_statement->PrintNode(g);
+        }
+        else if (this->isCase())
+        {
+            this->case_statement->PrintNode(g);
+        }
+        else if (this->isRepeat())
+        {
+            this->repeat_statement->PrintNode(g);
+        }
+        else if (this->isWhile())
+        {
+            this->while_statement->PrintNode(g);
+        }
+        else if (this->isFor())
+        {
+            this->for_statement->PrintNode(g);
+        }
+        else if (this->isGoto())
+        {
+            this->goto_statement->PrintNode(g);
+        }
+        else if (this->isBreak())
+        {
+            this->break_statement->PrintNode(g);
+        }
+        g->Pop();
+    }
 
 public:
     enum class Statement_Type
@@ -265,16 +336,16 @@ public:
     GOTO,
     BREAK
     */
-    bool isAssign(){return statement_type == Statement_Type::ASSIGN;}
-    bool isProcedure(){return statement_type == Statement_Type::PROCEDURE;}
-    bool isCompound(){return statement_type == Statement_Type::COMPOUND;}
-    bool isIf(){return statement_type == Statement_Type::IF;}
-    bool isCase(){return statement_type == Statement_Type::CASE;}
-    bool isRepeat(){return statement_type == Statement_Type::REPEAT;}
-    bool isWhile(){return statement_type == Statement_Type::WHILE;}
-    bool isFor(){return statement_type == Statement_Type::FOR;}
-    bool isGoto(){return statement_type == Statement_Type::GOTO;}
-    bool isBreak(){return statement_type == Statement_Type::BREAK;}
+    bool isAssign() { return statement_type == Statement_Type::ASSIGN; }
+    bool isProcedure() { return statement_type == Statement_Type::PROCEDURE; }
+    bool isCompound() { return statement_type == Statement_Type::COMPOUND; }
+    bool isIf() { return statement_type == Statement_Type::IF; }
+    bool isCase() { return statement_type == Statement_Type::CASE; }
+    bool isRepeat() { return statement_type == Statement_Type::REPEAT; }
+    bool isWhile() { return statement_type == Statement_Type::WHILE; }
+    bool isFor() { return statement_type == Statement_Type::FOR; }
+    bool isGoto() { return statement_type == Statement_Type::GOTO; }
+    bool isBreak() { return statement_type == Statement_Type::BREAK; }
 };
 
 /*
@@ -288,14 +359,28 @@ assign_stmt:
 class AST_Assign_Statement : public AST_BaseNode
 {
 public:
-    std::shared_ptr<Custom_Result>CodeGenerate() override;
-
-    bool ValueAssign(llvm::Value* left_ptr, Pascal_Type* left_type, llvm::Value* right_ptr, Pascal_Type* right_type){
-        if (left_type->isArray()){
-            //todo type transfer
-
+    std::shared_ptr<Custom_Result> CodeGenerate() override;
+    void PrintNode(GraphViz *g)
+    {
+        g->AddNode("assign_stmt", GetRow(), GetColumn());
+        if (isDirectAssign())
+        {
+            g->AddIdentifier(identifier1);
+            expression1->PrintNode(g);
         }
-        return true;
+        else if (isArrayAssign())
+        {
+            g->AddIdentifier(identifier1);
+            expression1->PrintNode(g);
+            expression2->PrintNode(g);
+        }
+        else if (isRecordAttrAssign())
+        {
+            g->AddIdentifier(identifier1);
+            g->AddIdentifier(identifier2);
+            expression1->PrintNode(g);
+        }
+        g->Pop();
     }
 
 public:
@@ -321,13 +406,16 @@ public:
     {
         return assign_type;
     }
-    bool isDirectAssign() const{
+    bool isDirectAssign() const
+    {
         return assign_type == Assign_Type::I_1_E_1;
     }
-    bool isArrayAssign() const{
+    bool isArrayAssign() const
+    {
         return assign_type == Assign_Type::I_1_E_2;
     }
-    bool isRecordAttrAssign() const{ // record attribute
+    bool isRecordAttrAssign() const
+    { // record attribute
         return assign_type == Assign_Type::I_2_E_1;
     }
 };
@@ -342,7 +430,17 @@ proc_stmt:
 class AST_Procedure_Statement : public AST_BaseNode
 {
 public:
-    std::shared_ptr<Custom_Result>CodeGenerate() override;
+    std::shared_ptr<Custom_Result> CodeGenerate() override;
+    void PrintNode(GraphViz *g)
+    {
+        g->AddNode("proc_stmt", GetRow(), GetColumn());
+        g->AddIdentifier(identifier);
+        if (has_expression == Has_Expression::Yes)
+        {
+            expresion_list->PrintNode(g);
+        }
+        g->Pop();
+    }
 
 public:
     enum class Has_Expression
@@ -372,7 +470,18 @@ if_stmt:
 class AST_If_Statement : public AST_BaseNode
 {
 public:
-    std::shared_ptr<Custom_Result>CodeGenerate() override;
+    std::shared_ptr<Custom_Result> CodeGenerate() override;
+    void PrintNode(GraphViz *g)
+    {
+        g->AddNode("if_stmt", GetRow(), GetColumn());
+        expression->PrintNode(g);
+        statement->PrintNode(g);
+        if (else_clause != nullptr)
+        {
+            else_clause->PrintNode(g);
+        }
+        g->Pop();
+    }
 
 public:
     AST_Expression *expression;
@@ -391,13 +500,20 @@ else_clause:
 class AST_Else_Clause : public AST_BaseNode
 {
 public:
-    std::shared_ptr<Custom_Result>CodeGenerate() override;
+    std::shared_ptr<Custom_Result> CodeGenerate() override;
+    void PrintNode(GraphViz *g)
+    {
+        g->AddNode("else_clause", GetRow(), GetColumn());
+        statement->PrintNode(g);
+        g->Pop();
+    }
 
 public:
     AST_Statement *statement;
     AST_Else_Clause() = default;
     AST_Else_Clause(AST_Statement *_statement) : statement(_statement) {}
-    bool isEmpty(){
+    bool isEmpty()
+    {
         return (this->statement == nullptr);
     }
 };
@@ -410,7 +526,14 @@ case_stmt:
 class AST_Case_Statement : public AST_BaseNode
 {
 public:
-    std::shared_ptr<Custom_Result>CodeGenerate() override;
+    std::shared_ptr<Custom_Result> CodeGenerate() override;
+    void PrintNode(GraphViz *g)
+    {
+        g->AddNode("case_stmt", GetRow(), GetColumn());
+        expression->PrintNode(g);
+        case_expression_list->PrintNode(g);
+        g->Pop();
+    }
 
 public:
     AST_Expression *expression;
@@ -427,7 +550,16 @@ case_expr_list:
 class AST_Case_Expression_List : public AST_BaseNode
 {
 public:
-    std::shared_ptr<Custom_Result>CodeGenerate() override;
+    std::shared_ptr<Custom_Result> CodeGenerate() override;
+    void PrintNode(GraphViz *g)
+    {
+        g->AddNode("case_expr_list", GetRow(), GetColumn());
+        for (auto expr : case_expression_list)
+        {
+            expr->PrintNode(g);
+        }
+        g->Pop();
+    }
 
 public:
     std::vector<AST_Case_Expression *> case_expression_list;
@@ -448,7 +580,21 @@ case_expr:
 class AST_Case_Expression : public AST_BaseNode
 {
 public:
-    std::shared_ptr<Custom_Result>CodeGenerate() override;
+    std::shared_ptr<Custom_Result> CodeGenerate() override;
+    void PrintNode(GraphViz *g)
+    {
+        g->AddNode("case_expr", GetRow(), GetColumn());
+        if (const_or_identifier == Const_or_Indentifier::CONST)
+        {
+            const_value->PrintNode(g);
+        }
+        else
+        {
+            g->AddIdentifier(identifier);
+        }
+        statement->PrintNode(g);
+        g->Pop();
+    }
 
 public:
     enum class Const_or_Indentifier
@@ -473,7 +619,14 @@ repeat_stmt:
 class AST_Repeat_Statement : public AST_BaseNode
 {
 public:
-    std::shared_ptr<Custom_Result>CodeGenerate() override;
+    std::shared_ptr<Custom_Result> CodeGenerate() override;
+    void PrintNode(GraphViz *g)
+    {
+        g->AddNode("repeat_stmt", GetRow(), GetColumn());
+        statement_list->PrintNode(g);
+        expression->PrintNode(g);
+        g->Pop();
+    }
 
 public:
     AST_Statement_List *statement_list;
@@ -490,7 +643,14 @@ repeat_stmt:
 class AST_While_Statement : public AST_BaseNode
 {
 public:
-    std::shared_ptr<Custom_Result>CodeGenerate() override;
+    std::shared_ptr<Custom_Result> CodeGenerate() override;
+    void PrintNode(GraphViz *g)
+    {
+        g->AddNode("while_stmt", GetRow(), GetColumn());
+        expression->PrintNode(g);
+        statement->PrintNode(g);
+        g->Pop();
+    }
 
 public:
     AST_Expression *expression;
@@ -507,7 +667,15 @@ for_stmt:
 class AST_For_Statement : public AST_BaseNode
 {
 public:
-    std::shared_ptr<Custom_Result>CodeGenerate() override;
+    std::shared_ptr<Custom_Result> CodeGenerate() override;
+    void PrintNode(GraphViz *g)
+    {
+        g->AddNode("for_stmt:" + my_direction->GetDirection(), GetRow(), GetColumn());
+        expression1->PrintNode(g);
+        expression2->PrintNode(g);
+        statement->PrintNode(g);
+        g->Pop();
+    }
 
 public:
     std::string identifier;
@@ -528,7 +696,7 @@ my_direction:
 class AST_Direction : public AST_BaseNode
 {
 public:
-    std::shared_ptr<Custom_Result>CodeGenerate() override;
+    std::shared_ptr<Custom_Result> CodeGenerate() override;
 
 public:
     enum class To_or_DownTo
@@ -546,8 +714,20 @@ public:
     {
         to_or_downto = To_or_DownTo::DownTo;
     }
-    bool isTo(){
+    bool isTo()
+    {
         return to_or_downto == To_or_DownTo::To;
+    }
+    std::string GetDirection()
+    {
+        if (isTo())
+        {
+            return "To";
+        }
+        else
+        {
+            return "Down to";
+        }
     }
 };
 
@@ -560,16 +740,22 @@ goto_stmt:
 class AST_Goto_Statement : public AST_BaseNode
 {
 public:
-    std::shared_ptr<Custom_Result>CodeGenerate() override;
-
+    std::shared_ptr<Custom_Result> CodeGenerate() override;
+    void PrintNode(GraphViz *g)
+    {
+        g->AddNode("goto_stmt:" + label->isIdentifier ? label->Get_Identifier() : std::to_string(label->Get_Literal_Int()), GetRow(), GetColumn());
+        g->Pop();
+    }
 public:
     AST_Label *label;
     AST_Goto_Statement(AST_Label *_label) : label(_label) {}
 };
 
-class AST_Break_Statement : public AST_BaseNode{
-    public:
-        std::shared_ptr<Custom_Result>CodeGenerate() override;
-    public:
-        AST_Break_Statement() = default;
+class AST_Break_Statement : public AST_BaseNode
+{
+public:
+    std::shared_ptr<Custom_Result> CodeGenerate() override;
+
+public:
+    AST_Break_Statement() = default;
 };

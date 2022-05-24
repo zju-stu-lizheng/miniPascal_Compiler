@@ -23,7 +23,31 @@ class AST_Name_List;
 class AST_Type : public AST_BaseNode
 {
 public:
-    std::shared_ptr<Custom_Result>CodeGenerate() override;
+    std::shared_ptr<Custom_Result> CodeGenerate() override;
+    void PrintNode(GraphViz *g)
+    {
+        switch (this->Get_Type_Name())
+        {
+        case Type_Name::INT:
+            g->AddIdentifier("Integer");
+            break;
+        case Type_Name::REAL:
+            g->AddIdentifier("Real");
+            break;
+        case Type_Name::BOOLEAN:
+            g->AddIdentifier("Boolean");
+            break;
+        case Type_Name::CHAR:
+            g->AddIdentifier("Char");
+            break;
+        case Type_Name::STRING:
+            g->AddIdentifier("String");
+            break;
+        default:
+            std::cout << "Unknown type" << std::endl;
+            break;
+        }
+    }
 
 public:
     enum class Type_Name
@@ -48,7 +72,8 @@ public:
 class AST_Type_Declaration : public AST_BaseNode
 {
 public:
-    virtual std::shared_ptr<Custom_Result> CodeGenerate()=0;
+    virtual std::shared_ptr<Custom_Result> CodeGenerate() = 0;
+    virtual void PrintNode(GraphViz* g) = 0;
 };
 
 /*
@@ -63,7 +88,12 @@ class AST_Simple_Type_Declaration : public AST_Type_Declaration
 {
 public:
     std::shared_ptr<Custom_Result> CodeGenerate() override;
-
+    void PrintNode(GraphViz *g){
+        //Todo : 只处理了easy_type
+        g->AddNode("simple_type_decl",GetRow(),GetColumn());
+        this->my_typename->PrintNode(g);
+        g->Pop();
+    }
 public:
     enum class My_Type
     {
@@ -105,7 +135,13 @@ array_type_decl->
 class AST_Array_Type_Declaration : public AST_Type_Declaration
 {
 public:
-    std::shared_ptr<Custom_Result>CodeGenerate() override;
+    std::shared_ptr<Custom_Result> CodeGenerate() override;
+    void PrintNode(GraphViz *g){
+        g->AddNode("array_type_decl",GetRow(),GetColumn());
+        simple_type_decl->PrintNode(g);
+        type_decl->PrintNode(g);
+        g->Pop();
+    }
 
 public:
     AST_Array_Type_Declaration(AST_Simple_Type_Declaration *_simple_type_decl, AST_Type_Declaration *_type_decl) : simple_type_decl(_simple_type_decl), type_decl(_type_decl){};
@@ -122,8 +158,12 @@ public:
 class AST_Record_Type_Declaration : public AST_Type_Declaration
 {
 public:
-    std::shared_ptr<Custom_Result>CodeGenerate() override;
-
+    std::shared_ptr<Custom_Result> CodeGenerate() override;
+    void PrintNode(GraphViz *g){
+        g->AddNode("record_decl_list",GetRow(),GetColumn());
+        field_decl_list->PrintNode(g);
+        g->Pop();
+    }
 public:
     AST_Record_Type_Declaration(AST_Field_Declaration_List *_field_decl_list) : field_decl_list(_field_decl_list){};
 
@@ -137,8 +177,14 @@ public:
 class AST_Field_Declaration_List : public AST_BaseNode
 {
 public:
-    std::shared_ptr<Custom_Result>CodeGenerate() override;
-
+    std::shared_ptr<Custom_Result> CodeGenerate() override;
+    void PrintNode(GraphViz *g){
+        g->AddNode("field_decl_list",GetRow(),GetColumn());
+        for(int i=0;i<(int) field_decl_list.size();i++){
+            field_decl_list[i]->PrintNode(g);
+        }
+        g->Pop();
+    }
 public:
     AST_Field_Declaration_List(AST_Field_Declaration *_field_decl)
     {
@@ -161,8 +207,13 @@ public:
 class AST_Field_Declaration : public AST_BaseNode
 {
 public:
-    std::shared_ptr<Custom_Result>CodeGenerate() override;
-
+    std::shared_ptr<Custom_Result> CodeGenerate() override;
+    void PrintNode(GraphViz *g){
+        g->AddNode("field_decl",GetRow(),GetColumn());
+        name_list->PrintNode(g);
+        type_decl->PrintNode(g);
+        g->Pop();
+    }
 public:
     AST_Field_Declaration(AST_Name_List *_name_list, AST_Type_Declaration *_type_decl) : name_list(_name_list), type_decl(_type_decl){};
 
@@ -177,8 +228,14 @@ public:
 class AST_Name_List : public AST_BaseNode
 {
 public:
-    std::shared_ptr<Custom_Result>CodeGenerate() override;
-
+    std::shared_ptr<Custom_Result> CodeGenerate() override;
+    void PrintNode(GraphViz *g){
+        g->AddNode("name_list",GetRow(),GetColumn());
+        for(auto id : identifier_list){
+            g->AddIdentifier(id);
+        }
+        g->Pop();
+    }
 public:
     AST_Name_List() = default;
     void Add_Identifier(std::string id)
@@ -196,8 +253,14 @@ public:
 class AST_Type_Declaration_List : public AST_BaseNode
 {
 public:
-    std::shared_ptr<Custom_Result>CodeGenerate() override;
-
+    std::shared_ptr<Custom_Result> CodeGenerate() override;
+    void PrintNode(GraphViz *g){
+        g->AddNode("type_decl_list",GetRow(),GetColumn());
+        for(auto define : this->type_definition_list){
+            define->PrintNode(g);
+        }
+        g->Pop();
+    }
 public:
     AST_Type_Declaration_List() = default;
     void Add_Type_Definition(AST_Type_Definition *type_definition)
@@ -215,8 +278,13 @@ type_definition->
 class AST_Type_Definition : public AST_BaseNode
 {
 public:
-    std::shared_ptr<Custom_Result>CodeGenerate() override;
-
+    std::shared_ptr<Custom_Result> CodeGenerate() override;
+    void PrintNode(GraphViz *g){
+        g->AddNode("type_definition",GetRow(),GetColumn());
+        g->AddIdentifier(this->identifier);
+        this->type_decl->PrintNode(g);
+        g->Pop();
+    }
 public:
     AST_Type_Definition(std::string id, AST_Type_Declaration *_type_decl) : identifier(id), type_decl(_type_decl){};
 
@@ -231,8 +299,12 @@ type_part->
 class AST_Type_Part : public AST_BaseNode
 {
 public:
-    std::shared_ptr<Custom_Result>CodeGenerate() override;
-
+    std::shared_ptr<Custom_Result> CodeGenerate() override;
+    void PrintNode(GraphViz *g){
+        g->AddNode("type_part",GetRow(),GetColumn());
+        this->type_decl_list->PrintNode(g);
+        g->Pop();
+    }
 public:
     AST_Type_Part(AST_Type_Declaration_List *_type_decl_list) : type_decl_list(_type_decl_list){};
 
