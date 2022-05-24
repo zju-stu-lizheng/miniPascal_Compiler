@@ -127,6 +127,7 @@ class AST_Label : public AST_BaseNode
 {
 public:
     std::shared_ptr<Custom_Result> CodeGenerate() override;
+    void PrintNode(GraphViz *g){};
 
 public:
     enum class Int_or_Identifier
@@ -544,6 +545,7 @@ class AST_Direction : public AST_BaseNode
 {
 public:
     std::shared_ptr<Custom_Result> CodeGenerate() override;
+    void PrintNode(GraphViz *g){};
 
 public:
     enum class To_or_DownTo
@@ -598,6 +600,7 @@ class AST_Break_Statement : public AST_BaseNode
 {
 public:
     std::shared_ptr<Custom_Result> CodeGenerate() override;
+    void PrintNode(GraphViz *g){};
 
 public:
     AST_Break_Statement() = default;
