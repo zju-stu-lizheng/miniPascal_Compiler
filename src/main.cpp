@@ -14,6 +14,7 @@
 
 std::string input_root = "./";
 std::string input_file_name = "test.pas";
+std::string output_dot_fname = "";
 
 int main(int argc,char **argv)
 {   
@@ -43,7 +44,12 @@ int main(int argc,char **argv)
         std::cout << "failed to parse this code!" << std::endl;
         return 1;
     }
-    // Generator *gen = new Generator();
+    
+    GraphViz *g = new GraphViz();
+    ast_root->Print(g);
+    if (output_dot_fname == "") output_dot_fname = input_fname + ".dot";
+    g->Save(output_dot_fname);
+
     using namespace Contents;
     std::cout << "new!" << std::endl;
     ast_root->CodeGenerate();

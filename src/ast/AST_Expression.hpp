@@ -25,7 +25,15 @@ class AST_Expression_List : public AST_Expression
 {
 public:
     std::shared_ptr<Custom_Result>CodeGenerate() override;
-
+    void PrintNode(GraphViz *g)
+    {
+        g->AddNode("expression_list", this->GetRow(),
+                   this->GetColumn());
+        for(auto expr : expr_list){
+            expr ->PrintNode(g);
+        }
+        g->Pop();
+    }
 public:
     AST_Expression_List() = default;
     void Add_Expression(AST_Expression *expr)
@@ -44,7 +52,14 @@ class AST_Binary_Expression : public AST_Expression
 {
 public:
     std::shared_ptr<Custom_Result>CodeGenerate() override;
-
+    void PrintNode(GraphViz *g)
+    {
+        g->AddNode(std::string("binary_op_expr: ") + Get_Operation_Name(), this->GetRow(),
+                   this->GetColumn());
+        left_expression->PrintNode(g);
+        right_expression->PrintNode(g);
+        g->Pop();
+    }
 public:
     enum class Operation
     {
@@ -124,7 +139,13 @@ class AST_Unary_Expression : public AST_Expression
 {
 public:
     std::shared_ptr<Custom_Result>CodeGenerate() override;
-
+    void PrintNode(GraphViz *g)
+    {
+        g->AddNode(std::string("unary_op_expr: ") + Get_OptionName(), this->GetRow(),
+                   this->GetColumn());
+        expression->PrintNode(g);
+        g->Pop();
+    }
 public:
     enum class Operation
     {
@@ -132,6 +153,17 @@ public:
         SUB,
         ADD
     };
+    std::string Get_OptionName(){
+        switch (my_operation)
+        {
+        case Operation::NOT :
+            return "NOT";
+        case Operation::SUB :
+            return "SUB";
+        case Operation::ADD :
+            return "ADD";
+        }
+    }
     AST_Unary_Expression(Operation _my_operation, AST_Expression *_expression) : my_operation(_my_operation), expression(_expression){};
 
     Operation my_operation;
@@ -146,7 +178,14 @@ class AST_Property_Expression : public AST_Expression
 {
 public:
     std::shared_ptr<Custom_Result>CodeGenerate() override;
-
+    void PrintNode(GraphViz *g)
+    {
+        g->AddNode(std::string("property_expr: ") + Get_OptionName(), this->GetRow(),
+                   this->GetColumn());
+        g->AddIdentifier(id);
+        g->AddIdentifier(prop_id);
+        g->Pop();
+    }
     /*id:Record变量名 ; prop_id:成员变量名*/
     std::string id, prop_id;
 
@@ -162,7 +201,10 @@ class AST_Const_Value_Expression : public AST_Expression
 {
 public:
     std::shared_ptr<Custom_Result>CodeGenerate() override;
-
+    void PrintNode(GraphViz *g)
+    {
+        const_value->PrintNode(g);
+    }
     AST_Const_Value *const_value;
 
 public:
@@ -173,7 +215,14 @@ class AST_Function_Call : public AST_Expression
 {
 public:
     std::shared_ptr<Custom_Result>CodeGenerate() override;
-
+    void PrintNode(GraphViz *g)
+    {
+        g->AddNode(std::string("func_call ") + Get_OptionName(), this->GetRow(),
+                   this->GetColumn());
+        g->AddIdentifier(func_id);
+        args_list->PrintNode(g);
+        g->Pop();
+    }
     /*func_id:函数名 ; args_list:参数列表*/
     std::string func_id;
     AST_Expression_List *args_list;
@@ -186,7 +235,13 @@ class AST_Identifier_Expression : public AST_Expression
 {
 public:
     std::shared_ptr<Custom_Result>CodeGenerate() override;
-
+    void PrintNode(GraphViz *g)
+    {
+        g->AddNode(std::string("ID_expr ") + Get_OptionName(), this->GetRow(),
+                   this->GetColumn());
+        g->AddIdentifier(id);
+        g->Pop();
+    }
     std::string id;
 
 public:
@@ -197,7 +252,14 @@ class AST_Array_Expression : public AST_Expression
 {
 public:
     std::shared_ptr<Custom_Result>CodeGenerate() override;
-
+    void PrintNode(GraphViz *g)
+    {
+        g->AddNode(std::string("array_expr ") + Get_OptionName(), this->GetRow(),
+                   this->GetColumn());
+        g->AddIdentifier(id);
+        expression->PrintNode(g);
+        g->Pop();
+    }
     std::string id;
     AST_Expression *expression;
 

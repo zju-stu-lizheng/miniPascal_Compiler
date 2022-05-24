@@ -528,8 +528,9 @@ public:
         if(is_namelist){
             name_list->PrintNode(g);
         }else{
-            
+            variable_parameters_list->PrintNode(g);
         }
+        simple_type_declaration->PrintNode(g);
         g->Pop();
     }
 private:
@@ -582,7 +583,13 @@ class AST_Variable_Parameters_List : public AST_BaseNode
 {
 public:
     std::shared_ptr<Custom_Result> CodeGenerate() override;
-
+    void PrintNode(GraphViz *g)
+    {
+        g->AddNode("var_para_list", this->GetRow(),
+                   this->GetColumn());
+        name_list->PrintNode(g);
+        g->Pop();
+    }
 private:
     AST_Name_List *name_list;
 
