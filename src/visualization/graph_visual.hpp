@@ -20,7 +20,7 @@ public:
 
     ~GraphViz() = default;
 
-    void GraphViz::AddNode(std::string label, int line, int col)
+    void AddNode(std::string label, int line, int col)
     {
         int id = id_cnt++;
         std::stringstream ostr("");
@@ -42,7 +42,7 @@ public:
         stk.push(id);
     }
 
-    void GraphViz::AddIdentifier(std::string content)
+    void AddIdentifier(std::string content)
     {
         int id = id_cnt++;
         std::stringstream ostr("");
@@ -62,7 +62,7 @@ public:
         }
     }
 
-    void GraphViz::AddValue(std::string t, std::string content)
+    void AddValue(std::string t, std::string content)
     {
         int id = id_cnt++;
         std::stringstream ostr("");
@@ -81,9 +81,9 @@ public:
         }
     }
 
-    void GraphViz::Pop() { stk.pop(); }
+    void Pop() { stk.pop(); }
 
-    void GraphViz::Save(std::string path)
+    void Save(std::string path)
     {
         std::ofstream f(path);
         f << "digraph g {" << std::endl;

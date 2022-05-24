@@ -33,7 +33,7 @@ class AST_Compound_Statement : public AST_BaseNode
 {
 public:
     std::shared_ptr<Custom_Result> CodeGenerate() override;
-
+    void PrintNode(GraphViz *g);
 public:
     AST_Statement_List *statement_list;
 
@@ -55,15 +55,7 @@ class AST_Statement_List : public AST_BaseNode
 {
 public:
     std::shared_ptr<Custom_Result> CodeGenerate() override;
-    void PrintNode(GraphViz *g)
-    {
-        g->AddNode("stmt_list", GetRow(), GetColumn());
-        for (int i = 0; (int)i < statement_list.size(); i++)
-        {
-            statement_list[i]->PrintNode(g);
-        }
-        g->Pop();
-    }
+    void PrintNode(GraphViz *g);
 
 public:
     std::vector<AST_Statement *> statement_list;
@@ -86,19 +78,7 @@ class AST_Statement : public AST_BaseNode
 {
 public:
     std::shared_ptr<Custom_Result> CodeGenerate() override;
-    void PrintNode(GraphViz *g)
-    {
-        if (has_label == Has_Label::NOT_HAS)
-        {
-            non_label_statement->PrintNode(g);
-        }
-        else
-        {
-            g->AddNode("label_stmt " + label->_is_int ? std::to_string(label->Get_Literal_Int()) : label->identifier, GetRow(), GetColumn());
-            non_label_statement->PrintNode(g);
-            g->Pop();
-        }
-    }
+    void PrintNode(GraphViz *g);
 
 public:
     enum class Has_Label
@@ -206,51 +186,7 @@ class AST_Non_Label_Statement : public AST_BaseNode
 {
 public:
     std::shared_ptr<Custom_Result> CodeGenerate() override;
-    void PrintNode(GraphViz *g)
-    {
-        g->AddNode("non_label_statement", GetRow(), GetColumn());
-        if (this->isAssign())
-        {
-            this->assgin_statement->PrintNode(g);
-        }
-        else if (this->isProcedure())
-        {
-            this->procedure_statement->PrintNode(g);
-        }
-        else if (this->isCompound())
-        {
-            this->compound_statement->PrintNode(g);
-        }
-        else if (this->isIf())
-        {
-            this->if_statement->PrintNode(g);
-        }
-        else if (this->isCase())
-        {
-            this->case_statement->PrintNode(g);
-        }
-        else if (this->isRepeat())
-        {
-            this->repeat_statement->PrintNode(g);
-        }
-        else if (this->isWhile())
-        {
-            this->while_statement->PrintNode(g);
-        }
-        else if (this->isFor())
-        {
-            this->for_statement->PrintNode(g);
-        }
-        else if (this->isGoto())
-        {
-            this->goto_statement->PrintNode(g);
-        }
-        else if (this->isBreak())
-        {
-            this->break_statement->PrintNode(g);
-        }
-        g->Pop();
-    }
+    void PrintNode(GraphViz *g);
 
 public:
     enum class Statement_Type
@@ -360,28 +296,8 @@ class AST_Assign_Statement : public AST_BaseNode
 {
 public:
     std::shared_ptr<Custom_Result> CodeGenerate() override;
-    void PrintNode(GraphViz *g)
-    {
-        g->AddNode("assign_stmt", GetRow(), GetColumn());
-        if (isDirectAssign())
-        {
-            g->AddIdentifier(identifier1);
-            expression1->PrintNode(g);
-        }
-        else if (isArrayAssign())
-        {
-            g->AddIdentifier(identifier1);
-            expression1->PrintNode(g);
-            expression2->PrintNode(g);
-        }
-        else if (isRecordAttrAssign())
-        {
-            g->AddIdentifier(identifier1);
-            g->AddIdentifier(identifier2);
-            expression1->PrintNode(g);
-        }
-        g->Pop();
-    }
+    void PrintNode(GraphViz *g);
+    
 
 public:
     enum class Assign_Type
@@ -431,16 +347,7 @@ class AST_Procedure_Statement : public AST_BaseNode
 {
 public:
     std::shared_ptr<Custom_Result> CodeGenerate() override;
-    void PrintNode(GraphViz *g)
-    {
-        g->AddNode("proc_stmt", GetRow(), GetColumn());
-        g->AddIdentifier(identifier);
-        if (has_expression == Has_Expression::Yes)
-        {
-            expresion_list->PrintNode(g);
-        }
-        g->Pop();
-    }
+    void PrintNode(GraphViz *g);
 
 public:
     enum class Has_Expression
@@ -471,17 +378,7 @@ class AST_If_Statement : public AST_BaseNode
 {
 public:
     std::shared_ptr<Custom_Result> CodeGenerate() override;
-    void PrintNode(GraphViz *g)
-    {
-        g->AddNode("if_stmt", GetRow(), GetColumn());
-        expression->PrintNode(g);
-        statement->PrintNode(g);
-        if (else_clause != nullptr)
-        {
-            else_clause->PrintNode(g);
-        }
-        g->Pop();
-    }
+    void PrintNode(GraphViz *g);
 
 public:
     AST_Expression *expression;
@@ -501,12 +398,7 @@ class AST_Else_Clause : public AST_BaseNode
 {
 public:
     std::shared_ptr<Custom_Result> CodeGenerate() override;
-    void PrintNode(GraphViz *g)
-    {
-        g->AddNode("else_clause", GetRow(), GetColumn());
-        statement->PrintNode(g);
-        g->Pop();
-    }
+    void PrintNode(GraphViz *g);
 
 public:
     AST_Statement *statement;
@@ -527,13 +419,7 @@ class AST_Case_Statement : public AST_BaseNode
 {
 public:
     std::shared_ptr<Custom_Result> CodeGenerate() override;
-    void PrintNode(GraphViz *g)
-    {
-        g->AddNode("case_stmt", GetRow(), GetColumn());
-        expression->PrintNode(g);
-        case_expression_list->PrintNode(g);
-        g->Pop();
-    }
+    void PrintNode(GraphViz *g);
 
 public:
     AST_Expression *expression;
@@ -551,15 +437,7 @@ class AST_Case_Expression_List : public AST_BaseNode
 {
 public:
     std::shared_ptr<Custom_Result> CodeGenerate() override;
-    void PrintNode(GraphViz *g)
-    {
-        g->AddNode("case_expr_list", GetRow(), GetColumn());
-        for (auto expr : case_expression_list)
-        {
-            expr->PrintNode(g);
-        }
-        g->Pop();
-    }
+    void PrintNode(GraphViz *g);
 
 public:
     std::vector<AST_Case_Expression *> case_expression_list;
@@ -581,21 +459,9 @@ class AST_Case_Expression : public AST_BaseNode
 {
 public:
     std::shared_ptr<Custom_Result> CodeGenerate() override;
-    void PrintNode(GraphViz *g)
-    {
-        g->AddNode("case_expr", GetRow(), GetColumn());
-        if (const_or_identifier == Const_or_Indentifier::CONST)
-        {
-            const_value->PrintNode(g);
-        }
-        else
-        {
-            g->AddIdentifier(identifier);
-        }
-        statement->PrintNode(g);
-        g->Pop();
-    }
-
+    void PrintNode(GraphViz *g);
+   
+   
 public:
     enum class Const_or_Indentifier
     {
@@ -620,13 +486,7 @@ class AST_Repeat_Statement : public AST_BaseNode
 {
 public:
     std::shared_ptr<Custom_Result> CodeGenerate() override;
-    void PrintNode(GraphViz *g)
-    {
-        g->AddNode("repeat_stmt", GetRow(), GetColumn());
-        statement_list->PrintNode(g);
-        expression->PrintNode(g);
-        g->Pop();
-    }
+    void PrintNode(GraphViz *g);
 
 public:
     AST_Statement_List *statement_list;
@@ -644,13 +504,7 @@ class AST_While_Statement : public AST_BaseNode
 {
 public:
     std::shared_ptr<Custom_Result> CodeGenerate() override;
-    void PrintNode(GraphViz *g)
-    {
-        g->AddNode("while_stmt", GetRow(), GetColumn());
-        expression->PrintNode(g);
-        statement->PrintNode(g);
-        g->Pop();
-    }
+    void PrintNode(GraphViz *g);
 
 public:
     AST_Expression *expression;
@@ -668,14 +522,7 @@ class AST_For_Statement : public AST_BaseNode
 {
 public:
     std::shared_ptr<Custom_Result> CodeGenerate() override;
-    void PrintNode(GraphViz *g)
-    {
-        g->AddNode("for_stmt:" + my_direction->GetDirection(), GetRow(), GetColumn());
-        expression1->PrintNode(g);
-        expression2->PrintNode(g);
-        statement->PrintNode(g);
-        g->Pop();
-    }
+    void PrintNode(GraphViz *g);
 
 public:
     std::string identifier;
@@ -741,11 +588,7 @@ class AST_Goto_Statement : public AST_BaseNode
 {
 public:
     std::shared_ptr<Custom_Result> CodeGenerate() override;
-    void PrintNode(GraphViz *g)
-    {
-        g->AddNode("goto_stmt:" + label->isIdentifier ? label->Get_Identifier() : std::to_string(label->Get_Literal_Int()), GetRow(), GetColumn());
-        g->Pop();
-    }
+    void PrintNode(GraphViz *g);
 public:
     AST_Label *label;
     AST_Goto_Statement(AST_Label *_label) : label(_label) {}

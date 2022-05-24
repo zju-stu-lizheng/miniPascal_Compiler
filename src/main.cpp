@@ -46,7 +46,7 @@ int main(int argc,char **argv)
     }
     
     GraphViz *g = new GraphViz();
-    ast_root->Print(g);
+    ast_root->PrintNode(g);
     if (output_dot_fname == "") output_dot_fname = input_fname + ".dot";
     g->Save(output_dot_fname);
 

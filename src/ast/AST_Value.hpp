@@ -30,12 +30,7 @@ class AST_Const_Value : public AST_BaseNode
 {
 public:
     std::shared_ptr<Custom_Result> CodeGenerate() override;
-    void PrintNode(GraphViz *g)
-    {
-        //添加一个常数值
-        std::string value_type_name = this->Get_Value_Type_Name(this->value_type);
-        g->AddValue(value_type_name, this->content);
-    }
+    void PrintNode(GraphViz *g);
 
 public:
     enum class Value_Type
@@ -88,16 +83,7 @@ class AST_Const_Expression_List : public AST_BaseNode
 {
 public:
     std::shared_ptr<Custom_Result> CodeGenerate() override;
-    void PrintNode(GraphViz *g)
-    {
-        g->AddNode("const_expr_list", GetRow(), GetColumn());
-        for (auto expr : const_expr_list)
-        {
-            expr->PrintNode(g);
-        }
-        g->Pop();
-    }
-
+    void PrintNode(GraphViz *g);
 public:
     AST_Const_Expression_List() = default;
     void Add_Const_Expression(AST_Const_Expression *const_expr)
@@ -113,13 +99,7 @@ class AST_Const_Expression : public AST_BaseNode
 public:
     std::shared_ptr<Custom_Result> CodeGenerate() override;
 
-    void PrintNode(GraphViz *g)
-    {
-        g->AddNode("const_expr", GetRow(), GetColumn());
-        g->AddIdentifier(this->id);
-        this->value->PrintNode(g);
-        g->Pop();
-    }
+    void PrintNode(GraphViz *g);
 
 public:
     AST_Const_Expression(std::string _id, AST_Expression *_value) : id(_id), value(_value){};
@@ -132,12 +112,7 @@ class AST_Const_Part : public AST_BaseNode
 {
 public:
     std::shared_ptr<Custom_Result> CodeGenerate() override;
-    void PrintNode(GraphViz *g)
-    {
-        g->AddNode("const_part", GetRow(), GetColumn());
-        const_expr_list->PrintNode(g);
-        g->Pop();
-    }
+    void PrintNode(GraphViz *g);
 
 public:
     AST_Const_Part(AST_Const_Expression_List *_const_expr_list) : const_expr_list(_const_expr_list){};
@@ -149,12 +124,7 @@ class AST_Variable_Part : public AST_BaseNode
 {
 public:
     std::shared_ptr<Custom_Result> CodeGenerate() override;
-    void PrintNode(GraphViz *g)
-    {
-        g->AddNode("var_part", GetRow(), GetColumn());
-        var_decl_list->PrintNode(g);
-        g->Pop();
-    }
+    void PrintNode(GraphViz *g);
 
 public:
     AST_Variable_Part(AST_Variable_Declaration_List *_var_decl_list) : var_decl_list(_var_decl_list){};
@@ -166,15 +136,7 @@ class AST_Variable_Declaration_List : public AST_BaseNode
 {
 public:
     std::shared_ptr<Custom_Result> CodeGenerate() override;
-    void PrintNode(GraphViz *g)
-    {
-        g->AddNode("var_decl_list:", GetRow(), GetColumn());
-        for (int i = 0; i < (int)var_decl_list.size(); i++)
-        {
-            var_decl_list->PrintNode(g);
-        }
-        g->Pop();
-    }
+    void PrintNode(GraphViz *g);
 
 public:
     AST_Variable_Declaration_List() = default;
@@ -190,13 +152,7 @@ class AST_Variable_Declaration : public AST_BaseNode
 {
 public:
     std::shared_ptr<Custom_Result> CodeGenerate() override;
-    void PrintNode(GraphViz *g)
-    {
-        g->AddNode("var_decl:", GetRow(), GetColumn());
-        name_list->PrintNode(g);
-        type_decl->PrintNode(g);
-        g->Pop();
-    }
+    void PrintNode(GraphViz *g);
 
 public:
     AST_Variable_Declaration(AST_Name_List *_name_list, AST_Type_Declaration *_type_decl) : name_list(_name_list), type_decl(_type_decl){};

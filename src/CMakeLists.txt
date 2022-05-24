@@ -22,6 +22,7 @@ aux_source_directory(ast AST_SOURCE)
 aux_source_directory(generator GEN_SOURCE)
 aux_source_directory(contents CON_SOURCE)
 aux_source_directory(type TYP_SOURCE)
+aux_source_directory(visualization VIS_SOURCE)
 
 # 编译 lex 和 yacc
 add_custom_command(
@@ -38,7 +39,7 @@ add_custom_command(
 
 add_executable(
     opc
-    main.cpp ${TYP_SOURCE} ${AST_SOURCE} ${GEN_SOURCE} ${CON_SOURCE}  pascal.l.cpp
+    main.cpp ${TYP_SOURCE} ${AST_SOURCE} ${GEN_SOURCE} ${CON_SOURCE} ${VIS_SOURCE}  pascal.l.cpp
     pascal.y.cpp pascal.y.hpp)
 
 llvm_map_components_to_libnames(llvm_libs ${LLVM_TARGETS_TO_BUILD} support core irreader codegen mc mcparser option)

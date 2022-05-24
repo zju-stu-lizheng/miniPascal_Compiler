@@ -32,13 +32,7 @@ class AST_Program : public AST_BaseNode
 {
 public:
     std::shared_ptr<Custom_Result> CodeGenerate() override;
-    void PrintNode(GraphViz *g)
-    {
-        g->AddNode("program", GetRow(), GetColumn());
-        program_head->PrintNode(g);
-        routine->PrintNode(g);
-        g->Pop();
-    }
+    void PrintNode(GraphViz *g);
 
 private:
     AST_Program_Head *program_head;
@@ -68,12 +62,7 @@ class AST_Program_Head : public AST_BaseNode
 {
 public:
     std::shared_ptr<Custom_Result> CodeGenerate() override;
-    void PrintNode(GraphViz *g)
-    {
-        g->AddNode("program_head", GetRow(), GetColumn());
-        g->AddIdentifier(identifier);
-        g->Pop();
-    }
+    void PrintNode(GraphViz *g);
 
 private:
     std::string identifier;
@@ -97,13 +86,7 @@ class AST_Routine : public AST_BaseNode
 {
 public:
     std::shared_ptr<Custom_Result> CodeGenerate() override;
-    void PrintNode(GraphViz *g)
-    {
-        g->AddNode("routine", GetRow(), GetColumn());
-        routine_head->PrintNode(g);
-        routine_body->PrintNode(g);
-        g->Pop();
-    }
+    void PrintNode(GraphViz *g);
 
 private:
     AST_Routine_Head *routine_head;
@@ -132,19 +115,7 @@ class AST_Routine_Head : public AST_BaseNode
 {
 public:
     std::shared_ptr<Custom_Result> CodeGenerate() override;
-    void PrintNode(GraphViz *g)
-    {
-        g->AddNode("routine_head", GetRow(), GetColumn());
-        if (const_part != nullptr)
-            const_part->PrintNode(g);
-        if (type_part != nullptr)
-            type_part->PrintNode(g);
-        if (var_part != nullptr)
-            var_part->PrintNode(g);
-        if (routine_part != nullptr)
-            routine_part->PrintNode(g);
-        g->Pop();
-    }
+    void PrintNode(GraphViz *g);
 
 private:
     AST_Const_Part *const_part;
@@ -177,13 +148,7 @@ class AST_Declaration_BaseClass : public AST_BaseNode
 {
 public:
     std::shared_ptr<Custom_Result> CodeGenerate() override;
-    void PrintNode(GraphViz *g)
-    {
-        if (is_function)
-            function_declaration->PrintNode(g);
-        else
-            procedure_declaration->PrintNode(g);
-    }
+    void PrintNode(GraphViz *g);
 
 private:
     enum class ENUM_Declaration_Type
@@ -235,15 +200,7 @@ class AST_Routine_Part : public AST_BaseNode
 {
 public:
     std::shared_ptr<Custom_Result> CodeGenerate() override;
-    void PrintNode(GraphViz *g)
-    {
-        g->AddNode("routine_part", GetRow(), GetColumn());
-        for (auto rp : this->declaration_list)
-        {
-            rp->PrintNode(g);
-        }
-        g->Pop();
-    }
+    void PrintNode(GraphViz *g);
 
 private:
     std::vector<AST_Declaration_BaseClass *> declaration_list;
@@ -274,12 +231,7 @@ class AST_Routine_Body : public AST_BaseNode
 {
 public:
     std::shared_ptr<Custom_Result> CodeGenerate() override;
-    void PrintNode(GraphViz *g)
-    {
-        g->AddNode("routine_body", GetRow(), GetColumn());
-        this->compound_statement->PrintNode(g);
-        g->Pop();
-    }
+    void PrintNode(GraphViz *g);
 
 private:
     AST_Compound_Statement *compound_statement;
@@ -301,16 +253,7 @@ class AST_Function_Declaration : public AST_BaseNode
 {
 public:
     std::shared_ptr<Custom_Result> CodeGenerate() override;
-    void PrintNode(GraphViz *g)
-    {
-        g->AddNode("function_decl", this->GetRow(),
-                   this->GetColumn());
-        if (this->function_head != nullptr)
-            this->function_head->PrintNode(g);
-        if (this->routine != nullptr)
-            this->routine->PrintNode(g);
-        g->Pop();
-    }
+    void PrintNode(GraphViz *g);
 
 private:
     AST_Function_Head *function_head;
@@ -337,16 +280,7 @@ class AST_Function_Head : public AST_BaseNode
 {
 public:
     std::shared_ptr<Custom_Result> CodeGenerate() override;
-    void PrintNode(GraphViz *g)
-    {
-        g->AddNode("function_head of " + this->identifier, this->GetRow(),
-                   this->GetColumn());
-        if (this->parameters != nullptr)
-            this->parameters->PrintNode(g);
-        if (this->simple_type_declaration != nullptr)
-            this->simple_type_declaration->PrintNode(g);
-        g->Pop();
-    }
+    void PrintNode(GraphViz *g);
 
 private:
     std::string identifier;
@@ -378,16 +312,7 @@ class AST_Procedure_Declaration : public AST_BaseNode
 {
 public:
     std::shared_ptr<Custom_Result> CodeGenerate() override;
-    void PrintNode(GraphViz *g)
-    {
-        g->AddNode("procedure_decl", this->GetRow(),
-                   this->GetColumn());
-        if (this->procedure_head != nullptr)
-            this->procedure_head->PrintNode(g);
-        if (this->routine != nullptr)
-            this->routine->PrintNode(g);
-        g->Pop();
-    }
+    void PrintNode(GraphViz *g);
 
 private:
     AST_Procedure_Head *procedure_head;
@@ -414,14 +339,7 @@ class AST_Procedure_Head : public AST_BaseNode
 {
 public:
     std::shared_ptr<Custom_Result> CodeGenerate() override;
-    void PrintNode(GraphViz *g)
-    {
-        g->AddNode("procedure_head of " + this->identifier, this->GetRow(),
-                   this->GetColumn());
-        if (this->parameters != nullptr)
-            this->parameters->PrintNode(g);
-        g->Pop();
-    }
+    void PrintNode(GraphViz *g);
 
 private:
     std::string identifier;
@@ -449,14 +367,7 @@ class AST_Parameters : public AST_BaseNode
 {
 public:
     std::shared_ptr<Custom_Result> CodeGenerate() override;
-    void PrintNode(GraphViz *g)
-    {
-        g->AddNode("parameters", this->GetRow(),
-                   this->GetColumn());
-        if (this->parameters_declaration_list != nullptr)
-            this->parameters_declaration_list->PrintNode(g);
-        g->Pop();
-    }
+    void PrintNode(GraphViz *g);
 private:
     AST_Parameters_Declaration_List *parameters_declaration_list;
 
@@ -479,15 +390,7 @@ class AST_Parameters_Declaration_List : public AST_BaseNode
 {
 public:
     std::shared_ptr<Custom_Result> CodeGenerate() override;
-    void PrintNode(GraphViz *g)
-    {
-        g->AddNode("para_decl_list", this->GetRow(),
-                   this->GetColumn());
-        for(auto type_list : parameters_type_list_list){
-            type_list ->PrintNode(g);
-        }
-        g->Pop();
-    }
+    void PrintNode(GraphViz *g);
 private:
     std::vector<AST_Parameters_Type_List *> parameters_type_list_list;
 
@@ -521,18 +424,7 @@ class AST_Parameters_Type_List : public AST_BaseNode
 {
 public:
     std::shared_ptr<Custom_Result> CodeGenerate() override;
-    void PrintNode(GraphViz *g)
-    {
-        g->AddNode("para_type_list", this->GetRow(),
-                   this->GetColumn());
-        if(is_namelist){
-            name_list->PrintNode(g);
-        }else{
-            variable_parameters_list->PrintNode(g);
-        }
-        simple_type_declaration->PrintNode(g);
-        g->Pop();
-    }
+    void PrintNode(GraphViz *g);
 private:
     enum class List_Type
     {
@@ -550,8 +442,8 @@ public:
         is_namelist = false;
     };
     AST_Parameters_Type_List(AST_Name_List *_name_list, AST_Simple_Type_Declaration *_simple_type_declaration) : name_list(_name_list), simple_type_declaration(_simple_type_declaration), list_type(List_Type::NAME_LIST){
-        is_namelist = true
-    };
+        is_namelist = true;
+    }
     AST_Variable_Parameters_List *Get_Variable_Parameters_List() const
     {
         return this->variable_parameters_list;
@@ -583,13 +475,7 @@ class AST_Variable_Parameters_List : public AST_BaseNode
 {
 public:
     std::shared_ptr<Custom_Result> CodeGenerate() override;
-    void PrintNode(GraphViz *g)
-    {
-        g->AddNode("var_para_list", this->GetRow(),
-                   this->GetColumn());
-        name_list->PrintNode(g);
-        g->Pop();
-    }
+    void PrintNode(GraphViz *g);
 private:
     AST_Name_List *name_list;
 
