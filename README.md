@@ -30,6 +30,8 @@ visualization
 
 5.20: Finish LLVM.
 
+3.25: Finish visualization.
+
 ## Dependencies
 * g++
 * llvm >= 12.0
@@ -43,3 +45,8 @@ Usage
 
 或者直接运行脚本，需要运行的pas文件写入脚本内
 * `run.sh`
+
+#### 可视化方法(使用graphviz)
+* `sudo apt-get install graphviz` :安装相关依赖
+
+* `dot -Kdot -Tpng test.pas.dot  -o sample.png` :可以将`test.pas.dot`文件生成可视化图片`sample.png`

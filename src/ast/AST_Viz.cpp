@@ -436,9 +436,20 @@ void AST_Type::PrintNode(GraphViz *g)
 }
 void AST_Simple_Type_Declaration::PrintNode(GraphViz *g)
 {
-    // Todo : 只处理了easy_type
     g->AddNode("simple_type_decl", GetRow(), GetColumn());
-    this->my_typename->PrintNode(g);
+    if (my_type == My_Type::EASY_TYPE) {
+        this->my_typename->PrintNode(g);
+    }else if (my_type == My_Type::IDENTIFIER) {
+        g->AddIdentifier(this->define_id);
+    } else if (my_type == My_Type::VALUE_RANGE) {
+        low->PrintNode(g);
+        high->PrintNode(g);
+    } else if (my_type == My_Type::IDENTIFIER_RANGE) {
+        g->AddIdentifier(this->low_name);
+        g->AddIdentifier(this->high_name);
+    } else if (my_type == My_Type::ENUMERATE) {
+        this->name_list->PrintNode(g);
+    }
     g->Pop();
 }
 void AST_Array_Type_Declaration::PrintNode(GraphViz *g)
