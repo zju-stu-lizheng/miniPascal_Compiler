@@ -3,13 +3,14 @@
 
 ## 分支名称
 
-visualization
+* main : 主分支
+* visualization : 可视化分支
 
 
 ## 文件结构
 * src : 源码文件夹
 * test : 测试代码文件夹
-* report : 项目报告
+* report : 项目报告与可视化AST结果
 
 ### 推送指南 (git push)：
 * git checkout main : 切换到`main`分支
@@ -30,7 +31,7 @@ visualization
 
 5.20: Finish LLVM.
 
-3.25: Finish visualization.
+5.25: Finish visualization.
 
 ## Dependencies
 * g++
