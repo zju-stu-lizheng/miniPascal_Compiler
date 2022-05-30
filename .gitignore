@@ -5,6 +5,8 @@ build/
 .gitignore
 #test file
 test.*
+*.png
+*.dot
 *.pas
 *.pas.ll
 *.pas.o

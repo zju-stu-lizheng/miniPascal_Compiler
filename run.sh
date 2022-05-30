@@ -1,8 +1,8 @@
-#### at Our_Pascal_Compiler/, run run.sh ###
+#### at miniPascal_Compiler/, run run.sh ###
 
 path="../test/"
-filename="advisor.pas"
-exp_str="< ../test/advisor_input.txt"
+filename="for.pas"
+# exp_str="< ../test/advisor_input.txt"
 
 
 rm -rf "$filename.o" "$filename.ll"
@@ -14,6 +14,12 @@ make
 
 ## generate .o .ll file ##
 ./src/opc $path $filename
+
+## generate png from dot file ##
+cd "$path"
+rm -rf sample.png
+dot -Kdot -Tpng "$filename.dot" -o sample.png
+cd -
 ## generate new executable file ##
 rm -rf main
 clang++ -o main "$filename.o" 
