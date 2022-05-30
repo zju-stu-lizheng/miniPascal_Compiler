@@ -11,11 +11,11 @@ int yycolumn = 1;
 	yylloc.first_column = yycolumn; yylloc.last_column = yycolumn + yyleng - 1; \
     yycolumn += yyleng;
 
-// #ifdef DEBUG_LEXER
+#ifdef DEBUG_LEXER
 #define OUR_RETURN(X) cout << yylloc.last_line << ":" << (#X) << endl; return(X);
-// #else
-// #define OUR_RETURN(X) return(X);
-// #endif
+#else
+#define OUR_RETURN(X) return(X);
+#endif
 %}
 
 KEY_AND and

@@ -1,35 +1,47 @@
 #### at miniPascal_Compiler/, run run.sh ###
 
-path="../test/"
-filename="for.pas"
+path="test/"
+## choose the test file ##
+fileprefix="buildInTypeTest"    
+filename=$fileprefix".pas"
 # exp_str="< ../test/advisor_input.txt"
-
 
 rm -rf "$filename.o" "$filename.ll"
 
 ## make ##
 cd build && cmake ..
 make 
+cd ..
 ## clean ##
 
 ## generate .o .ll file ##
-./src/opc $path $filename
+./build/src/opc $path $filename
 
 ## generate png from dot file ##
+echo "generate png"
 cd "$path"
-rm -rf sample.png
-dot -Kdot -Tpng "$filename.dot" -o sample.png
+if [ -f $fileprefix.png ]; then rm $fileprefix.png; fi
+dot -Kdot -Tpng "$filename.dot" -o $fileprefix.png
 cd -
+
 ## generate new executable file ##
-rm -rf main
-clang++ -o main "$filename.o" 
-# debug
+if [ -f $fileprefix ]; then rm $fileprefix; fi
+clang++ -o $fileprefix "$filename.o" 
 
 echo ""
 echo "test file name: $filename"
 echo "======================== begin debug ===================="
 
-./main $exp_str
+./$fileprefix $exp_str
+
+## move file to demo/ ##
+if [ ! -d demo ];then
+   mkdir -p demo
+fi
+mv $fileprefix demo/
+mv $path/$fileprefix.png demo/
+mv "$filename.o" demo/
+mv "$filename.ll" demo/
 
 # test quicksort
 # ../test/quicksort/linux-amd64 ./build/main

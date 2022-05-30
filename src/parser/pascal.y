@@ -311,7 +311,7 @@ type_decl_list:
         $$ = new AST_Type_Declaration_List();
         ($$) -> Add_Type_Definition($1);
         #ifdef GEN_DEBUG
-        std::cout <<  "yacc Add_Type_Definition" <<std::endl;
+        //std::cout <<  "yacc Add_Type_Definition" <<std::endl;
         #endif
         SET_LOCATION($$);
     }
@@ -321,7 +321,7 @@ type_definition:
     IDENTIFIER SYM_EQ type_decl SYM_SEMICOLON {
         $$ = new AST_Type_Definition($1,$3);
         #ifdef GEN_DEBUG
-        std::cout <<  "yacc new AST_Type_Definition" <<std::endl;
+        //std::cout <<  "yacc new AST_Type_Definition" <<std::endl;
         #endif
         SET_LOCATION($$);
     }
@@ -331,21 +331,21 @@ type_decl:
     simple_type_decl {
         $$ = $1;
         #ifdef GEN_DEBUG
-        std::cout <<  "yacc simple_type_decl" <<std::endl;
+        //std::cout <<  "yacc simple_type_decl" <<std::endl;
         #endif
         SET_LOCATION($$);
     }
     | array_type_decl  {
         $$ = $1;
         #ifdef GEN_DEBUG
-        std::cout <<  "yacc array_type_decl" <<std::endl;
+        //std::cout <<  "yacc array_type_decl" <<std::endl;
         #endif
         SET_LOCATION($$);
     }
     | record_type_decl {
         $$ = $1;
         #ifdef GEN_DEBUG
-        std::cout <<  "yacc record_type_decl" <<std::endl;
+        //std::cout <<  "yacc record_type_decl" <<std::endl;
         #endif
         SET_LOCATION($$);
     }
@@ -534,13 +534,13 @@ var_para_list:
 
 stmt_list:
     stmt_list stmt SYM_SEMICOLON {
-        std::cout << "yacc add stmt" << std::endl;
+        //std::cout << "yacc add stmt" << std::endl;
         ($1) -> Add_Statement($2);
         $$ = $1;
         SET_LOCATION($$);
     }
     | {
-        std::cout << "yacc empty stmt" << std::endl;
+        //std::cout << "yacc empty stmt" << std::endl;
 
         $$ = new AST_Statement_List();
         SET_LOCATION($$);

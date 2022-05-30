@@ -4,6 +4,7 @@
 build/
 .gitignore
 #test file
+demo/
 test.*
 *.png
 *.dot

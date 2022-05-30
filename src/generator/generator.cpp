@@ -361,7 +361,6 @@ std::shared_ptr<Custom_Result> AST_Function_Call::CodeGenerate()
 
 std::shared_ptr<Custom_Result> AST_Identifier_Expression::CodeGenerate()
 {
-    std::cout << "enter id expression" <<std::endl;
     //判断是不是全局常数
     if(Contents::isConstant(this->id)){
         #ifdef GEN_DEBUG

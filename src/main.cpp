@@ -18,11 +18,11 @@ std::string output_dot_fname = "";
 
 int main(int argc,char **argv)
 {   
-    printf("%d\n", argc);
+    // printf("%d\n", argc);
     if( argc == 3){
         input_root = argv[1];
         input_file_name = argv[2];
-        printf("%s, %s\n", argv[1], argv[2]);
+        // printf("%s, %s\n", argv[1], argv[2]);
     }else if( (argc > 3) | (argc == 2)){
         exit(1);
     }
@@ -51,13 +51,11 @@ int main(int argc,char **argv)
     g->Save(output_dot_fname);
 
     using namespace Contents;
-    std::cout << "new!" << std::endl;
+    // std::cout << "new!" << std::endl;
     ast_root->CodeGenerate();
-    std::cout << "accept!" << std::endl;
+    // std::cout << "accept!" << std::endl;
 
     std::string output_ll_fname = input_file_name + ".ll"; //current directory
-    // printf("output_ll_fname = %s", output_ll_fname);
-    int sys_ret = system(("rm " + output_ll_fname).c_str());
     Save(output_ll_fname);
 
     //目标代码生成
@@ -94,9 +92,7 @@ int main(int argc,char **argv)
     Contents::module->setDataLayout(TheTargetMachine->createDataLayout());
 
     auto Filename = input_file_name + ".o"; //current directory
-    if(system(("rm " + Filename).c_str()) == -1){
-        std::cout << "error in rm .o" << std::endl;
-    }
+
     std::error_code EC;
     raw_fd_ostream dest(Filename, EC, sys::fs::OF_None);
 

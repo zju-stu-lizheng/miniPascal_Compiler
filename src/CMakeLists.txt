@@ -16,7 +16,6 @@ set(CMAKE_CXX_STANDARD 14)
 
 # 下面那个是莫名其妙的错误
 set(CMAKE_CXX_FLAGS "-DLLVM_DISABLE_ABI_BREAKING_CHECKS_ENFORCING=1 ${CMAKE_CXX_FLAGS}")
-message(STATUS "LLVM_DISABLE_ABI_BREAKING_CHECKS_ENFORCING=1") 
 
 aux_source_directory(ast AST_SOURCE)
 aux_source_directory(generator GEN_SOURCE)
@@ -43,5 +42,4 @@ add_executable(
     pascal.y.cpp pascal.y.hpp)
 
 llvm_map_components_to_libnames(llvm_libs ${LLVM_TARGETS_TO_BUILD} support core irreader codegen mc mcparser option)
-message(STATUS "llvm_libs: ${llvm_libs}")
 target_link_libraries(opc ${llvm_libs})
