@@ -17,29 +17,6 @@
 #include <sys/stat.h>
 #include <fstream>
 
-// function or procedure
-class Procedure_Information{
-    public:
-        //int num_of_local_variables = 0; //len of name_list
-        // parameters list, for example: x,y,z: integer, var m: integer
-        std::vector<std::string> name_list;
-        std::vector<Our_Type::Pascal_Type*> type_list;
-        std::vector<bool> is_var_list;
-
-        Procedure_Information(std::vector<std::string> _name_list, std::vector<Our_Type::Pascal_Type*> _type_list, std::vector<bool> _is_var_list):
-                                            name_list(_name_list), type_list(_type_list), is_var_list(_is_var_list){}
-
-};
-
-class Function_Information : public Procedure_Information{ 
-    public:
-        // for function
-        Our_Type::Pascal_Type* return_type = nullptr;
-
-        Function_Information(std::vector<std::string> _name_list, std::vector<Our_Type::Pascal_Type*> _type_list, std::vector<bool> _is_var_list, Our_Type::Pascal_Type* _return_type = nullptr):
-                    return_type(_return_type), Procedure_Information(_name_list, _type_list, _is_var_list){};
-};
-
 class Error_Information{
     public:
     std::string error_info;
@@ -62,13 +39,13 @@ class Error_Information_Record{
 
 class CodeBlock{
     public:
-    // std::string codeblock_id;
-    std::map<std::string, llvm::Value *> names_2_values; //variables
-    std::map<std::string, Our_Type::Pascal_Type*> names_2_ourtype;
-    std::map<std::string, FuncSign*> names_2_funcsign; //function or procedure
-    std::map<std::string, llvm::Function*> names_2_functions;
+    std::map<std::string, llvm::Value *> names_2_values;            //value of variables
+    std::map<std::string, Our_Type::Pascal_Type*> names_2_ourtype;  //type of variables
+    std::map<std::string, FuncSign*> names_2_funcsign;              //function or procedure signature
+    std::map<std::string, llvm::Function*> names_2_functions;       //function or procedure definition
+    std::vector<llvm::BasicBlock*> loop_return_blocks;              // for multiple loop break
+
     std::map<std::shared_ptr<Label_Type>, llvm::BasicBlock*> label_2_block; //goto
-    std::vector<llvm::BasicBlock*> loop_return_blocks; // for multiple loop break
     
     std::string block_name;
     bool is_function;
@@ -114,10 +91,6 @@ namespace Contents{
     extern std::vector<CodeBlock* > codeblock_list;
 
     extern std::shared_ptr<Error_Information_Record> error_record;
-
-    // extern std::vector<llvm::BasicBlock*> loop_return_blocks;
-    // extern std::vector<std::string> error_message;
-    // extern std::vector<std::pair<int, int> > error_position;
 
     bool isConstant(std::string id);
 

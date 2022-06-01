@@ -34,14 +34,15 @@ echo "======================== begin debug ===================="
 
 ./$fileprefix $exp_str
 
-## move file to demo/ ##
-if [ ! -d demo ];then
-   mkdir -p demo
+## move file to demo/$fileprefix ##
+if [ ! -d demo/$fileprefix/ ];then
+   mkdir -p demo/$fileprefix
 fi
-mv $fileprefix demo/
-mv $path/$fileprefix.png demo/
-mv "$filename.o" demo/
-mv "$filename.ll" demo/
+mv $fileprefix demo/$fileprefix/
+mv $path/$fileprefix.png demo/$fileprefix/
+mv "$filename.o" demo/$fileprefix/
+mv "$filename.ll" demo/$fileprefix/
+mv $path/$filename.dot demo/$fileprefix/
 
 # test quicksort
 # ../test/quicksort/linux-amd64 ./build/main

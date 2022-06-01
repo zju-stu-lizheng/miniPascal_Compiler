@@ -186,13 +186,13 @@ llvm::Value *GenSysRead(const std::vector<std::shared_ptr<Value_Result>> &args_l
 namespace Contents
 {
     int temp_variable_count = 0;
-    llvm::LLVMContext context;
-    llvm::IRBuilder<> builder(context);
+
+    llvm::LLVMContext context;                  //上下文变量
+    llvm::IRBuilder<> builder(context);         //构造器变量
     std::unique_ptr<llvm::Module> module = std::make_unique<llvm::Module>("pascal_module", context);
-    std::map<std::string, llvm::Constant *> names_2_constants; // global constants
-    std::vector<CodeBlock *> codeblock_list;
-    // std::vector<std::string> error_message;
-    // std::vector<std::pair<int, int> > error_position;
+    std::map<std::string, llvm::Constant *> names_2_constants; // 全局变量表
+    std::vector<CodeBlock *> codeblock_list;    //符号表链表
+
     std::shared_ptr<Error_Information_Record> error_record;
     bool isConstant(std::string id) {
         return names_2_constants.find(id) != names_2_constants.end();
