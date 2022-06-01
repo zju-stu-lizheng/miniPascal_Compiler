@@ -20,80 +20,16 @@ public:
 
     ~GraphViz() = default;
 
-    void AddNode(std::string label, int line, int col)
-    {
-        int id = id_cnt++;
-        std::stringstream ostr("");
-        ostr << "node_" << id << "[";
-        ostr << "label=\"" << label << "\\n";
-        ostr << "[" << line << ", " << col << "]";
-        ostr << "\"];";
-        std::string node_str = ostr.str();
-        nodes.push_back(node_str);
-        std::stringstream ostr1("");
-        ostr1.clear();
-        if (id != 0)
-        {
-            ostr1 << "node_" << stk.top() << "->"
-                  << "node_" << id << ";";
-            std::string edge_str = ostr1.str();
-            edges.push_back(edge_str);
-        }
-        stk.push(id);
-    }
-
-    void AddIdentifier(std::string content)
-    {
-        int id = id_cnt++;
-        std::stringstream ostr("");
-        ostr << "node_" << id << "[";
-        ostr << "label=\"<ID>" << content << "\"";
-        ostr << "];";
-        std::string node_str = ostr.str();
-        nodes.push_back(node_str);
-        std::stringstream ostr1("");
-        ostr1.clear();
-        if (id != 0)
-        {
-            ostr1 << "node_" << stk.top() << "->"
-                  << "node_" << id << ";";
-            std::string edge_str = ostr1.str();
-            edges.push_back(edge_str);
-        }
-    }
-
-    void AddValue(std::string t, std::string content)
-    {
-        int id = id_cnt++;
-        std::stringstream ostr("");
-        ostr << "node_" << id << "[";
-        ostr << "label=\"<" << t << ">" << content << "\"";
-        ostr << "];";
-        std::string node_str = ostr.str();
-        nodes.push_back(node_str);
-        std::stringstream ostr1("");
-        if (id != 0)
-        {
-            ostr1 << "node_" << stk.top() << "->"
-                  << "node_" << id << ";";
-            std::string edge_str = ostr1.str();
-            edges.push_back(edge_str);
-        }
-    }
+    //可视化一个节点
+    void AddNode(std::string label, int line, int col);
+    //可视化一个标识符
+    void AddIdentifier(std::string content);
+    //可视化一个值(整型/浮点数/布尔值/字符型)
+    void AddValue(std::string t, std::string content);
+    //将可视化结果输入到文件中
+    void Save(std::string path);
 
     void Pop() { stk.pop(); }
-
-    void Save(std::string path)
-    {
-        std::ofstream f(path);
-        f << "digraph g {" << std::endl;
-        for (auto e : edges)
-            f << "\t" << e << std::endl;
-        for (auto n : nodes)
-            f << "\t" << n << std::endl;
-        f << "}";
-        f.close();
-    }
 };
 
 #endif
