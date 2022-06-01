@@ -2,9 +2,9 @@
 
 path="test/"
 ## choose the test file ##
-fileprefix="buildInTypeTest"    
+fileprefix="matrix"    
 filename=$fileprefix".pas"
-# exp_str="< ../test/advisor_input.txt"
+exp_str="< ../test/advisor_input.txt"
 
 rm -rf "$filename.o" "$filename.ll"
 
